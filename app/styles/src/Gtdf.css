@@ -1,0 +1,39 @@
+@import url("./BubbleUI-v2.0.1.css");
+@import url("./components/_import.css");
+@import url("./views/_import.css");
+
+:root {
+    --accent-color : #007ACC;
+}
+
+.accent-hover:hover{
+    color: var(--accent-color);
+}
+
+*::-webkit-scrollbar {
+    width: .65rem;
+    background-color: transparent;
+}
+
+
+*::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .15);
+    border-radius: .15em;
+    transition: background var(--fast);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, .075) !important;
+}
+
+:root[data-theme=dark] *::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, .065);
+}
+
+:root[data-theme="dark"] {
+    --background: #202020;
+    --input-bg: #101010;
+    --input-bg-hover: #303030;
+    --text: #eee;
+    --text-color: #eee;
+}
