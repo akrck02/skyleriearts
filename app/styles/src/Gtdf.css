@@ -38,3 +38,15 @@
     --text-color: #eee;
     --loading-color: rgba(0, 0, 0, .1);
 }
+
+@font-face {
+    font-family: 'montserrat';
+    src: url("../../../resources/fonts/Montserrat-Regular.ttf");
+}
+
+* {
+    font-family: 'montserrat', sans-serif;
+    font-weight: 400;
+    color: var(--text-color);
+    transition: color var(--fast);  
+}

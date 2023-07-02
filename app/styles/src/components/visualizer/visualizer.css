@@ -17,6 +17,7 @@
     max-height: 80%;
     max-width: 70%;
     user-select: none;
+    box-shadow: 0 1rem 2rem rgba(0,0,0,0.5);
 }
 
 #visualizer #close {
@@ -45,7 +46,6 @@
 
 
 #visualizer #next {
-    transform: rotate(180deg) translateY(50%);
     right: 2rem;
 }
 
@@ -55,16 +55,12 @@
 
 #visualizer #back:hover, #visualizer #next:hover {
     background-color: rgba(255,255,255,0.1);
-    transform: scale(0.8) translateY(-50%);
+    transform: scale(0.9) translateY(-50%);
 }
 
 #visualizer #back:active, #visualizer #next:active {
     background-color: rgba(255,255,255,0.2);
-    transform: scale(0.6) translateY(-50%);
-}
-
-#visualizer #next:hover {
-    transform: scale(0.8) rotate(180deg) translateY(50%); 
+    transform: scale(0.9) translateY(-50%);
 }
 
 #visualizer #info-text {

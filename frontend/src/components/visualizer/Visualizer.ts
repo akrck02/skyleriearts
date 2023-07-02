@@ -68,7 +68,7 @@ export class Visualizer extends UIComponent {
             attributes: { src: "" },
         });
 
-        this.buttonNext = getMaterialIcon("back",{
+        this.buttonNext = getMaterialIcon("front",{
             fill: "white",
             size: "48px",
         });

@@ -65,9 +65,7 @@ export class GalleryView extends ViewUI {
         });
 
         setEvents(imageComponent.element, {
-            load: () => {
-                imageComponent.element.style.opacity = "1";
-            }
+            load: () => imageComponent.element.style.opacity = "1"
         });
 
         imageComponent.appendTo(canvas);
