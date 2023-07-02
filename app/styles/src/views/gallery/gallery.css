@@ -28,6 +28,11 @@ view#gallery .canvas img:hover {
 }
 
 @media screen and (max-width: 768px) {
+    
+    view#gallery {
+        margin-top: 1rem;
+    }
+    
     view#gallery .canvas {
         width : 80%;
         height: auto;

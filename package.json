@@ -12,6 +12,10 @@
     "compile-server-watch": "tsc --project ./backend/ -w",
     "compile-client": "tsc --project ./frontend/",
     "compile-client-watch": "tsc --project ./frontend/ -w",
+    "pack-styles": "java -jar bin/lit-v1.0b2.jar",
+    "pack-client": "rollup frontend/temp/src/Start.js --file frontend/out/Start.js --format iife",
+    "dev" : "node ./env dev",
+    "prod" : "node ./env prod",
     "serve" : "node ./serve.js",
     "list" : "node ./list.js"
   },

@@ -1,5 +1,4 @@
-import { Config } from "../../config/Config.js";
-import { UIComponent, setEvents } from "../../lib/gtd/web/uicomponent.js";
+import { UIComponent } from "../../lib/gtd/web/uicomponent.js";
 import { ViewUI } from "../../lib/gtdf/views/ViewUI.js";
 import { Navbar } from "../../components/navbar/navbar.js";
 import { GalleryView } from "../gallery/Gallery.ui.js";
@@ -23,6 +22,13 @@ export default class HomeView extends ViewUI {
         navmenu.select(params[0]);
         navmenu.appendTo(this);
 
+        const navmenuMobile = new Navbar();
+        navmenuMobile.select(params[0]);
+        navmenuMobile.appendTo(this);
+        navmenuMobile.drawCompact();
+
+
+
         let lastY = 0;
         let colapsed  = false;
         document.addEventListener("scroll", (event) => {
@@ -44,29 +50,18 @@ export default class HomeView extends ViewUI {
 
 
             if(scroll > 600) {
-                console.log("colapsing");
-                navmenu.element.classList.remove("hide");
-                navmenu.drawCompact();
+                navmenuMobile.element.classList.remove("hide");
                 
                 setTimeout(() => {
-                    navmenu.element.classList.add("show");
+                    navmenuMobile.element.classList.add("show");
                 }, 1);
                 colapsed = true;
                 return;
             } 
 
-            console.log("expanding");
-            navmenu.element.classList.remove("show");
-            navmenu.element.classList.add("hide");
-             
-
-            setTimeout(() => {
-                navmenu.draw();
-                navmenu.element.classList.remove("compact");
-            }, 250);
-            
+            navmenuMobile.element.classList.remove("show");
+            navmenuMobile.element.classList.add("hide");
             colapsed = false;
-
         });
 
         switch (params[0]) {
@@ -74,25 +69,15 @@ export default class HomeView extends ViewUI {
 
                 const text = new UIComponent({
                     type: "p",
-                    text: "I simp miguel o'hara 🥰🥰🥰",
+                    text: `Hi! I'm Skylerie, a freelance spanish
+                    artist who loves nature and mystical stuff.
+                    I have a passion for creating character designs and concepts! I'm fulltime a freelancer artist and ppart from commissions, I'm working an original graphic novel called 'Selenite'.`,
                     styles: {
                         margin: "1rem 0px",
                     },
                 });
-
-                const image = new UIComponent({
-                    type: "img",
-                    styles: {
-                        width: "80%",
-                        height: "auto",
-                    },
-                    attributes: {
-                        src: "https://cdnb.artstation.com/p/assets/images/images/063/719/763/large/julie-shuploc-damgaard-x-987f3f5de4b91a5a287db800ce1974f9-2796be24-20481.jpg?1686186677",
-                    },
-                });
-
+                
                 text.appendTo(this);
-                image.appendTo(this);
                 break;
             case "gallery":
                 const gallery = new GalleryView();
@@ -101,13 +86,11 @@ export default class HomeView extends ViewUI {
             case "contact":
                 const contact = new UIComponent({
                     type: "p",
-                    text: "Contact me at: @skylerieAD",
+                    text: "Contact me at: @skylerie",
                     styles: {
                         margin: "1rem 0px",
                     },
                 });
-
-
 
                 contact.appendTo(this);
                 break;

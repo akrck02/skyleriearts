@@ -15,6 +15,8 @@
     width: auto;
     object-fit: contain;
     max-height: 80%;
+    max-width: 70%;
+    user-select: none;
 }
 
 #visualizer #close {
@@ -27,15 +29,6 @@
     display: none;
 }
 
-#visualizer #next {
-    transform: rotate(180deg);
-    right: 2rem;
-}
-
-#visualizer #back {
-    transform: rotate(180deg);
-    left: 2rem;
-}
 
 #visualizer #back, #visualizer #next {
     position: absolute;
@@ -48,6 +41,16 @@
     cursor: pointer;
     transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
     margin: 0 1rem;
+}
+
+
+#visualizer #next {
+    transform: rotate(180deg);
+    right: 2rem;
+}
+
+#visualizer #back {
+    left: 2rem;
 }
 
 #visualizer #back:hover, #visualizer #next:hover {
