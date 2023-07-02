@@ -42,7 +42,7 @@ export class Visualizer extends UIComponent {
             type: "img",
             attributes: { src: "" },
         });
-        this.buttonNext = getMaterialIcon("back", {
+        this.buttonNext = getMaterialIcon("front", {
             fill: "white",
             size: "48px",
         });

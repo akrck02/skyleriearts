@@ -54,6 +54,7 @@ export function createSVG(properties: MaterialIconsProperties): string {
 
 const MATERIAL_ICONS = {
     "back" : `<path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z" fill="inherit"/>`,
+    "front": `<path d="M12 20L10.95 18.925L17.125 12.75H4V11.25H17.125L10.95 5.075L12 4L20 12L12 20Z" fill="inherit"/>`,
     "clock" : `<path d="M0 0h24v24H0z" fill="none" /><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z" /><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />`,
     "expand" : `<path d="M16.59 8.59L12 13.17L7.41 8.59L6 10L12 16L18 10L16.59 8.59Z" fill="inherit"/>`,
     "expand_less" : `<path d="M0 0h24v24H0z" fill="none" /> <path d="M12 8l-6 6 1.41 1.41L12 10.83l4.59 4.58L18 14z" />`,

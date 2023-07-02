@@ -1,7 +1,8 @@
-import { UIComponent } from "../../lib/gtd/web/uicomponent.js";
 import { ViewUI } from "../../lib/gtdf/views/ViewUI.js";
 import { Navbar } from "../../components/navbar/navbar.js";
-import { GalleryView } from "../gallery/Gallery.ui.js";
+import { GalleryView } from "../gallery/GalleryView.ui.js";
+import { AboutMeView } from "../about/AboutView.js";
+import { ContactsView } from "../contacts/ContactsView.ui.js";
 export default class HomeView extends ViewUI {
     constructor() {
         super({
@@ -13,10 +14,8 @@ export default class HomeView extends ViewUI {
     async show(params, container) {
         console.log(params);
         const navmenu = new Navbar();
-        navmenu.select(params[0]);
         navmenu.appendTo(this);
         const navmenuMobile = new Navbar();
-        navmenuMobile.select(params[0]);
         navmenuMobile.appendTo(this);
         navmenuMobile.drawCompact();
         let lastY = 0;
@@ -47,32 +46,22 @@ export default class HomeView extends ViewUI {
         });
         switch (params[0]) {
             case "about":
-                const text = new UIComponent({
-                    type: "p",
-                    text: `Hi! I'm Skylerie, a freelance spanish
-                    artist who loves nature and mystical stuff.
-                    I have a passion for creating character designs and concepts! I'm fulltime a freelancer artist and ppart from commissions, I'm working an original graphic novel called 'Selenite'.`,
-                    styles: {
-                        margin: "1rem 0px",
-                    },
-                });
-                text.appendTo(this);
-                break;
-            case "gallery":
-                const gallery = new GalleryView();
-                await gallery.show(params.splice(1), this);
+                const about = new AboutMeView();
+                navmenu.select("about");
+                navmenuMobile.select("about");
+                await about.show(params.splice(1), this);
                 break;
             case "contact":
-                const contact = new UIComponent({
-                    type: "p",
-                    text: "Contact me at: @skylerie",
-                    styles: {
-                        margin: "1rem 0px",
-                    },
-                });
-                contact.appendTo(this);
+                const contact = new ContactsView();
+                navmenu.select("contact");
+                navmenuMobile.select("contact");
+                await contact.show(params.splice(1), this);
                 break;
             default:
+                const gallery = new GalleryView();
+                navmenu.select("gallery");
+                navmenuMobile.select("gallery");
+                await gallery.show(params.splice(1), this);
                 break;
         }
         this.appendTo(container);
