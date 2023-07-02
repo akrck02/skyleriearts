@@ -36,4 +36,5 @@
     --input-bg-hover: #303030;
     --text: #eee;
     --text-color: #eee;
+    --loading-color: rgba(0, 0, 0, .1);
 }

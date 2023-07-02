@@ -35,9 +35,7 @@ export class GalleryView extends ViewUI {
                 const image = this.createImage(element, speed);
 
                 setEvents(image.element, {
-                    click: () => {
-                        this.visualizer.show(element, list);
-                    }
+                    click: () => this.visualizer.show(element, list)
                 });
 
                 speed += 100;
@@ -59,13 +57,15 @@ export class GalleryView extends ViewUI {
     
         const imageComponent = new UIComponent({
             type: "img",
-            attributes: { src: image }
+            attributes: { 
+                src: image,
+                alt: image,
+                loading: "lazy"
+            }
         });
         imageComponent.appendTo(canvas);
         canvas.appendTo(this);
-        setTimeout(() => {
-            canvas.element.style.opacity = "1";
-        }, speed);
+        setTimeout(() => canvas.element.style.opacity = "1", speed);
 
         this.images.push(canvas);
         return canvas;
