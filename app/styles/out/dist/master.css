@@ -869,7 +869,7 @@ transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
 margin: 0 1rem;
 }
 #visualizer #next {
-transform: rotate(180deg);
+transform: rotate(180deg) translateY(50%);
 right: 2rem;
 }
 #visualizer #back {
@@ -877,14 +877,14 @@ left: 2rem;
 }
 #visualizer #back:hover, #visualizer #next:hover {
 background-color: rgba(255,255,255,0.1);
-transform: scale(0.8);
+transform: scale(0.8) translateY(-50%);
 }
 #visualizer #back:active, #visualizer #next:active {
 background-color: rgba(255,255,255,0.2);
-transform: scale(0.6);
+transform: scale(0.6) translateY(-50%);
 }
 #visualizer #next:hover {
-transform: scale(0.8) rotate(180deg);
+transform: scale(0.8) rotate(180deg) translateY(50%);
 }
 #visualizer #info-text {
 position: absolute;
@@ -991,6 +991,24 @@ border-radius: .5rem;
 cursor: pointer;
 transition: all .5s;
 }
+view#gallery .canvas {
+background-color: var(--loading-color);
+border-radius: .5rem;
+background: linear-gradient(
+100deg,
+rgba(255, 255, 255, 0) 40%,
+rgba(255, 255, 255, .02) 50%,
+rgba(255, 255, 255, 0) 60%
+) #222222;
+background-size: 200% 100%;
+background-position-x: 180%;
+animation: 1s loading ease-in-out infinite;
+}
+@keyframes loading {
+to {
+background-position-x: -20%;
+}
+}
 view#gallery .canvas img:hover {
 transform: scale(.98);
 }
@@ -1031,4 +1049,5 @@ background: rgba(0, 0, 0, .065);
 --input-bg-hover: #303030;
 --text: #eee;
 --text-color: #eee;
+--loading-color: rgba(0, 0, 0, .1);
 }

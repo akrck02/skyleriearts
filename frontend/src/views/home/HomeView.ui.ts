@@ -27,8 +27,6 @@ export default class HomeView extends ViewUI {
         navmenuMobile.appendTo(this);
         navmenuMobile.drawCompact();
 
-
-
         let lastY = 0;
         let colapsed  = false;
         document.addEventListener("scroll", (event) => {
@@ -76,7 +74,7 @@ export default class HomeView extends ViewUI {
                         margin: "1rem 0px",
                     },
                 });
-                
+
                 text.appendTo(this);
                 break;
             case "gallery":

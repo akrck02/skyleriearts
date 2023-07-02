@@ -22,6 +22,28 @@ view#gallery .canvas img {
     transition: all .5s;
 }
 
+view#gallery .canvas {
+    background-color: var(--loading-color);
+    border-radius: .5rem;
+
+    background: linear-gradient(
+        100deg,
+        rgba(255, 255, 255, 0) 40%,
+        rgba(255, 255, 255, .02) 50%,
+        rgba(255, 255, 255, 0) 60%
+    ) #222222;
+    background-size: 200% 100%;
+    background-position-x: 180%;
+    animation: 1s loading ease-in-out infinite;
+}
+
+
+@keyframes loading {
+    to {
+        background-position-x: -20%;
+    }
+}
+
 view#gallery .canvas img:hover {
    
     transform: scale(.98);
