@@ -20,6 +20,7 @@ view#gallery .canvas img {
     border-radius: .5rem;
     cursor: pointer;
     transition: all .5s;
+    opacity: 0;
 }
 
 view#gallery .canvas {
