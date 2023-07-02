@@ -7,8 +7,22 @@ view#contacts #info-text{
     margin: 1rem 0px;
     width: 80%;
     max-width: 40rem;
-    font-weight: 100;
     font-size: 1.25rem; 
+}
+
+view#contacts .social-box {
+    width: 100%;
+    max-width: 20rem;
+    height: 4rem;
+    background-color: rgba(255,255,255,.12);/*#1DA1F2;*/
+    border-radius: .35rem;
+    padding: 0 .5rem;
+    margin: .25rem 0px;
+}
+
+view#contacts .social-box p {
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 @media screen and (max-width: 768px) {
