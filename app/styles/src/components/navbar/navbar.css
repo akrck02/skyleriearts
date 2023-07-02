@@ -44,7 +44,7 @@
     height: 4rem;
     margin-top: -4rem;
     width: 100%;    
-    background: rgba(0,0,0,.25);
+    background: rgba(0,0,0,.55);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     transition: none;
@@ -126,7 +126,7 @@
     }
     
     #navbar.compact h1 {
-        font-size: 1.25rem;
+        font-size: 1rem;
     }
     
     #navbar.compact #button-bar {
@@ -134,12 +134,8 @@
     }
     
     #navbar.compact #button-bar .nav-button {
-        font-size: .4em;
+        font-size: .35em;
     }
-    
-}
-
-@media screen and (max-width: 768px) {
 
     #navbar img#logo {
         box-shadow: 0 1rem 1rem rgba(0,0,0,0.25);
