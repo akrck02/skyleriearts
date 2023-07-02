@@ -950,6 +950,11 @@
                     loading: "lazy"
                 }
             });
+            setEvents(imageComponent.element, {
+                load: () => {
+                    imageComponent.element.style.opacity = "1";
+                }
+            });
             imageComponent.appendTo(canvas);
             canvas.appendTo(this);
             setTimeout(() => canvas.element.style.opacity = "1", speed);
