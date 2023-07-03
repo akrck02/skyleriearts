@@ -19,14 +19,15 @@ export class ContactsView extends ViewUI {
 
     public async show(params : string[], container : UIComponent): Promise<void> {
  
-        this.createSocialBox("twitter","Skyleriearts","https://twitter.com/Skyleriearts");
-        this.createSocialBox("instagram","Skyleriie","https://www.instagram.com/skyleriie/");
-        this.createSocialBox("telegram","SkylerieArt","https://t.me/skylerie");
+        this.createSocialBox("twitter","Skyleriearts","https://twitter.com/Skyleriearts", "#1DA1F2");
+        this.createSocialBox("instagram","Skyleriie","https://www.instagram.com/skyleriie", "#C13584");
+        this.createSocialBox("telegram","SkylerieArt","https://t.me/skylerie", "#0088cc");
+        this.createSocialBox("patreon","Skylerie","https://www.patreon.com/skylerie", "#F96854");
 
         this.appendTo(container);
     }
 
-    createSocialBox(icon : string, text : string, link : string){
+    createSocialBox(icon : string, text : string, link : string, hoverColor : string = "rgba(255,255,255,0.17)"){
 
         const twitterBox = new UIComponent({
             type: "a",
@@ -37,8 +38,10 @@ export class ContactsView extends ViewUI {
             },
         });
 
+        twitterBox.element.style.setProperty("--hover-color", hoverColor);   
+
         const iconComponent = getSocialIcon(icon, {
-            fill: "white",
+            fill: "rgba(255,255,255,0.7)",
             size: "2.5rem",
         });
 
@@ -48,7 +51,7 @@ export class ContactsView extends ViewUI {
 
         const textComponent = new UIComponent({
             type: "p",
-            text: text
+            text: text,
         });
 
         iconComponent.appendTo(twitterBox);

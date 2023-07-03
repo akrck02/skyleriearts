@@ -114,7 +114,9 @@ export class Visualizer extends UIComponent {
         }
 
         this.image.element.setAttribute("src", image);     
-        document.body.style.overflow = "hidden";
+        const view = document.body
+        //if(view)
+          //view.style.overflow = "hidden";
 
     }
 
@@ -127,7 +129,10 @@ export class Visualizer extends UIComponent {
     }
 
     public close(){
-        document.body.style.overflow = "auto";
+        const view = document.body
+        //if(view)
+            //view.style.overflow = "auto";
+    
         this.element.style.display = "none";
     }
 
