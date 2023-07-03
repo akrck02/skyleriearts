@@ -988,8 +988,8 @@ view#gallery .canvas {
 margin: .25rem;
 opacity: 0;
 transition: opacity 1s;
-width : 32%;
-height: 32vw;
+width : 22%;
+height: 22vw;
 max-width: 40rem;
 max-height: 40rem;
 }
@@ -1014,16 +1014,26 @@ rgba(255, 255, 255, 0) 60%
 background-size: 200% 100%;
 background-position-x: 180%;
 animation: 1s loading ease-in-out infinite;
+transition: transform .5s;
+box-shadow: 0 1 1rem rgba(0,0,0,.25);
 }
 @keyframes loading {
 to {
 background-position-x: -20%;
 }
 }
-view#gallery .canvas img:hover {
+view#gallery .canvas:hover {
 transform: scale(.98);
 }
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1200px) {
+view#gallery .canvas {
+width : 32%;
+height: 32vw;
+max-width: 40rem;
+max-height: 40rem;
+}
+}
+@media screen and (max-width: 600px) {
 view#gallery {
 margin-top: 1rem;
 }
@@ -1052,6 +1062,7 @@ font-size: 1rem;
 view#contacts {
 margin: 1rem 0px;
 width: 100%;
+flex-direction: row;
 }
 view#contacts #info-text{
 margin: 1rem 0px;
@@ -1061,6 +1072,62 @@ font-size: 1.25rem;
 }
 view#contacts .social-box {
 position: relative;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+--hover-color: rgba(255,255,255,.12);
+width: 8rem;
+max-width: unset;
+height: 7rem;
+background-color: rgba(255,255,255,.12);
+border-radius: .35rem;
+padding: 0rem .5rem;
+margin: .25rem .25rem;
+transition: background .35s ease-in-out, border .35s ease-in-out;
+border: .35rem solid rgba(255,255,255,.12);
+box-shadow: 0 1rem 2rem rgba(0,0,0,.12);
+}
+view#contacts .social-box:hover {
+border-color: var(--hover-color);
+}
+view#contacts .social-box svg {
+margin-bottom: 1rem;
+}
+view#contacts .social-box p {
+font-size: .9rem;
+font-weight: bold;
+margin-left: 0rem;
+}
+view#contacts .social-box:hover::after,
+view#contacts .social-box:active::after {
+background-color: var(--hover-color);
+}
+view#contacts .social-box svg {
+transition: fill .35s ease-in-out;
+width: 2rem;
+height: 2rem;
+}
+view#contacts .social-box:hover svg {
+fill : var(--hover-color)
+}
+@media screen and (max-width: 768px) {
+view#contacts {
+margin: 1rem 0px;
+width: 100%;
+flex-direction: column;
+}
+view#contacts #info-text{
+font-size: 1rem;
+}
+view#contacts .social-box p {
+font-size: 1rem;
+font-weight: bold;
+margin-left: .5rem;
+}
+view#contacts .social-box {
+flex-direction: row;
+justify-content: flex-start;
+position: relative;
 --hover-color: rgba(255,255,255,.12);
 width: 100%;
 max-width: 20rem;
@@ -1069,7 +1136,10 @@ background-color: rgba(255,255,255,.12);
 border-radius: .35rem;
 padding: 0 .5rem;
 margin: .25rem 0px;
-transition: background .35s ease-in-out;
+transition: background .35s ease-in-out, border .35s ease-in-out;
+}
+view#contacts .social-box svg {
+margin-bottom: 0;
 }
 view#contacts .social-box::after {
 content: "";
@@ -1079,27 +1149,14 @@ height: 2rem;
 border-radius: 1rem;
 position: absolute;
 right: 0px;
+left: unset;
+bottom: unset;
 margin: 0px .5rem;
 transition: background .35s ease-in-out;
 }
 view#contacts .social-box:hover::after,
 view#contacts .social-box:active::after {
 background-color: var(--hover-color);
-}
-view#contacts .social-box svg {
-transition: fill .35s ease-in-out;
-}
-view#contacts .social-box:hover svg {
-fill : var(--hover-color)
-}
-view#contacts .social-box p {
-font-size: 1rem;
-font-weight: bold;
-margin-left: .5rem;
-}
-@media screen and (max-width: 768px) {
-view#contacts #info-text{
-font-size: 1rem;
 }
 }
 :root {
