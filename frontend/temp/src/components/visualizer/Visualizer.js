@@ -22,9 +22,7 @@ export class Visualizer extends UIComponent {
             size: "48px",
         });
         setEvents(this.buttonClose.element, {
-            click: () => {
-                this.close();
-            }
+            click: () => this.close()
         });
         setStyles(this.buttonClose.element, {
             position: "absolute",
@@ -82,6 +80,7 @@ export class Visualizer extends UIComponent {
             this.buttonNext.element.style.visibility = "visible";
         }
         this.image.element.setAttribute("src", image);
+        document.body.style.overflow = "hidden";
     }
     showBack() {
         this.show(this.list[this.index - 1], this.list);
@@ -90,6 +89,7 @@ export class Visualizer extends UIComponent {
         this.show(this.list[this.index + 1], this.list);
     }
     close() {
+        document.body.style.overflow = "auto";
         this.element.style.display = "none";
     }
 }

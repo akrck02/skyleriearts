@@ -43,9 +43,7 @@ export class Visualizer extends UIComponent {
         });
 
         setEvents(this.buttonClose.element, {
-            click: () => {
-               this.close();
-            }
+            click: () => this.close()
         });
 
         setStyles(this.buttonClose.element, {
@@ -116,6 +114,7 @@ export class Visualizer extends UIComponent {
         }
 
         this.image.element.setAttribute("src", image);     
+        document.body.style.overflow = "hidden";
 
     }
 
@@ -128,6 +127,7 @@ export class Visualizer extends UIComponent {
     }
 
     public close(){
+        document.body.style.overflow = "auto";
         this.element.style.display = "none";
     }
 

@@ -690,9 +690,7 @@
                 size: "48px",
             });
             setEvents(this.buttonClose.element, {
-                click: () => {
-                    this.close();
-                }
+                click: () => this.close()
             });
             setStyles(this.buttonClose.element, {
                 position: "absolute",
@@ -750,6 +748,7 @@
                 this.buttonNext.element.style.visibility = "visible";
             }
             this.image.element.setAttribute("src", image);
+            document.body.style.overflow = "hidden";
         }
         showBack() {
             this.show(this.list[this.index - 1], this.list);
@@ -758,6 +757,7 @@
             this.show(this.list[this.index + 1], this.list);
         }
         close() {
+            document.body.style.overflow = "auto";
             this.element.style.display = "none";
         }
     }
