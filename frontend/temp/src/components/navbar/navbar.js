@@ -1,4 +1,5 @@
 import { Config } from "../../config/Config.js";
+import { getMaterialIcon } from "../../lib/gtd/material/materialicons.js";
 import { UIComponent, setClasses, setEvents } from "../../lib/gtd/web/uicomponent.js";
 export class Navbar extends UIComponent {
     constructor() {
@@ -20,59 +21,7 @@ export class Navbar extends UIComponent {
             type: "h1",
             text: "Skylerie",
         });
-        const buttonBar = new UIComponent({
-            type: "div",
-            id: "button-bar",
-            classes: ["box-row", "box-center"],
-        });
-        const galleryButton = new UIComponent({
-            type: "a",
-            text: "Gallery",
-            id: "gallery",
-            classes: [Navbar.BUTTON_CLASS],
-            attributes: {
-                href: Config.VIEWS.GALLERY,
-            }
-        });
-        setEvents(galleryButton.element, {
-            click: () => {
-                this.select("gallery");
-            }
-        });
-        const aboutButton = new UIComponent({
-            type: "a",
-            text: "About me",
-            id: "about",
-            classes: [Navbar.BUTTON_CLASS],
-            attributes: {
-                href: Config.VIEWS.ABOUT,
-            }
-        });
-        setEvents(aboutButton.element, {
-            click: () => {
-                this.select("about");
-            }
-        });
-        const contactButton = new UIComponent({
-            type: "a",
-            text: "Contact",
-            id: "contact",
-            classes: [Navbar.BUTTON_CLASS],
-            attributes: {
-                href: Config.VIEWS.CONTACT,
-            }
-        });
-        setEvents(contactButton.element, {
-            click: () => {
-                this.select("contact");
-            }
-        });
-        this.buttons.push(galleryButton);
-        this.buttons.push(aboutButton);
-        this.buttons.push(contactButton);
-        galleryButton.appendTo(buttonBar);
-        aboutButton.appendTo(buttonBar);
-        contactButton.appendTo(buttonBar);
+        const buttonBar = this.createNavbar();
         logo.appendTo(this);
         title.appendTo(this);
         buttonBar.appendTo(this);
@@ -93,6 +42,89 @@ export class Navbar extends UIComponent {
             "box-center",
             "compact"
         ]);
+    }
+    createNavbar() {
+        const buttonBar = new UIComponent({
+            type: "div",
+            id: "button-bar",
+            classes: ["box-row", "box-center"],
+        });
+        const galleryButton = new UIComponent({
+            type: "a",
+            id: "gallery",
+            classes: [Navbar.BUTTON_CLASS],
+            attributes: {
+                href: Config.VIEWS.GALLERY,
+            }
+        });
+        const galleryLabel = new UIComponent({
+            type: "span",
+            text: "Gallery",
+        });
+        const galleryIcon = getMaterialIcon("gallery_thumbnail", {
+            size: "24",
+            fill: "white",
+        });
+        galleryLabel.appendTo(galleryButton);
+        galleryIcon.appendTo(galleryButton);
+        setEvents(galleryButton.element, {
+            click: () => {
+                this.select("gallery");
+            }
+        });
+        const aboutButton = new UIComponent({
+            type: "a",
+            id: "about",
+            classes: [Navbar.BUTTON_CLASS],
+            attributes: {
+                href: Config.VIEWS.ABOUT,
+            }
+        });
+        const aboutLabel = new UIComponent({
+            type: "span",
+            text: "About me",
+        });
+        const aboutIcon = getMaterialIcon("badge", {
+            size: "24",
+            fill: "white",
+        });
+        aboutLabel.appendTo(aboutButton);
+        aboutIcon.appendTo(aboutButton);
+        setEvents(aboutButton.element, {
+            click: () => {
+                this.select("about");
+            }
+        });
+        const contactButton = new UIComponent({
+            type: "a",
+            id: "contact",
+            classes: [Navbar.BUTTON_CLASS],
+            attributes: {
+                href: Config.VIEWS.CONTACT,
+            }
+        });
+        const contactLabel = new UIComponent({
+            type: "span",
+            text: "Contact",
+        });
+        const contactIcon = getMaterialIcon("alternate_email", {
+            size: "24",
+            fill: "white",
+        });
+        contactLabel.appendTo(contactButton);
+        contactIcon.appendTo(contactButton);
+        setEvents(contactButton.element, {
+            click: () => {
+                this.select("contact");
+            }
+        });
+        this.buttons.push(galleryButton);
+        this.buttons.push(aboutButton);
+        this.buttons.push(contactButton);
+        galleryButton.appendTo(buttonBar);
+        aboutButton.appendTo(buttonBar);
+        contactButton.appendTo(buttonBar);
+        return buttonBar;
     }
     select(name) {
         this.buttons.forEach((button) => {

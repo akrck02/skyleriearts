@@ -31,7 +31,7 @@
 }
 
 :root[data-theme="dark"] {
-    --background: #202020;
+    --background:#171717;
     --input-bg: #101010;
     --input-bg-hover: #303030;
     --text: #eee;

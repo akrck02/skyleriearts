@@ -728,6 +728,9 @@ font-family: Montserrat, sans-serif;
 color: #fff;
 position: relative;
 }
+#navbar #button-bar .nav-button .icon{
+display: none;
+}
 /* underlined */
 #navbar #button-bar .nav-button::before {
 content: " ";
@@ -811,7 +814,7 @@ height: 7rem;
 font-size: 1rem;
 }
 #navbar.compact {
-height: 3rem;
+height: 4rem;
 margin-top: -3rem;
 }
 #navbar.compact img#logo {
@@ -823,6 +826,13 @@ font-size: 1rem;
 }
 #navbar.compact #button-bar {
 height: 2rem;
+min-width: 5rem;
+}
+#navbar.compact #button-bar span{
+display: none;
+}
+#navbar.compact #button-bar .nav-button .icon{
+display: flex;
 }
 #navbar.compact #button-bar .nav-button {
 font-size: .35em;
@@ -1050,17 +1060,42 @@ max-width: 40rem;
 font-size: 1.25rem;
 }
 view#contacts .social-box {
+position: relative;
+--hover-color: rgba(255,255,255,.12);
 width: 100%;
 max-width: 20rem;
 height: 4rem;
-background-color: rgba(255,255,255,.12);/*#1DA1F2;*/
+background-color: rgba(255,255,255,.12);
 border-radius: .35rem;
 padding: 0 .5rem;
 margin: .25rem 0px;
+transition: background .35s ease-in-out;
+}
+view#contacts .social-box::after {
+content: "";
+display: inline-block;
+width: .25rem;
+height: 2rem;
+border-radius: 1rem;
+position: absolute;
+right: 0px;
+margin: 0px .5rem;
+transition: background .35s ease-in-out;
+}
+view#contacts .social-box:hover::after,
+view#contacts .social-box:active::after {
+background-color: var(--hover-color);
+}
+view#contacts .social-box svg {
+transition: fill .35s ease-in-out;
+}
+view#contacts .social-box:hover svg {
+fill : var(--hover-color)
 }
 view#contacts .social-box p {
 font-size: 1rem;
 font-weight: bold;
+margin-left: .5rem;
 }
 @media screen and (max-width: 768px) {
 view#contacts #info-text{
@@ -1089,7 +1124,7 @@ background: rgba(0, 0, 0, .075) !important;
 background: rgba(0, 0, 0, .065);
 }
 :root[data-theme="dark"] {
---background: #202020;
+--background:#171717;
 --input-bg: #101010;
 --input-bg-hover: #303030;
 --text: #eee;

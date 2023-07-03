@@ -13,7 +13,12 @@ export default class HomeView extends ViewUI {
         super({
             type: "view",
             id: HomeView.ID,
-            classes: ["box-column","box-center"],
+            classes: ["box-column","box-y-center"],
+            styles : {
+                height: "100%",
+                width: "100%",
+                overflow: "auto",
+            }
         });
     }
 
@@ -33,6 +38,8 @@ export default class HomeView extends ViewUI {
 
             //capture the scroll event
             const scroll = document.documentElement.scrollTop;
+            console.log("Y: ", scroll);
+            console.log("lastY: ", lastY);
 
             if(scroll == lastY) {
                 return;

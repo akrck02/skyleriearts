@@ -80,7 +80,9 @@ export class Visualizer extends UIComponent {
             this.buttonNext.element.style.visibility = "visible";
         }
         this.image.element.setAttribute("src", image);
-        document.body.style.overflow = "hidden";
+        const view = document.body;
+        //if(view)
+        //view.style.overflow = "hidden";
     }
     showBack() {
         this.show(this.list[this.index - 1], this.list);
@@ -89,7 +91,9 @@ export class Visualizer extends UIComponent {
         this.show(this.list[this.index + 1], this.list);
     }
     close() {
-        document.body.style.overflow = "auto";
+        const view = document.body;
+        //if(view)
+        //view.style.overflow = "auto";
         this.element.style.display = "none";
     }
 }

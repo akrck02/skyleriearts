@@ -4,6 +4,8 @@
     position: relative;
 }
 
+
+
 #navbar #button-bar {
     margin: 2rem 0 0 0;
     width: 100%;
@@ -16,6 +18,10 @@
     font-family: Montserrat, sans-serif;
     color: #fff;
     position: relative;
+}
+
+#navbar #button-bar .nav-button .icon{
+    display: none;
 }
 
 /* underlined */
@@ -114,10 +120,10 @@
 
     #navbar #button-bar .nav-button {
         font-size: 1rem;
-    }
+    }    
 
     #navbar.compact {
-        height: 3rem;
+        height: 4rem;
         margin-top: -3rem;
     }
     
@@ -132,8 +138,16 @@
     
     #navbar.compact #button-bar {
         height: 2rem;
+        min-width: 5rem;
+    }
+    #navbar.compact #button-bar span{
+        display: none;
     }
     
+    #navbar.compact #button-bar .nav-button .icon{
+        display: flex;
+    }
+
     #navbar.compact #button-bar .nav-button {
         font-size: .35em;
     }

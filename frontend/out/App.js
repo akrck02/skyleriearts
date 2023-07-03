@@ -439,113 +439,6 @@
     ErrorView.IMAGE_ID = "error-img";
     ErrorView.TITLE_ID = "error-title";
 
-    class Navbar extends UIComponent {
-        constructor() {
-            super({
-                type: "div",
-                classes: ["box-column", "box-center"],
-                id: Navbar.ID,
-            });
-            this.buttons = [];
-            const logo = new UIComponent({
-                type: "img",
-                id: "logo",
-                attributes: {
-                    src: Config.PATHS.ICONS + "logo.svg",
-                    alt: "GTD Framework logo"
-                },
-            });
-            const title = new UIComponent({
-                type: "h1",
-                text: "Skylerie",
-            });
-            const buttonBar = new UIComponent({
-                type: "div",
-                id: "button-bar",
-                classes: ["box-row", "box-center"],
-            });
-            const galleryButton = new UIComponent({
-                type: "a",
-                text: "Gallery",
-                id: "gallery",
-                classes: [Navbar.BUTTON_CLASS],
-                attributes: {
-                    href: Config.VIEWS.GALLERY,
-                }
-            });
-            setEvents(galleryButton.element, {
-                click: () => {
-                    this.select("gallery");
-                }
-            });
-            const aboutButton = new UIComponent({
-                type: "a",
-                text: "About me",
-                id: "about",
-                classes: [Navbar.BUTTON_CLASS],
-                attributes: {
-                    href: Config.VIEWS.ABOUT,
-                }
-            });
-            setEvents(aboutButton.element, {
-                click: () => {
-                    this.select("about");
-                }
-            });
-            const contactButton = new UIComponent({
-                type: "a",
-                text: "Contact",
-                id: "contact",
-                classes: [Navbar.BUTTON_CLASS],
-                attributes: {
-                    href: Config.VIEWS.CONTACT,
-                }
-            });
-            setEvents(contactButton.element, {
-                click: () => {
-                    this.select("contact");
-                }
-            });
-            this.buttons.push(galleryButton);
-            this.buttons.push(aboutButton);
-            this.buttons.push(contactButton);
-            galleryButton.appendTo(buttonBar);
-            aboutButton.appendTo(buttonBar);
-            contactButton.appendTo(buttonBar);
-            logo.appendTo(this);
-            title.appendTo(this);
-            buttonBar.appendTo(this);
-        }
-        draw() {
-            this.element.classList.remove("box-row");
-            this.element.classList.remove("box-center");
-            setClasses(this.element, [
-                "box-column",
-                "box-center"
-            ]);
-        }
-        drawCompact() {
-            this.element.classList.remove("box-column");
-            this.element.classList.remove("box-center");
-            setClasses(this.element, [
-                "box-row",
-                "box-center",
-                "compact"
-            ]);
-        }
-        select(name) {
-            this.buttons.forEach((button) => {
-                if (button.element.id === name) {
-                    setClasses(button.element, [Navbar.BUTTON_CLASS, "selected"]);
-                    return;
-                }
-                button.element.classList.remove("selected");
-            });
-        }
-    }
-    Navbar.ID = "navbar";
-    Navbar.BUTTON_CLASS = "nav-button";
-
     /**
      * Get a Material Icons SVG by name.
      * @param name The name of the icon.
@@ -666,7 +559,148 @@
         "animation": `<path d="M15 2c-2.71 0-5.05 1.54-6.22 3.78-1.28.67-2.34 1.72-3 3C3.54 9.95 2 12.29 2 15c0 3.87 3.13 7 7 7 2.71 0 5.05-1.54 6.22-3.78 1.28-.67 2.34-1.72 3-3C20.46 14.05 22 11.71 22 9c0-3.87-3.13-7-7-7zM9 20c-2.76 0-5-2.24-5-5 0-1.12.37-2.16 1-3 0 3.87 3.13 7 7 7-.84.63-1.88 1-3 1zm3-3c-2.76 0-5-2.24-5-5 0-1.12.37-2.16 1-3 0 3.86 3.13 6.99 7 7-.84.63-1.88 1-3 1zm4.7-3.3c-.53.19-1.1.3-1.7.3-2.76 0-5-2.24-5-5 0-.6.11-1.17.3-1.7.53-.19 1.1-.3 1.7-.3 2.76 0 5 2.24 5 5 0 .6-.11 1.17-.3 1.7zM19 12c0-3.86-3.13-6.99-7-7 .84-.63 1.87-1 3-1 2.76 0 5 2.24 5 5 0 1.12-.37 2.16-1 3z"/><path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"/>`,
         "system_update": `<path d="M0 0h24v24H0z" fill="none"/><path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14zm-1-6h-3V8h-2v5H8l4 4 4-4z"/>`,
         "update": `</g><g><g><g><path d="M21,10.12h-6.78l2.74-2.82c-2.73-2.7-7.15-2.8-9.88-0.1c-2.73,2.71-2.73,7.08,0,9.79s7.15,2.71,9.88,0 C18.32,15.65,19,14.08,19,12.1h2c0,1.98-0.88,4.55-2.64,6.29c-3.51,3.48-9.21,3.48-12.72,0c-3.5-3.47-3.53-9.11-0.02-12.58 s9.14-3.47,12.65,0L21,3V10.12z M12.5,8v4.25l3.5,2.08l-0.72,1.21L11,13V8H12.5z"/></g></g></g>`,
+        "alternate_email": `<path d="M12 22C10.6167 22 9.31667 21.7375 8.1 21.2125C6.88333 20.6875 5.825 19.975 4.925 19.075C4.025 18.175 3.3125 17.1167 2.7875 15.9C2.2625 14.6833 2 13.3833 2 12C2 10.6167 2.2625 9.31667 2.7875 8.1C3.3125 6.88333 4.025 5.825 4.925 4.925C5.825 4.025 6.88333 3.3125 8.1 2.7875C9.31667 2.2625 10.6167 2 12 2C13.3833 2 14.6833 2.2625 15.9 2.7875C17.1167 3.3125 18.175 4.025 19.075 4.925C19.975 5.825 20.6875 6.88333 21.2125 8.1C21.7375 9.31667 22 10.6167 22 12V13.325C22 14.2583 21.6708 15.0458 21.0125 15.6875C20.3542 16.3292 19.55 16.65 18.6 16.65C18 16.65 17.4333 16.5042 16.9 16.2125C16.3667 15.9208 15.9583 15.5083 15.675 14.975C15.2417 15.5417 14.7 15.9625 14.05 16.2375C13.4 16.5125 12.7167 16.65 12 16.65C10.7 16.65 9.59583 16.2 8.6875 15.3C7.77917 14.4 7.325 13.3 7.325 12C7.325 10.7 7.77917 9.59167 8.6875 8.675C9.59583 7.75833 10.7 7.3 12 7.3C13.3 7.3 14.4042 7.75833 15.3125 8.675C16.2208 9.59167 16.675 10.7 16.675 12V13.325C16.675 13.8417 16.8625 14.275 17.2375 14.625C17.6125 14.975 18.0667 15.15 18.6 15.15C19.1167 15.15 19.5625 14.975 19.9375 14.625C20.3125 14.275 20.5 13.8417 20.5 13.325V12C20.5 9.63333 19.675 7.625 18.025 5.975C16.375 4.325 14.3667 3.5 12 3.5C9.63333 3.5 7.625 4.325 5.975 5.975C4.325 7.625 3.5 9.63333 3.5 12C3.5 14.3667 4.325 16.375 5.975 18.025C7.625 19.675 9.63333 20.5 12 20.5H17.35V22H12ZM12 15.15C12.8833 15.15 13.6333 14.8458 14.25 14.2375C14.8667 13.6292 15.175 12.8833 15.175 12C15.175 11.1 14.8667 10.3417 14.25 9.725C13.6333 9.10833 12.8833 8.8 12 8.8C11.1167 8.8 10.3667 9.10833 9.75 9.725C9.13333 10.3417 8.825 11.1 8.825 12C8.825 12.8833 9.13333 13.6292 9.75 14.2375C10.3667 14.8458 11.1167 15.15 12 15.15Z" fill="inherit"/>`,
+        "badge": `<path d="M3.5 22C3.1 22 2.75 21.85 2.45 21.55C2.15 21.25 2 20.9 2 20.5V8.5C2 8.1 2.15 7.75 2.45 7.45C2.75 7.15 3.1 7 3.5 7H9.75V3.5C9.75 3.1 9.9 2.75 10.2 2.45C10.5 2.15 10.8534 2 11.2603 2H12.7397C13.1466 2 13.5 2.15 13.8 2.45C14.1 2.75 14.25 3.1 14.25 3.5V7H20.5C20.9 7 21.25 7.15 21.55 7.45C21.85 7.75 22 8.1 22 8.5V20.5C22 20.9 21.85 21.25 21.55 21.55C21.25 21.85 20.9 22 20.5 22H3.5ZM3.5 20.5H20.5V8.5H14.25V9.25C14.25 9.71667 14.1 10.0833 13.8 10.35C13.5 10.6167 13.1466 10.75 12.7397 10.75H11.2603C10.8534 10.75 10.5 10.6167 10.2 10.35C9.9 10.0833 9.75 9.71667 9.75 9.25V8.5H3.5V20.5ZM5.8 17.825H11.775V17.475C11.775 17.175 11.7 16.9083 11.55 16.675C11.4 16.4417 11.2083 16.2833 10.975 16.2C10.4417 16.0167 10.025 15.8958 9.725 15.8375C9.425 15.7792 9.13333 15.75 8.85 15.75C8.53333 15.75 8.19583 15.7875 7.8375 15.8625C7.47917 15.9375 7.075 16.05 6.625 16.2C6.375 16.2833 6.175 16.4417 6.025 16.675C5.875 16.9083 5.8 17.175 5.8 17.475V17.825ZM14.2 16.15H18.45V14.9H14.2V16.15ZM8.85 14.9C9.225 14.9 9.54375 14.7688 9.80625 14.5063C10.0688 14.2438 10.2 13.925 10.2 13.55C10.2 13.175 10.0688 12.8563 9.80625 12.5938C9.54375 12.3313 9.225 12.2 8.85 12.2C8.475 12.2 8.15625 12.3313 7.89375 12.5938C7.63125 12.8563 7.5 13.175 7.5 13.55C7.5 13.925 7.63125 14.2438 7.89375 14.5063C8.15625 14.7688 8.475 14.9 8.85 14.9ZM14.2 13.325H18.45V12.075H14.2V13.325ZM11.25 9.25H12.75V3.5H11.25V9.25Z" fill="inherit"/>`,
+        "gallery_thumbnail": `<path d="M2.5 19C2.0875 19 1.73438 18.8531 1.44063 18.5594C1.14688 18.2656 1 17.9125 1 17.5V6.5C1 6.0875 1.14688 5.73438 1.44063 5.44063C1.73438 5.14688 2.0875 5 2.5 5H13.5C13.9125 5 14.2656 5.14688 14.5594 5.44063C14.8531 5.73438 15 6.0875 15 6.5V17.5C15 17.9125 14.8531 18.2656 14.5594 18.5594C14.2656 18.8531 13.9125 19 13.5 19H2.5ZM18 11C17.7167 11 17.4792 10.9042 17.2875 10.7125C17.0958 10.5208 17 10.2833 17 10V6C17 5.71667 17.0958 5.47917 17.2875 5.2875C17.4792 5.09583 17.7167 5 18 5H22C22.2833 5 22.5208 5.09583 22.7125 5.2875C22.9042 5.47917 23 5.71667 23 6V10C23 10.2833 22.9042 10.5208 22.7125 10.7125C22.5208 10.9042 22.2833 11 22 11H18ZM18.5 9.5H21.5V6.5H18.5V9.5ZM2.5 17.5H13.5V6.5H2.5V17.5ZM4 15H12L9.375 11.5L7.5 14L6.125 12.175L4 15ZM18 19C17.7167 19 17.4792 18.9042 17.2875 18.7125C17.0958 18.5208 17 18.2833 17 18V14C17 13.7167 17.0958 13.4792 17.2875 13.2875C17.4792 13.0958 17.7167 13 18 13H22C22.2833 13 22.5208 13.0958 22.7125 13.2875C22.9042 13.4792 23 13.7167 23 14V18C23 18.2833 22.9042 18.5208 22.7125 18.7125C22.5208 18.9042 22.2833 19 22 19H18ZM18.5 17.5H21.5V14.5H18.5V17.5Z" fill="inherit"/>`
     };
+
+    class Navbar extends UIComponent {
+        constructor() {
+            super({
+                type: "div",
+                classes: ["box-column", "box-center"],
+                id: Navbar.ID,
+            });
+            this.buttons = [];
+            const logo = new UIComponent({
+                type: "img",
+                id: "logo",
+                attributes: {
+                    src: Config.PATHS.ICONS + "logo.svg",
+                    alt: "GTD Framework logo"
+                },
+            });
+            const title = new UIComponent({
+                type: "h1",
+                text: "Skylerie",
+            });
+            const buttonBar = this.createNavbar();
+            logo.appendTo(this);
+            title.appendTo(this);
+            buttonBar.appendTo(this);
+        }
+        draw() {
+            this.element.classList.remove("box-row");
+            this.element.classList.remove("box-center");
+            setClasses(this.element, [
+                "box-column",
+                "box-center"
+            ]);
+        }
+        drawCompact() {
+            this.element.classList.remove("box-column");
+            this.element.classList.remove("box-center");
+            setClasses(this.element, [
+                "box-row",
+                "box-center",
+                "compact"
+            ]);
+        }
+        createNavbar() {
+            const buttonBar = new UIComponent({
+                type: "div",
+                id: "button-bar",
+                classes: ["box-row", "box-center"],
+            });
+            const galleryButton = new UIComponent({
+                type: "a",
+                id: "gallery",
+                classes: [Navbar.BUTTON_CLASS],
+                attributes: {
+                    href: Config.VIEWS.GALLERY,
+                }
+            });
+            const galleryLabel = new UIComponent({
+                type: "span",
+                text: "Gallery",
+            });
+            const galleryIcon = getMaterialIcon("gallery_thumbnail", {
+                size: "24",
+                fill: "white",
+            });
+            galleryLabel.appendTo(galleryButton);
+            galleryIcon.appendTo(galleryButton);
+            setEvents(galleryButton.element, {
+                click: () => {
+                    this.select("gallery");
+                }
+            });
+            const aboutButton = new UIComponent({
+                type: "a",
+                id: "about",
+                classes: [Navbar.BUTTON_CLASS],
+                attributes: {
+                    href: Config.VIEWS.ABOUT,
+                }
+            });
+            const aboutLabel = new UIComponent({
+                type: "span",
+                text: "About me",
+            });
+            const aboutIcon = getMaterialIcon("badge", {
+                size: "24",
+                fill: "white",
+            });
+            aboutLabel.appendTo(aboutButton);
+            aboutIcon.appendTo(aboutButton);
+            setEvents(aboutButton.element, {
+                click: () => {
+                    this.select("about");
+                }
+            });
+            const contactButton = new UIComponent({
+                type: "a",
+                id: "contact",
+                classes: [Navbar.BUTTON_CLASS],
+                attributes: {
+                    href: Config.VIEWS.CONTACT,
+                }
+            });
+            const contactLabel = new UIComponent({
+                type: "span",
+                text: "Contact",
+            });
+            const contactIcon = getMaterialIcon("alternate_email", {
+                size: "24",
+                fill: "white",
+            });
+            contactLabel.appendTo(contactButton);
+            contactIcon.appendTo(contactButton);
+            setEvents(contactButton.element, {
+                click: () => {
+                    this.select("contact");
+                }
+            });
+            this.buttons.push(galleryButton);
+            this.buttons.push(aboutButton);
+            this.buttons.push(contactButton);
+            galleryButton.appendTo(buttonBar);
+            aboutButton.appendTo(buttonBar);
+            contactButton.appendTo(buttonBar);
+            return buttonBar;
+        }
+        select(name) {
+            this.buttons.forEach((button) => {
+                if (button.element.id === name) {
+                    setClasses(button.element, [Navbar.BUTTON_CLASS, "selected"]);
+                    return;
+                }
+                button.element.classList.remove("selected");
+            });
+        }
+    }
+    Navbar.ID = "navbar";
+    Navbar.BUTTON_CLASS = "nav-button";
 
     class Visualizer extends UIComponent {
         constructor() {
@@ -748,7 +782,8 @@
                 this.buttonNext.element.style.visibility = "visible";
             }
             this.image.element.setAttribute("src", image);
-            document.body.style.overflow = "hidden";
+            //if(view)
+            //view.style.overflow = "hidden";
         }
         showBack() {
             this.show(this.list[this.index - 1], this.list);
@@ -757,7 +792,8 @@
             this.show(this.list[this.index + 1], this.list);
         }
         close() {
-            document.body.style.overflow = "auto";
+            //if(view)
+            //view.style.overflow = "auto";
             this.element.style.display = "none";
         }
     }
@@ -1026,7 +1062,8 @@
     const MATERIAL_ICONS = {
         "twitter": `<path d="M21 6.2145C20.3385 6.5075 19.627 6.703 18.8765 6.7955C19.6395 6.3425 20.2265 5.62 20.502 4.7665C19.788 5.185 18.997 5.4925 18.1555 5.6545C17.4835 4.942 16.525 4.5 15.463 4.5C13.423 4.5 11.7695 6.139 11.7695 8.16C11.7695 8.446 11.803 8.7245 11.866 8.995C8.79704 8.841 6.07504 7.382 4.25404 5.168C3.93404 5.709 3.75403 6.3425 3.75403 7.011C3.75403 8.2815 4.40454 9.4 5.39654 10.059C4.79104 10.0405 4.22103 9.872 3.72203 9.602C3.72203 9.613 3.72203 9.6295 3.72203 9.645C3.72203 11.4205 4.99553 12.899 6.68353 13.2355C6.37503 13.32 6.04903 13.367 5.71303 13.367C5.47453 13.367 5.24204 13.34 5.01704 13.2995C5.48704 14.7505 6.85053 15.811 8.46603 15.8425C7.20203 16.8225 5.61003 17.4095 3.87903 17.4095C3.58004 17.4095 3.28754 17.3925 2.99854 17.3575C4.63404 18.393 6.57603 19 8.66053 19C15.453 19 19.169 13.422 19.169 8.583C19.169 8.4245 19.164 8.2665 19.1565 8.1105C19.8815 7.5985 20.5065 6.9525 21 6.2145Z" fill="#inherit"/>`,
         "instagram": `<path d="M8.25 2.5C5.08319 2.5 2.5 5.08319 2.5 8.25V15.75C2.5 18.9164 5.0831 21.5 8.25 21.5H15.75C18.9165 21.5 21.5 18.9165 21.5 15.75V8.25C21.5 5.0831 18.9164 2.5 15.75 2.5H8.25ZM8.25 4H15.75C18.1056 4 20 5.8939 20 8.25V15.75C20 18.1055 18.1055 20 15.75 20H8.25C5.8939 20 4 18.1056 4 15.75V8.25C4 5.89381 5.89381 4 8.25 4ZM17 6C16.4475 6 16 6.4475 16 7C16 7.5525 16.4475 8 17 8C17.5525 8 18 7.5525 18 7C18 6.4475 17.5525 6 17 6ZM12 7C9.24759 7 7 9.24759 7 12C7 14.7524 9.24759 17 12 17C14.7524 17 17 14.7524 17 12C17 9.24759 14.7524 7 12 7ZM12 8.5C13.9416 8.5 15.5 10.0584 15.5 12C15.5 13.9416 13.9416 15.5 12 15.5C10.0584 15.5 8.5 13.9416 8.5 12C8.5 10.0584 10.0584 8.5 12 8.5Z" fill="INHERIT"/>`,
-        "telegram": `<path d="M18.9932 6.58221C19.0223 6.40736 18.9567 6.23016 18.8208 6.11645C18.6848 6.00274 18.4988 5.96952 18.3318 6.02914L4.33184 11.0291C4.14321 11.0965 4.01299 11.2699 4.00091 11.4699C3.98884 11.6698 4.09725 11.8576 4.2764 11.9472L8.2764 13.9472C8.43688 14.0275 8.62806 14.0156 8.77735 13.916L12.0977 11.7024L10.1096 14.1877C10.022 14.2971 9.98442 14.4382 10.0059 14.5767C10.0274 14.7152 10.1061 14.8383 10.2227 14.916L16.2227 18.916C16.3638 19.0101 16.5431 19.0262 16.6988 18.9588C16.8545 18.8914 16.9653 18.7496 16.9932 18.5822L18.9932 6.58221Z" fill="inherit"/>`
+        "telegram": `<path d="M18.9932 6.58221C19.0223 6.40736 18.9567 6.23016 18.8208 6.11645C18.6848 6.00274 18.4988 5.96952 18.3318 6.02914L4.33184 11.0291C4.14321 11.0965 4.01299 11.2699 4.00091 11.4699C3.98884 11.6698 4.09725 11.8576 4.2764 11.9472L8.2764 13.9472C8.43688 14.0275 8.62806 14.0156 8.77735 13.916L12.0977 11.7024L10.1096 14.1877C10.022 14.2971 9.98442 14.4382 10.0059 14.5767C10.0274 14.7152 10.1061 14.8383 10.2227 14.916L16.2227 18.916C16.3638 19.0101 16.5431 19.0262 16.6988 18.9588C16.8545 18.8914 16.9653 18.7496 16.9932 18.5822L18.9932 6.58221Z" fill="inherit"/>`,
+        "patreon": `<g clip-path="url(#clip0_22_5)"><path d="M6.82097 4.28125V19.6781H4V4.28125H6.82097ZM14.2286 4.28125C17.416 4.28125 20 6.86521 20 10.0527C20 13.2402 17.416 15.8241 14.2286 15.8241C11.0411 15.8241 8.45714 13.2402 8.45714 10.0527C8.45714 6.86521 11.0411 4.28125 14.2286 4.28125Z" fill="inherit"/></g><defs><clipPath id="clip0_22_5"><rect width="16" height="16" fill="none" transform="translate(4 4)"/></clipPath></defs>`,
     };
 
     class ContactsView extends ViewUI {
@@ -1038,12 +1075,13 @@
             });
         }
         async show(params, container) {
-            this.createSocialBox("twitter", "Skyleriearts", "https://twitter.com/Skyleriearts");
-            this.createSocialBox("instagram", "Skyleriie", "https://www.instagram.com/skyleriie/");
-            this.createSocialBox("telegram", "SkylerieArt", "https://t.me/skylerie");
+            this.createSocialBox("twitter", "Skyleriearts", "https://twitter.com/Skyleriearts", "#1DA1F2");
+            this.createSocialBox("instagram", "Skyleriie", "https://www.instagram.com/skyleriie", "#C13584");
+            this.createSocialBox("telegram", "SkylerieArt", "https://t.me/skylerie", "#0088cc");
+            this.createSocialBox("patreon", "Skylerie", "https://www.patreon.com/skylerie", "#F96854");
             this.appendTo(container);
         }
-        createSocialBox(icon, text, link) {
+        createSocialBox(icon, text, link, hoverColor = "rgba(255,255,255,0.17)") {
             const twitterBox = new UIComponent({
                 type: "a",
                 classes: ["box-row", "box-center", "box-x-start", ContactsView.BOX_CLASS],
@@ -1052,8 +1090,9 @@
                     target: "_blank",
                 },
             });
+            twitterBox.element.style.setProperty("--hover-color", hoverColor);
             const iconComponent = getSocialIcon(icon, {
-                fill: "white",
+                fill: "rgba(255,255,255,0.7)",
                 size: "2.5rem",
             });
             setStyles(iconComponent.element, {
@@ -1061,7 +1100,7 @@
             });
             const textComponent = new UIComponent({
                 type: "p",
-                text: text
+                text: text,
             });
             iconComponent.appendTo(twitterBox);
             textComponent.appendTo(twitterBox);
@@ -1076,7 +1115,12 @@
             super({
                 type: "view",
                 id: HomeView.ID,
-                classes: ["box-column", "box-center"],
+                classes: ["box-column", "box-y-center"],
+                styles: {
+                    height: "100%",
+                    width: "100%",
+                    overflow: "auto",
+                }
             });
         }
         async show(params, container) {
@@ -1091,6 +1135,8 @@
             document.addEventListener("scroll", (event) => {
                 //capture the scroll event
                 const scroll = document.documentElement.scrollTop;
+                console.log("Y: ", scroll);
+                console.log("lastY: ", lastY);
                 if (scroll == lastY) {
                     return;
                 }
