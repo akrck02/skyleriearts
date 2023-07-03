@@ -6,7 +6,6 @@ export class AboutMeView extends ViewUI {
     private static ID = "about-me";
     private static INFO_TEXT_ID = "info-text";
 
-
     constructor(){
         super({
             type: "view",

@@ -7,8 +7,8 @@ view#gallery .canvas {
     margin: .25rem;
     opacity: 0;
     transition: opacity 1s;
-    width : 32%;
-    height: 32vw;
+    width : 22%;
+    height: 22vw;
     max-width: 40rem;
     max-height: 40rem;
 }
@@ -36,6 +36,8 @@ view#gallery .canvas {
     background-size: 200% 100%;
     background-position-x: 180%;
     animation: 1s loading ease-in-out infinite;
+    transition: transform .5s;
+    box-shadow: 0 1 1rem rgba(0,0,0,.25);
 }
 
 
@@ -45,11 +47,26 @@ view#gallery .canvas {
     }
 }
 
-view#gallery .canvas img:hover {
+view#gallery .canvas:hover {
     transform: scale(.98);
 }
 
-@media screen and (max-width: 768px) {
+
+
+@media screen and (max-width: 1200px) {
+
+
+    view#gallery .canvas {
+        width : 32%;
+        height: 32vw;
+        max-width: 40rem;
+        max-height: 40rem;
+    }
+    
+
+}
+
+@media screen and (max-width: 600px) {
     
     view#gallery {
         margin-top: 1rem;
