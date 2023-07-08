@@ -17,7 +17,8 @@
     "dev" : "node ./env dev",
     "prod" : "node ./env prod",
     "serve" : "node ./serve.js",
-    "list" : "node ./list.js"
+    "list" : "node ./list.js",
+    "upload" : "node ./upload.js"
   },
   "repository": {
     "type": "git",

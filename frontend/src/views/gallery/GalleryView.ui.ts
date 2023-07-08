@@ -60,7 +60,7 @@ export class GalleryView extends ViewUI {
             attributes: { 
                 src: image,
                 alt: image,
-                loading: "lazy"
+                loading: "lazy",
             }
         });
 
