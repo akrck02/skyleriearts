@@ -21,7 +21,7 @@ jobs:
       run: rm .gitignore
       
     - name: Check the output
-      run: ls -lha app/styles/ && ls -lha frontend/
+      run: ls -lha 
 
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4.3.0
