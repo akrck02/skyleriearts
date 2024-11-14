@@ -6,7 +6,12 @@ export default class Gallery extends UIComponent {
     constructor(name, urls) {
         super({
             type: HTML.DIV,
-            classes: [Gallery.CLASS, Gtdf.BOX_COLUMN, Gtdf.BOX_X_CENTER],
+            classes: [
+                Gallery.CLASS,
+                Gtdf.BOX_COLUMN,
+                Gtdf.BOX_X_START,
+                Gtdf.BOX_Y_START,
+            ],
         });
         this.configure(name, urls);
     }
@@ -17,12 +22,12 @@ export default class Gallery extends UIComponent {
         const title = new UIComponent({
             type: HTML.H1,
             text: name,
-            id: Gallery.TITLE_ID
+            id: Gallery.TITLE_ID,
         });
         title.appendTo(this);
         const list = new UIComponent({
             type: HTML.UL,
-            id: Gallery.LIST_ID
+            id: Gallery.LIST_ID,
         });
         urls.forEach((url) => {
             const listItem = new UIComponent({ type: HTML.LI });
@@ -35,7 +40,7 @@ export default class Gallery extends UIComponent {
     createImage(image, speed) {
         const canvas = new UIComponent({
             type: "div",
-            classes: ["canvas"]
+            classes: ["canvas"],
         });
         const imageComponent = new UIComponent({
             type: "img",
@@ -43,14 +48,14 @@ export default class Gallery extends UIComponent {
                 src: image,
                 alt: image,
                 loading: "lazy",
-            }
+            },
         });
         imageComponent.setEvents({
-            load: () => imageComponent.element.style.opacity = "1"
+            load: () => (imageComponent.element.style.opacity = "1"),
         });
         imageComponent.appendTo(canvas);
         canvas.appendTo(this);
-        setTimeout(() => canvas.element.style.opacity = "1", speed);
+        setTimeout(() => (canvas.element.style.opacity = "1"), speed);
         return canvas;
     }
 }

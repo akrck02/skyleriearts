@@ -7,11 +7,12 @@ div.gallery.mobile {
     padding-top: 1rem;
 }
 
-div.gallery h1#title { 
+div.gallery h1#title {
     color: #666;
     text-align: center;
     font-size: 2.2rem;
     margin: 2.5rem 0;
+    padding: 0 8rem;
     font-weight: light;
 }
 
@@ -23,8 +24,8 @@ div.gallery.mobile h1#title {
 div.gallery ul#image-list {
     width: 100%;
     height: 100%;
-    padding: 0 10rem;
-    text-align: center;
+    padding: 0 7rem;
+    text-align: start;
 }
 
 div.gallery.mobile ul#image-list {
@@ -33,22 +34,22 @@ div.gallery.mobile ul#image-list {
 
 div.gallery ul#image-list li {
     display: inline-block;
-    margin: 1rem .35rem;
+    margin: 1rem 0.35rem;
     list-style-type: none;
 }
 
 div.gallery.mobile ul#image-list li {
-   display: block;
+    display: block;
 }
 
-div.gallery ul#image-list li div.canvas{
-    box-shadow: 0 0 1rem rgba(0,0,0,.1);
+div.gallery ul#image-list li div.canvas {
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
 }
 
 div.gallery ul#image-list li div.canvas,
 div.gallery ul#image-list li div.canvas img {
     height: 15rem;
-    border-radius: .75rem;
+    border-radius: 0.75rem;
     cursor: pointer;
     padding: 0;
     transition: var(--animation-fast) ease-in-out;
@@ -65,6 +66,6 @@ div.gallery ul#image-list li div.canvas img {
 }
 
 div.gallery ul#image-list li div.canvas:hover {
-    transform: translateY(-.25rem);
-    box-shadow: 0 0 1rem rgba(0,0,0,.2);
+    transform: translateY(-0.25rem);
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
 }

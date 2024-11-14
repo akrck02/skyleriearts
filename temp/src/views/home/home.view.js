@@ -24,12 +24,12 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
         super({
             type: HTML.VIEW,
             id: HomeView_1.ID,
-            classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
+            classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
             styles: {
                 minHeight: "100vh",
                 height: "100%",
-                width: "100%"
-            }
+                width: "100%",
+            },
         });
     }
     async show(params, container) {
@@ -47,7 +47,7 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
                 "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBCmKKxf5Zyu5ugf0Mken07SZ_JTUYTzmtsw&s",
                 "https://embed.pixiv.net/spotlight.php?id=7105&lang=en",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxdg8P5S0f8zM-O8IxnjEBGQ0GImYJ1YpSow&s"
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxdg8P5S0f8zM-O8IxnjEBGQ0GImYJ1YpSow&s",
             ],
             "Elden ring series": [
                 "https://i.redd.it/tsjmyj9xqlc71.jpg",
@@ -56,7 +56,7 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu9D2SCgwIM-tW3xAb12BK2VY1c72UsX6MKQ&s",
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpXCyTkTsZMmCtvaX2M-AyZJ-etgpKBg1vBQ&s",
                 "https://embed.pixiv.net/artwork.php?illust_id=98462930&mdate=1652976993",
-                "https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/08/yuyu-wong-.jpg"
+                "https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/08/yuyu-wong-.jpg",
             ],
             "The legend of Zelda series": [
                 "https://i.pinimg.com/736x/51/2f/19/512f19f2f0b1f226e96d1880523fc5fe.jpg",
@@ -67,18 +67,19 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
                 "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJvNu_pv1y016jhiLRXZTb8qX4eLvXbWllaA&s",
                 "https://cdnb.artstation.com/p/assets/images/images/035/453/613/original/brendan-sullivan-link.gif?1614987433",
                 "https://dthezntil550i.cloudfront.net/yl/latest/yl2105161820253160016932460/1280_960/8a610cf4-a1e9-42a2-81fe-c549b057f910.png",
-                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW9KuCHEDJ2rwiMBymE94oYIMcJ3ejNqbnRg&s"
-            ]
+                "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW9KuCHEDJ2rwiMBymE94oYIMcJ3ejNqbnRg&s",
+            ],
         };
         let galleryContainer = new UIComponent({
             type: HTML.DIV,
             classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
             styles: {
                 width: "100%",
-                height: "100%",
+                height: "100vh",
+                maxHeight: "100vh",
                 overflow: "auto",
-                background: `url('${Config.Path.images}wall.png')`
-            }
+                background: `url('${Config.Path.images}wall.png')`,
+            },
         });
         for (const category in imagesByCategoryList) {
             const images = imagesByCategoryList[category];

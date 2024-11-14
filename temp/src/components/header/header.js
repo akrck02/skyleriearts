@@ -8,12 +8,14 @@ export default class Header extends UIComponent {
         super({
             type: HTML.DIV,
             id: Header.ID,
-            classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_CENTER, Gtdf.BOX_Y_CENTER],
+            classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
             styles: {
-                width: "100%",
-                minHeight: "41.5vh",
+                width: "30rem",
+                minWidth: "30rem",
+                height: "100vh",
+                paddingTop: "5rem",
                 background: "#fff",
-            }
+            },
         });
         this.configure();
     }
@@ -24,11 +26,11 @@ export default class Header extends UIComponent {
             styles: {
                 width: `${profilePicSize}rem`,
                 height: `${profilePicSize}rem`,
-                borderRadius: "50%"
+                borderRadius: "50%",
             },
             attributes: {
-                src: `${Config.Path.images}logo.jpg`
-            }
+                src: `${Config.Path.images}logo.jpg`,
+            },
         });
         const title = new UIComponent({
             type: HTML.H1,
@@ -36,8 +38,8 @@ export default class Header extends UIComponent {
             classes: [Gtdf.TEXT_CENTER],
             styles: {
                 marginTop: "1.5rem",
-                color: "#444"
-            }
+                color: "#444",
+            },
         });
         const socialMediaBar = this.createSocialMediaButtonBar(this);
         profilePicture.appendTo(this);
@@ -51,8 +53,8 @@ export default class Header extends UIComponent {
             styles: {
                 width: "100%",
                 height: "5vh",
-                marginTop: "1.5rem"
-            }
+                marginTop: "1.5rem",
+            },
         });
         const socialMedia = {
             twitter: "https://twitter.com/Skyleriearts",
@@ -72,15 +74,15 @@ export default class Header extends UIComponent {
             type: HTML.A,
             classes: [Gtdf.BOX_CENTER],
             styles: {
-                width: "5vh",
-                height: "5vh",
+                width: "4vh",
+                height: "4vh",
                 margin: "0 0.5rem",
                 background: "var(--background)",
                 borderRadius: "50%",
             },
             attributes: {
-                href: url
-            }
+                href: url,
+            },
         });
         const iconComponent = SocialIcons.get(icon, {
             fill: "#444",

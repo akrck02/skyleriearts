@@ -1164,7 +1164,12 @@
         constructor(name, urls) {
             super({
                 type: HTML.DIV,
-                classes: [Gallery.CLASS, Gtdf.BOX_COLUMN, Gtdf.BOX_X_CENTER],
+                classes: [
+                    Gallery.CLASS,
+                    Gtdf.BOX_COLUMN,
+                    Gtdf.BOX_X_START,
+                    Gtdf.BOX_Y_START,
+                ],
             });
             this.configure(name, urls);
         }
@@ -1175,12 +1180,12 @@
             const title = new UIComponent({
                 type: HTML.H1,
                 text: name,
-                id: Gallery.TITLE_ID
+                id: Gallery.TITLE_ID,
             });
             title.appendTo(this);
             const list = new UIComponent({
                 type: HTML.UL,
-                id: Gallery.LIST_ID
+                id: Gallery.LIST_ID,
             });
             urls.forEach((url) => {
                 const listItem = new UIComponent({ type: HTML.LI });
@@ -1193,7 +1198,7 @@
         createImage(image, speed) {
             const canvas = new UIComponent({
                 type: "div",
-                classes: ["canvas"]
+                classes: ["canvas"],
             });
             const imageComponent = new UIComponent({
                 type: "img",
@@ -1201,14 +1206,14 @@
                     src: image,
                     alt: image,
                     loading: "lazy",
-                }
+                },
             });
             imageComponent.setEvents({
-                load: () => imageComponent.element.style.opacity = "1"
+                load: () => (imageComponent.element.style.opacity = "1"),
             });
             imageComponent.appendTo(canvas);
             canvas.appendTo(this);
-            setTimeout(() => canvas.element.style.opacity = "1", speed);
+            setTimeout(() => (canvas.element.style.opacity = "1"), speed);
             return canvas;
         }
     }
@@ -1268,12 +1273,14 @@
             super({
                 type: HTML.DIV,
                 id: Header.ID,
-                classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_CENTER, Gtdf.BOX_Y_CENTER],
+                classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
                 styles: {
-                    width: "100%",
-                    minHeight: "41.5vh",
+                    width: "30rem",
+                    minWidth: "30rem",
+                    height: "100vh",
+                    paddingTop: "5rem",
                     background: "#fff",
-                }
+                },
             });
             this.configure();
         }
@@ -1284,11 +1291,11 @@
                 styles: {
                     width: `${profilePicSize}rem`,
                     height: `${profilePicSize}rem`,
-                    borderRadius: "50%"
+                    borderRadius: "50%",
                 },
                 attributes: {
-                    src: `${Config.Path.images}logo.jpg`
-                }
+                    src: `${Config.Path.images}logo.jpg`,
+                },
             });
             const title = new UIComponent({
                 type: HTML.H1,
@@ -1296,8 +1303,8 @@
                 classes: [Gtdf.TEXT_CENTER],
                 styles: {
                     marginTop: "1.5rem",
-                    color: "#444"
-                }
+                    color: "#444",
+                },
             });
             const socialMediaBar = this.createSocialMediaButtonBar(this);
             profilePicture.appendTo(this);
@@ -1311,8 +1318,8 @@
                 styles: {
                     width: "100%",
                     height: "5vh",
-                    marginTop: "1.5rem"
-                }
+                    marginTop: "1.5rem",
+                },
             });
             const socialMedia = {
                 twitter: "https://twitter.com/Skyleriearts",
@@ -1332,15 +1339,15 @@
                 type: HTML.A,
                 classes: [Gtdf.BOX_CENTER],
                 styles: {
-                    width: "5vh",
-                    height: "5vh",
+                    width: "4vh",
+                    height: "4vh",
                     margin: "0 0.5rem",
                     background: "var(--background)",
                     borderRadius: "50%",
                 },
                 attributes: {
-                    href: url
-                }
+                    href: url,
+                },
             });
             const iconComponent = SocialIcons.get(icon, {
                 fill: "#444",
@@ -1550,12 +1557,12 @@
             super({
                 type: HTML.VIEW,
                 id: HomeView_1.ID,
-                classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
+                classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
                 styles: {
                     minHeight: "100vh",
                     height: "100%",
-                    width: "100%"
-                }
+                    width: "100%",
+                },
             });
         }
         async show(params, container) {
@@ -1573,7 +1580,7 @@
                     "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBCmKKxf5Zyu5ugf0Mken07SZ_JTUYTzmtsw&s",
                     "https://embed.pixiv.net/spotlight.php?id=7105&lang=en",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxdg8P5S0f8zM-O8IxnjEBGQ0GImYJ1YpSow&s"
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxdg8P5S0f8zM-O8IxnjEBGQ0GImYJ1YpSow&s",
                 ],
                 "Elden ring series": [
                     "https://i.redd.it/tsjmyj9xqlc71.jpg",
@@ -1582,7 +1589,7 @@
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu9D2SCgwIM-tW3xAb12BK2VY1c72UsX6MKQ&s",
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpXCyTkTsZMmCtvaX2M-AyZJ-etgpKBg1vBQ&s",
                     "https://embed.pixiv.net/artwork.php?illust_id=98462930&mdate=1652976993",
-                    "https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/08/yuyu-wong-.jpg"
+                    "https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/08/yuyu-wong-.jpg",
                 ],
                 "The legend of Zelda series": [
                     "https://i.pinimg.com/736x/51/2f/19/512f19f2f0b1f226e96d1880523fc5fe.jpg",
@@ -1593,18 +1600,19 @@
                     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJvNu_pv1y016jhiLRXZTb8qX4eLvXbWllaA&s",
                     "https://cdnb.artstation.com/p/assets/images/images/035/453/613/original/brendan-sullivan-link.gif?1614987433",
                     "https://dthezntil550i.cloudfront.net/yl/latest/yl2105161820253160016932460/1280_960/8a610cf4-a1e9-42a2-81fe-c549b057f910.png",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW9KuCHEDJ2rwiMBymE94oYIMcJ3ejNqbnRg&s"
-                ]
+                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW9KuCHEDJ2rwiMBymE94oYIMcJ3ejNqbnRg&s",
+                ],
             };
             let galleryContainer = new UIComponent({
                 type: HTML.DIV,
                 classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
                 styles: {
                     width: "100%",
-                    height: "100%",
+                    height: "100vh",
+                    maxHeight: "100vh",
                     overflow: "auto",
-                    background: `url('${Config.Path.images}wall.png')`
-                }
+                    background: `url('${Config.Path.images}wall.png')`,
+                },
             });
             for (const category in imagesByCategoryList) {
                 const images = imagesByCategoryList[category];
