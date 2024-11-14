@@ -77,13 +77,25 @@ export default class HomeView extends ViewUI {
 
         }
 
+        let galleryContainer = new UIComponent({
+            type: HTML.DIV,
+            classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
+            styles: {
+                width: "100%",
+                height: "100%",
+                overflow: "auto",
+                background: `url('${Config.Path.images}wall.png')`
+            }
+        });
+
         for (const category in imagesByCategoryList) {
                 const images = imagesByCategoryList[category];
                 const gallery = new Gallery(category, images);
-                gallery.appendTo(this);
+                gallery.appendTo(galleryContainer);
         }
         
 
+        galleryContainer.appendTo(this);
         this.appendTo(container);
     }
 
