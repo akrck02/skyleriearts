@@ -1066,162 +1066,6 @@
         }
     }
 
-    class Browser {
-        /**
-         * Get if the device is a small device
-         * @returns True if the device is a small device
-         */
-        static isSmallDevice() {
-            return window.matchMedia(`only screen and (max-width: ${Browser.SMALL_DEVICE_WIDTH}px)`).matches;
-        }
-        /**
-         * Get if the device is a medium device
-         * @returns True if the device is a medium device
-         */
-        static isMediumDevice() {
-            return window.matchMedia(`only screen and (min-width: ${Browser.SMALL_DEVICE_WIDTH}px) and (max-width: ${Browser.MEDIUM_DEVICE_WIDTH}px)`).matches;
-        }
-        /**
-         * Get if the device is a large device
-         * @returns True if the device is a large device
-         */
-        static isLargeDevice() {
-            return window.matchMedia(`only screen and (min-width: ${Browser.MEDIUM_DEVICE_WIDTH + 1}px)`).matches;
-        }
-        /**
-         * Get if the device is a dark mode
-         * @returns True if the device is a dark mode
-         */
-        static prefersDarkMode() {
-            return window.matchMedia("(prefers-color-scheme: dark)").matches;
-        }
-        /**
-         * Returns true if the device is a light mode
-         * @returns True if the device is a light mode
-         */
-        static prefersLightMode() {
-            return window.matchMedia("(prefers-color-scheme: light)").matches;
-        }
-        /**
-         * Get if device prefers reduced motion
-         * @returns True if the device prefers reduced motion
-         */
-        static prefersReducedMotion() {
-            return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        }
-        /**
-         * Get if the device prefers reduced data
-         * @param query The query to check
-         * @returns True if the device prefers reduced data
-         */
-        static mediaQuery(query) {
-            return window.matchMedia(query).matches;
-        }
-        /**
-         * Get if matches one of the mobile media queries
-         * @returns True if the device is a mobile device
-         */
-        static isMobile() {
-            return (navigator.userAgent.match(/Android/i) ||
-                navigator.userAgent.match(/BlackBerry/i) ||
-                navigator.userAgent.match(/iPhone|iPad|iPod/i) ||
-                navigator.userAgent.match(/Opera Mini/i) ||
-                navigator.userAgent.match(/IEMobile/i));
-        }
-        /**
-         * Get the OS of the device
-         * @returns The OS of the device as a string
-         */
-        static getOs() {
-            if (navigator.userAgent.indexOf("Win") != -1)
-                return "Windows";
-            if (navigator.userAgent.indexOf("Mac") != -1)
-                return "MacOS";
-            if (navigator.userAgent.indexOf("Linux") != -1)
-                return "Linux";
-            if (navigator.userAgent.indexOf("X11") != -1)
-                return "UNIX";
-        }
-    }
-    Browser.SMALL_DEVICE_WIDTH = 760;
-    Browser.MEDIUM_DEVICE_WIDTH = 1024;
-
-    var Gtdf;
-    (function (Gtdf) {
-        Gtdf["BOX_COLUMN"] = "box-column";
-        Gtdf["BOX_ROW"] = "box-row";
-        Gtdf["BOX_CENTER"] = "box-center";
-        Gtdf["BOX_X_CENTER"] = "box-x-center";
-        Gtdf["BOX_Y_CENTER"] = "box-y-center";
-        Gtdf["BOX_X_START"] = "box-x-start";
-        Gtdf["BOX_X_END"] = "box-x-end";
-        Gtdf["BOX_Y_START"] = "box-y-start";
-        Gtdf["BOX_X_BETWEEN"] = "box-x-between";
-        Gtdf["TEXT_CENTER"] = "text-center";
-    })(Gtdf || (Gtdf = {}));
-
-    class Gallery extends UIComponent {
-        constructor(name, urls) {
-            super({
-                type: HTML.DIV,
-                classes: [
-                    Gallery.CLASS,
-                    Gtdf.BOX_COLUMN,
-                    Gtdf.BOX_X_START,
-                    Gtdf.BOX_Y_START,
-                ],
-            });
-            this.configure(name, urls);
-        }
-        async configure(name, urls) {
-            if (Browser.isSmallDevice()) {
-                this.element.classList.add(Gallery.MOBILE_CLASS);
-            }
-            const title = new UIComponent({
-                type: HTML.H1,
-                text: name,
-                id: Gallery.TITLE_ID,
-            });
-            title.appendTo(this);
-            const list = new UIComponent({
-                type: HTML.UL,
-                id: Gallery.LIST_ID,
-            });
-            urls.forEach((url) => {
-                const listItem = new UIComponent({ type: HTML.LI });
-                const image = this.createImage(url, 100);
-                image.appendTo(listItem);
-                listItem.appendTo(list);
-            });
-            list.appendTo(this);
-        }
-        createImage(image, speed) {
-            const canvas = new UIComponent({
-                type: "div",
-                classes: ["canvas"],
-            });
-            const imageComponent = new UIComponent({
-                type: "img",
-                attributes: {
-                    src: image,
-                    alt: image,
-                    loading: "lazy",
-                },
-            });
-            imageComponent.setEvents({
-                load: () => (imageComponent.element.style.opacity = "1"),
-            });
-            imageComponent.appendTo(canvas);
-            canvas.appendTo(this);
-            setTimeout(() => (canvas.element.style.opacity = "1"), speed);
-            return canvas;
-        }
-    }
-    Gallery.CLASS = "gallery";
-    Gallery.TITLE_ID = "title";
-    Gallery.LIST_ID = "image-list";
-    Gallery.MOBILE_CLASS = "mobile";
-
     class SocialIcons {
         /**
          * Get a Material Icons SVG by name.
@@ -1267,6 +1111,20 @@
         "telegram": `<path d="M18.9932 6.58221C19.0223 6.40736 18.9567 6.23016 18.8208 6.11645C18.6848 6.00274 18.4988 5.96952 18.3318 6.02914L4.33184 11.0291C4.14321 11.0965 4.01299 11.2699 4.00091 11.4699C3.98884 11.6698 4.09725 11.8576 4.2764 11.9472L8.2764 13.9472C8.43688 14.0275 8.62806 14.0156 8.77735 13.916L12.0977 11.7024L10.1096 14.1877C10.022 14.2971 9.98442 14.4382 10.0059 14.5767C10.0274 14.7152 10.1061 14.8383 10.2227 14.916L16.2227 18.916C16.3638 19.0101 16.5431 19.0262 16.6988 18.9588C16.8545 18.8914 16.9653 18.7496 16.9932 18.5822L18.9932 6.58221Z" fill="inherit"/>`,
         "patreon": `<g clip-path="url(#clip0_22_5)"><path d="M6.82097 4.28125V19.6781H4V4.28125H6.82097ZM14.2286 4.28125C17.416 4.28125 20 6.86521 20 10.0527C20 13.2402 17.416 15.8241 14.2286 15.8241C11.0411 15.8241 8.45714 13.2402 8.45714 10.0527C8.45714 6.86521 11.0411 4.28125 14.2286 4.28125Z" fill="inherit"/></g><defs><clipPath id="clip0_22_5"><rect width="16" height="16" fill="none" transform="translate(4 4)"/></clipPath></defs>`,
     };
+
+    var Gtdf;
+    (function (Gtdf) {
+        Gtdf["BOX_COLUMN"] = "box-column";
+        Gtdf["BOX_ROW"] = "box-row";
+        Gtdf["BOX_CENTER"] = "box-center";
+        Gtdf["BOX_X_CENTER"] = "box-x-center";
+        Gtdf["BOX_Y_CENTER"] = "box-y-center";
+        Gtdf["BOX_X_START"] = "box-x-start";
+        Gtdf["BOX_X_END"] = "box-x-end";
+        Gtdf["BOX_Y_START"] = "box-y-start";
+        Gtdf["BOX_X_BETWEEN"] = "box-x-between";
+        Gtdf["TEXT_CENTER"] = "text-center";
+    })(Gtdf || (Gtdf = {}));
 
     class Header extends UIComponent {
         constructor() {
@@ -1542,6 +1400,86 @@
     Visualizer.BUTTON_NEXT_ID = "next";
     Visualizer.INFO_TEXT_ID = "info-text";
 
+    class Browser {
+        /**
+         * Get if the device is a small device
+         * @returns True if the device is a small device
+         */
+        static isSmallDevice() {
+            return window.matchMedia(`only screen and (max-width: ${Browser.SMALL_DEVICE_WIDTH}px)`).matches;
+        }
+        /**
+         * Get if the device is a medium device
+         * @returns True if the device is a medium device
+         */
+        static isMediumDevice() {
+            return window.matchMedia(`only screen and (min-width: ${Browser.SMALL_DEVICE_WIDTH}px) and (max-width: ${Browser.MEDIUM_DEVICE_WIDTH}px)`).matches;
+        }
+        /**
+         * Get if the device is a large device
+         * @returns True if the device is a large device
+         */
+        static isLargeDevice() {
+            return window.matchMedia(`only screen and (min-width: ${Browser.MEDIUM_DEVICE_WIDTH + 1}px)`).matches;
+        }
+        /**
+         * Get if the device is a dark mode
+         * @returns True if the device is a dark mode
+         */
+        static prefersDarkMode() {
+            return window.matchMedia("(prefers-color-scheme: dark)").matches;
+        }
+        /**
+         * Returns true if the device is a light mode
+         * @returns True if the device is a light mode
+         */
+        static prefersLightMode() {
+            return window.matchMedia("(prefers-color-scheme: light)").matches;
+        }
+        /**
+         * Get if device prefers reduced motion
+         * @returns True if the device prefers reduced motion
+         */
+        static prefersReducedMotion() {
+            return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        }
+        /**
+         * Get if the device prefers reduced data
+         * @param query The query to check
+         * @returns True if the device prefers reduced data
+         */
+        static mediaQuery(query) {
+            return window.matchMedia(query).matches;
+        }
+        /**
+         * Get if matches one of the mobile media queries
+         * @returns True if the device is a mobile device
+         */
+        static isMobile() {
+            return (navigator.userAgent.match(/Android/i) ||
+                navigator.userAgent.match(/BlackBerry/i) ||
+                navigator.userAgent.match(/iPhone|iPad|iPod/i) ||
+                navigator.userAgent.match(/Opera Mini/i) ||
+                navigator.userAgent.match(/IEMobile/i));
+        }
+        /**
+         * Get the OS of the device
+         * @returns The OS of the device as a string
+         */
+        static getOs() {
+            if (navigator.userAgent.indexOf("Win") != -1)
+                return "Windows";
+            if (navigator.userAgent.indexOf("Mac") != -1)
+                return "MacOS";
+            if (navigator.userAgent.indexOf("Linux") != -1)
+                return "Linux";
+            if (navigator.userAgent.indexOf("X11") != -1)
+                return "UNIX";
+        }
+    }
+    Browser.SMALL_DEVICE_WIDTH = 760;
+    Browser.MEDIUM_DEVICE_WIDTH = 1024;
+
     var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -1573,36 +1511,8 @@
             this.visualizer = new Visualizer();
             const header = new Header();
             header.appendTo(this);
-            const imagesByCategoryList = {
-                "Dark souls series": [
-                    "https://i.pinimg.com/originals/d6/30/4c/d6304c4d2b43f97edd575c94a84dc040.jpg",
-                    "https://cdn.domestika.org/c_fit,dpr_auto,f_auto,q_80,t_base_params,w_820/v1597580595/content-items/005/513/873/color_2-original.jpg?1597580595",
-                    "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBCmKKxf5Zyu5ugf0Mken07SZ_JTUYTzmtsw&s",
-                    "https://embed.pixiv.net/spotlight.php?id=7105&lang=en",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxdg8P5S0f8zM-O8IxnjEBGQ0GImYJ1YpSow&s",
-                ],
-                "Elden ring series": [
-                    "https://i.redd.it/tsjmyj9xqlc71.jpg",
-                    "https://64.media.tumblr.com/dc8de7467d6140bf8942a4d0ee893f4f/f1be76b3b0903837-2b/s2048x3072_c0,18750,100000,56250/e44699c87be2eac5b8612b58c6577b1721818363.jpg",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTcFWtlBJuBbEVCNNptnmSfwFj7wayIcjxy8A&s",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSu9D2SCgwIM-tW3xAb12BK2VY1c72UsX6MKQ&s",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTpXCyTkTsZMmCtvaX2M-AyZJ-etgpKBg1vBQ&s",
-                    "https://embed.pixiv.net/artwork.php?illust_id=98462930&mdate=1652976993",
-                    "https://static1.cbrimages.com/wordpress/wp-content/uploads/2022/08/yuyu-wong-.jpg",
-                ],
-                "The legend of Zelda series": [
-                    "https://i.pinimg.com/736x/51/2f/19/512f19f2f0b1f226e96d1880523fc5fe.jpg",
-                    "https://i.ytimg.com/vi/ocevIM6imbk/maxresdefault.jpg",
-                    "https://mir-s3-cdn-cf.behance.net/project_modules/hd/224fdd20594743.562eded4a2a30.jpg",
-                    "https://static1.cbrimages.com/wordpress/wp-content/uploads/2023/07/zelda_link_tears_of_the_kingdom_ghibli.jpg",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR0Fihav-1R0FProy3QEYXvEeCAra1v7ygkwQ&s",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTJvNu_pv1y016jhiLRXZTb8qX4eLvXbWllaA&s",
-                    "https://cdnb.artstation.com/p/assets/images/images/035/453/613/original/brendan-sullivan-link.gif?1614987433",
-                    "https://dthezntil550i.cloudfront.net/yl/latest/yl2105161820253160016932460/1280_960/8a610cf4-a1e9-42a2-81fe-c549b057f910.png",
-                    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW9KuCHEDJ2rwiMBymE94oYIMcJ3ejNqbnRg&s",
-                ],
-            };
+            const response = await fetch(Config.Path.resources + "/data/images.json");
+            const galleryData = await response.json();
             let galleryContainer = new UIComponent({
                 type: HTML.DIV,
                 classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
@@ -1614,13 +1524,51 @@
                     background: `url('${Config.Path.images}wall.png')`,
                 },
             });
-            for (const category in imagesByCategoryList) {
-                const images = imagesByCategoryList[category];
-                const gallery = new Gallery(category, images);
-                gallery.appendTo(galleryContainer);
+            // Draw project bar
+            const projects = Object.keys(galleryData);
+            let projectBar = this.getProjectBar(projects);
+            projectBar.appendTo(galleryContainer);
+            // Draw tag bar 
+            const tags = new Set();
+            Object.values(galleryData).forEach((project) => {
+                project.images.forEach((image) => image.tags.forEach((tag) => tags.add(tag)));
+            });
+            console.log(tags);
+            console.log(projects);
+            for (const category in galleryData) {
+                galleryData[category];
+                //   const gallery = new Gallery("", images);
+                //   gallery.appendTo(galleryContainer);
             }
             galleryContainer.appendTo(this);
             this.appendTo(container);
+        }
+        /**
+         * Get the project selection bar
+         */
+        getProjectBar(projects) {
+            const projectBar = new UIComponent({
+                type: HTML.DIV,
+                classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
+                styles: {
+                    width: "100%",
+                    height: "5vh",
+                    padding: "1rem",
+                },
+            });
+            projects.forEach((project) => {
+                const button = new UIComponent({
+                    type: HTML.BUTTON,
+                    text: project,
+                    classes: [],
+                    styles: {
+                        backgroundColor: "rgba(0, 0, 0, 0.05)",
+                        margin: "10px",
+                    }
+                });
+                button.appendTo(projectBar);
+            });
+            return projectBar;
         }
     };
     HomeView.ID = "home";

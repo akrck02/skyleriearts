@@ -48,10 +48,11 @@ export default class Gallery extends UIComponent {
                 src: image,
                 alt: image,
                 loading: "lazy",
+                background: "#fff",
             },
         });
         imageComponent.setEvents({
-            load: () => (imageComponent.element.style.opacity = "1"),
+            load: () => (imageComponent.element.style.opacity = "0"),
         });
         imageComponent.appendTo(canvas);
         canvas.appendTo(this);
