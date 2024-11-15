@@ -43,7 +43,8 @@ div.gallery.mobile ul#image-list li {
 }
 
 div.gallery ul#image-list li div.canvas {
-    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+    /* box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);*/
+    border: .25rem solid #ccc;
 }
 
 div.gallery ul#image-list li div.canvas,
