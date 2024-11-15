@@ -4,6 +4,9 @@ import { UIComponent } from "../../lib/gtdf/components/uicomponent.js";
 import { SocialIcons } from "../../lib/gtdf/resources/SocialIcons.js";
 import { Gtdf } from "../../lib/others/gtdf.js";
 
+/**
+ * Header component for the website
+ */
 export default class Header extends UIComponent {
   private static readonly ID = "header";
 
@@ -12,26 +15,14 @@ export default class Header extends UIComponent {
       type: HTML.DIV,
       id: Header.ID,
       classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
-      styles: {
-        width: "30rem",
-        minWidth: "30rem",
-        height: "100vh",
-        paddingTop: "5rem",
-        background: "#fff",
-      },
     });
     this.configure();
   }
 
   public async configure(): Promise<void> {
-    const profilePicSize = 10;
     const profilePicture = new UIComponent({
       type: HTML.IMG,
-      styles: {
-        width: `${profilePicSize}rem`,
-        height: `${profilePicSize}rem`,
-        borderRadius: "50%",
-      },
+      id: "logo",
       attributes: {
         src: `${Config.Path.images}logo.jpg`,
       },
@@ -39,77 +30,53 @@ export default class Header extends UIComponent {
 
     const title = new UIComponent({
       type: HTML.H1,
-      text: Config.Base.app_name,
+      text: "Skylerie",
+      id: "title",
       classes: [Gtdf.TEXT_CENTER],
-      styles: {
-        marginTop: "1.5rem",
-        color: "#444",
-      },
     });
-
-    const socialMediaBar = this.createSocialMediaButtonBar(this);
 
     profilePicture.appendTo(this);
     title.appendTo(this);
-    socialMediaBar.appendTo(this);
   }
+}
 
-  private createSocialMediaButtonBar(container: UIComponent): UIComponent {
-    const bar = new UIComponent({
+/**
+ * TagMenu is a UIComponent that displays a list of tags as buttons.
+ */
+class TagMenu extends UIComponent {
+  private static readonly ID = "tag-menu";
+
+  public constructor(tags: Set<string>) {
+    super({
       type: HTML.DIV,
-      classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_CENTER, Gtdf.BOX_Y_CENTER],
+      id: TagMenu.ID,
+      classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
       styles: {
         width: "100%",
         height: "5vh",
-        marginTop: "1.5rem",
+        padding: "1rem",
       },
     });
-
-    const socialMedia = {
-      twitter: "https://twitter.com/Skyleriearts",
-      instagram: "https://www.instagram.com/skyleriie/",
-      telegram: "https://t.me/skylerie",
-      patreon: "https://www.patreon.com/skylerie",
-    };
-
-    for (const media in socialMedia) {
-      const url = socialMedia[media];
-
-      const button = this.createSocialMediaButton(bar, media, url);
-      button.appendTo(bar);
-    }
-
-    return bar;
+    this.configure(tags);
   }
 
-  public createSocialMediaButton(
-    container: UIComponent,
-    icon: string,
-    url: string,
-  ): UIComponent {
+  public async configure(tags: Set<string>): Promise<void> {
+    tags.forEach((tag) => this.addTagButton(tag));
+  }
+
+  /**
+   * Add a tag button to the tag menu.
+   */
+  addTagButton(tag: string): void {
     const button = new UIComponent({
-      type: HTML.A,
-      classes: [Gtdf.BOX_CENTER],
+      type: HTML.BUTTON,
+      text: tag,
+      classes: [],
       styles: {
-        width: "4vh",
-        height: "4vh",
-        margin: "0 0.5rem",
-        background: "var(--background)",
-        borderRadius: "50%",
-      },
-      attributes: {
-        href: url,
+        backgroundColor: "rgba(0, 0, 0, 0.05)",
+        margin: "10px",
       },
     });
-
-    const iconComponent = SocialIcons.get(icon, {
-      fill: "#444",
-      size: "2rem",
-      classes: ["material-icons"],
-    });
-
-    iconComponent.appendTo(button);
-    button.appendTo(container);
-    return button;
+    button.appendTo(this);
   }
 }

@@ -39,12 +39,10 @@ export default class HomeView extends ViewUI {
     }
 
     this.visualizer = new Visualizer();
+    new Header().appendTo(this);
 
-    const header = new Header();
-    header.appendTo(this);
-
-    const response = await fetch(Config.Path.resources + "/data/images.json")
-    const galleryData : Array<IProject> = await response.json();
+    const response = await fetch(Config.Path.resources + "/data/images.json");
+    const galleryData: Array<IProject> = await response.json();
 
     let galleryContainer = new UIComponent({
       type: HTML.DIV,
@@ -54,63 +52,71 @@ export default class HomeView extends ViewUI {
         height: "100vh",
         maxHeight: "100vh",
         overflow: "auto",
-        background: `url('${Config.Path.images}wall.png')`,
       },
     });
 
     // Draw project bar
-    const projects = Object.keys(galleryData);
-    let projectBar = this.getProjectBar(projects);
-    projectBar.appendTo(galleryContainer);
-    
-    // Draw tag bar 
+    const projects = new Set<string>();
     const tags = new Set<string>();
-    Object.values(galleryData).forEach((project : IProject) => {
-        project.images.forEach(
-            (image) => image.tags.forEach((tag) => tags.add(tag))
-        );
+
+    galleryData.forEach((project: IProject) => {
+      projects.add(project.name);
+      project.images.forEach((image) =>
+        image.tags.forEach((tag) => tags.add(tag)),
+      );
     });
 
-    console.log(tags);
-    console.log(projects);
-    
+    const project = galleryData[0];
+    const title = new UIComponent({
+      type: HTML.H1,
+      text: project.name,
+      id: "title",
+      styles: {
+        fontFamily: "just another hand",
+        fontSize: "10rem",
+        color: "#9a8e75",
+        width: "100%",
+        textAlign: "center",
+        paddingTop: "2rem",
+      },
+    });
+    title.appendTo(galleryContainer);
 
-    for (const category in galleryData) {
-      const images = galleryData[category];
-    //   const gallery = new Gallery("", images);
-    //   gallery.appendTo(galleryContainer);
-    }
+    let projectBar = this.getProjectBar(projects);
+    projectBar.appendTo(galleryContainer);
 
+    new Gallery(project.name, project.images).appendTo(galleryContainer);
     galleryContainer.appendTo(this);
     this.appendTo(container);
   }
 
-
   /**
    * Get the project selection bar
    */
-  getProjectBar(projects : Array<string>) : UIComponent {
+  getProjectBar(projects: Set<string>): UIComponent {
     const projectBar = new UIComponent({
-        type: HTML.DIV,
-        classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
-        styles: {
-            width: "100%",
-            height: "5vh",
-            padding: "1rem",
-        },
+      type: HTML.DIV,
+      classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_CENTER, Gtdf.BOX_Y_START],
+      styles: {
+        width: "100%",
+        height: "5vh",
+        padding: "1rem",
+      },
     });
 
     projects.forEach((project) => {
-        const button = new UIComponent({
-            type: HTML.BUTTON,
-            text: project,
-            classes: [],
-            styles: {
-                backgroundColor: "rgba(0, 0, 0, 0.05)",
-                margin: "10px",
-            }
-        });
-        button.appendTo(projectBar);
+      const button = new UIComponent({
+        type: HTML.BUTTON,
+        text: project,
+        classes: [],
+        styles: {
+          backgroundColor: "#D9D2C3",
+          color: "#9A8E75",
+          fontSize: "1.2rem",
+          margin: "10px",
+        },
+      });
+      button.appendTo(projectBar);
     });
 
     return projectBar;

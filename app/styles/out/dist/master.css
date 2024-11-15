@@ -628,13 +628,11 @@ div.gallery.mobile ul#image-list li {
 display: block;
 }
 div.gallery ul#image-list li div.canvas {
-/* box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);*/
-border: .25rem solid #ccc;
 }
 div.gallery ul#image-list li div.canvas,
 div.gallery ul#image-list li div.canvas img {
 height: 15rem;
-border-radius: 0.75rem;
+border-radius: 0rem;
 cursor: pointer;
 padding: 0;
 transition: var(--animation-fast) ease-in-out;
@@ -665,13 +663,14 @@ view#error h1#error-title {
 margin: 1.5rem 0;
 }
 :root {
---background: #f9f9f9;
+--background: #edecea;
 }
 :root[data-grayscale="true"] body {
 filter: grayscale(1);
 }
-body, view {
-transition: .35s;
+body,
+view {
+transition: 0.35s;
 background: var(--background);
 }
 input::-webkit-outer-spin-button,
@@ -679,7 +678,7 @@ input::-webkit-inner-spin-button {
 -webkit-appearance: none;
 margin: 0;
 }
-input[type=number] {
+input[type="number"] {
 appearance: textfield;
 -moz-appearance: textfield;
 }
