@@ -1,3 +1,4 @@
+import { Image } from "../../core/models/project.js";
 import { Browser } from "../../lib/gtdf/components/browser.js";
 import { HTML } from "../../lib/gtdf/components/dom.js";
 import { UIComponent } from "../../lib/gtdf/components/uicomponent.js";
@@ -9,7 +10,7 @@ export default class Gallery extends UIComponent {
   private static readonly LIST_ID = "image-list";
   private static readonly MOBILE_CLASS = "mobile";
 
-  public constructor(name: string, urls: string[]) {
+  public constructor(name: string, images: Image[]) {
     super({
       type: HTML.DIV,
       classes: [
@@ -19,30 +20,23 @@ export default class Gallery extends UIComponent {
         Gtdf.BOX_Y_START,
       ],
     });
-    this.configure(name, urls);
+    this.configure(name, images);
   }
 
-  public async configure(name: string, urls: string[]) {
+  public async configure(name: string, images: Image[]) {
     if (Browser.isSmallDevice()) {
       this.element.classList.add(Gallery.MOBILE_CLASS);
     }
-
-    const title = new UIComponent({
-      type: HTML.H1,
-      text: name,
-      id: Gallery.TITLE_ID,
-    });
-    title.appendTo(this);
 
     const list = new UIComponent({
       type: HTML.UL,
       id: Gallery.LIST_ID,
     });
 
-    urls.forEach((url) => {
+    images.forEach((image) => {
       const listItem = new UIComponent({ type: HTML.LI });
-      const image = this.createImage(url, 100);
-      image.appendTo(listItem);
+      const imageComponent = this.createImage(image.url, 100);
+      imageComponent.appendTo(listItem);
       listItem.appendTo(list);
     });
 
@@ -66,7 +60,7 @@ export default class Gallery extends UIComponent {
     });
 
     imageComponent.setEvents({
-      load: () => (imageComponent.element.style.opacity = "0"),
+      load: () => (imageComponent.element.style.opacity = "1"),
     });
 
     imageComponent.appendTo(canvas);

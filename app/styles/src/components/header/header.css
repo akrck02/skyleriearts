@@ -1,0 +1,21 @@
+div#header {
+    width: 30rem;
+    min-width: 30rem;
+    height: 100vh;
+    padding-top: 5rem;
+    background: #dcd8d0;
+}
+
+div#header > img#logo {
+    --logo-size: 10rem;
+    width: var(--logo-size);
+    height: var(--logo-size);
+    border-radius: 50%;
+}
+
+div#header > h1#title {
+    font-family: "Just Another Hand", cursive;
+    font-size: 5rem;
+    margin-top: 1.5rem;
+    color: #9a8e75;
+}

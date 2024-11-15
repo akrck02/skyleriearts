@@ -3,29 +3,30 @@
 @import url("./views/_import.css");
 
 :root {
-  --background: #f9f9f9;
+    --background: #edecea;
 }
 
 :root[data-grayscale="true"] body {
-  filter: grayscale(1);
+    filter: grayscale(1);
 }
 
-body, view {
-    transition: .35s;
+body,
+view {
+    transition: 0.35s;
     background: var(--background);
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
-input[type=number] {
-  appearance: textfield;
-  -moz-appearance: textfield;
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
 }
 
 .text-error {
-  color: var(--error-color);
+    color: var(--error-color);
 }
