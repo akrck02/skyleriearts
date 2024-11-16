@@ -1,27 +1,890 @@
 (function () {
     'use strict';
 
-    class SignalBuffer {
-        static add(signal) {
-            this.signals.push(signal);
-        }
-        static remove(signal) {
-            this.signals = this.signals.filter((sig) => sig !== signal);
-        }
-        static search(id) {
-            return this.signals.find((sig) => sig.id === id);
-        }
-    }
-    SignalBuffer.signals = [];
-
-    class InitializeError extends Error {
-        constructor(m) {
-            super(m);
-            // Set the prototype explicitly.
-            Object.setPrototypeOf(this, InitializeError.prototype);
-        }
+    /**
+     * Singleton decorator to make a class a singleton
+     *
+     */
+    function Singleton() {
+        return function (target) {
+            console.debug(`Singleton instanciated: ${target.name}`);
+            target.instanceFn = () => {
+                if (!target.instance)
+                    target.instance = new target();
+                return target.instance;
+            };
+            target.instanceFn();
+        };
     }
 
+    /**
+     * This decorator is used to mark a class as implementing an interface
+     * as static classes cannot implement interfaces
+     */
+    function StaticImplements() {
+        return (constructor) => {
+        };
+    }
+
+    /**
+     * This class provides methods for url manipulation.
+     * @author akrck02
+     */
+    class Urls {
+        /**
+         * Get parameters of a url by breakpoint
+         * @param url url to get parameters from
+         * @param breakpoint breakpoint to get parameters from
+         * @description This method is useful for getting parameters of a url by breakpoint.
+         * @returns parameters of a url
+         * @example
+         *     const url = "https://www.website.org/search/user/1/page/2";
+         *     const breakpoint = "search";
+         *     const parameters = getParametersByBreakPoint(url, breakpoint);
+         *     console.log(parameters); // ["user","1","page","2"]
+         */
+        static getParametersByBreakPoint(url, breakpoint) {
+            let params = url.split("/");
+            const index = params.indexOf(breakpoint);
+            if (index == -1)
+                return [];
+            return params.slice(index, params.length);
+        }
+        /**
+         * Get parameters of a url by index
+         * @param url url to get parameters from
+         * @param index index to get parameters from
+         * @description This method is useful for getting parameters of a url by index.
+         * @returns parameters of a url
+         * @example
+         *      const url = "https://www.website.org/search/user/1/page/2";
+         *      const index = 1;
+         *      const parameters = getParametersByIndex(url, index);
+         *      console.log(parameters); // ["1","page","2"]
+         */
+        static getParametersByIndex(url, index) {
+            let params = url.split("/");
+            params = params.slice(index, params.length);
+            return params;
+        }
+        /**
+         * Download a file from a url on the client
+         * @param url url of the file
+         * @param filename name of the file
+         * @description This method is useful for downloading a file from a url on the client.
+         * @example
+         *     const url = "https://www.website.org/search/files/17293.jpg";
+         *     const filename = "cat.jpg";
+         *     downloadFile(url, filename);
+         */
+        static downloadFile(uri, name) {
+            let link = document.createElement("a");
+            link.download = name;
+            link.href = uri;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        /**
+         * Get url GET parameters
+         * @param url url to get parameters from
+         * @description This method is useful for getting parameters of a url.
+         * @returns parameters of a url
+         * @example
+         *    const url = "https://www.website.org?search=&user=akrck02&page=2";
+         *    const parameters = getUrlGetParameters(url);
+         *    console.log(parameters); // {search: "", user: "akrck02", page: "2"}
+         */
+        static getUrlGetParameters(url) {
+            let params = url.split("?");
+            if (params.length < 2)
+                return {};
+            params = params[1].split("&");
+            let result = {};
+            params.forEach((param) => {
+                let paramArray = param.split("=");
+                result[paramArray[0]] = paramArray[1];
+            });
+            return result;
+        }
+        /**
+         * Get url GET parameter
+         * @param url url to get parameter from
+         * @returns parameter of a url
+         */
+        static addSlash(url) {
+            return url[url.length - 1] === "/" ? url : url + "/";
+        }
+        /**
+         * Get url GET parameter
+         * @param url url to get parameter from
+         * @returns parameter of a url
+         */
+        static addStartSlash(url) {
+            return url[0] === "/" ? url : "/" + url;
+        }
+    }
+
+    /**
+     * Languages that can be used in the application
+     * @author akrck02
+     */
+    const Languages = {
+        English: { name: "english", main: "en", locales: ["en", "en-US", "en-GB"] },
+        Spanish: { name: "spanish", main: "es", locales: ["es", "es-ES"] },
+        French: { name: "french", main: "fr", locales: ["fr", "fr-FR"] },
+        German: { name: "german", main: "de", locales: ["de", "de-DE"] },
+        Italian: { name: "italian", main: "it", locales: ["it", "it-IT"] },
+        Portuguese: { name: "portuguese", main: "pt", locales: ["pt", "pt-PT"] },
+        Russian: { name: "russian", main: "ru", locales: ["ru", "ru-RU"] },
+        Chinese: { name: "chinese", main: "zh", locales: ["zh", "zh-CN"] },
+        Japanese: { name: "japanese", main: "ja", locales: ["ja", "ja-JP"] },
+        Korean: { name: "korean", main: "ko", locales: ["ko", "ko-KR"] },
+        Arabic: { name: "arabic", main: "ar", locales: ["ar", "ar-SA"] },
+        Hindi: { name: "hindi", main: "hi", locales: ["hi", "hi-IN"] },
+        Turkish: { name: "turkish", main: "tr", locales: ["tr", "tr-TR"] },
+        Dutch: { name: "dutch", main: "nl", locales: ["nl", "nl-NL"] },
+        Polish: { name: "polish", main: "pl", locales: ["pl", "pl-PL"] },
+        Swedish: { name: "swedish", main: "sv", locales: ["sv", "sv-SE"] },
+        Danish: { name: "danish", main: "da", locales: ["da", "da-DK"] },
+        Norwegian: { name: "norwegian", main: "no", locales: ["no", "no-NO"] },
+        Finnish: { name: "finnish", main: "fi", locales: ["fi", "fi-FI"] },
+        Greek: { name: "greek", main: "el", locales: ["el", "el-GR"] },
+        Czech: { name: "czech", main: "cs", locales: ["cs", "cs-CZ"] },
+        Hungarian: { name: "hungarian", main: "hu", locales: ["hu", "hu-HU"] },
+        Romanian: { name: "romanian", main: "ro", locales: ["ro", "ro-RO"] },
+        Slovak: { name: "slovak", main: "sk", locales: ["sk", "sk-SK"] },
+        Bulgarian: { name: "bulgarian", main: "bg", locales: ["bg", "bg-BG"] },
+        Croatian: { name: "croatian", main: "hr", locales: ["hr", "hr-HR"] },
+        Lithuanian: { name: "lithuanian", main: "lt", locales: ["lt", "lt-LT"] },
+        Latvian: { name: "latvian", main: "lv", locales: ["lv", "lv-LV"] },
+        Estonian: { name: "estonian", main: "et", locales: ["et", "et-EE"] },
+        Slovenian: { name: "slovenian", main: "sl", locales: ["sl", "sl-SI"] },
+        Serbian: { name: "serbian", main: "sr", locales: ["sr", "sr-RS"] },
+        Ukrainian: { name: "ukrainian", main: "uk", locales: ["uk", "uk-UA"] },
+        Hebrew: { name: "hebrew", main: "he", locales: ["he", "he-IL"] },
+        Thai: { name: "thai", main: "th", locales: ["th", "th-TH"] },
+        Vietnamese: { name: "vietnamese", main: "vi", locales: ["vi", "vi-VN"] },
+        Indonesian: { name: "indonesian", main: "id", locales: ["id", "id-ID"] },
+        Malay: { name: "malay", main: "ms", locales: ["ms", "ms-MY"] },
+        Filipino: { name: "filipino", main: "fil", locales: ["fil", "fil-PH"] },
+        Swahili: { name: "swahili", main: "sw", locales: ["sw", "sw-KE"] },
+        Afrikaans: { name: "afrikaans", main: "af", locales: ["af", "af-ZA"] },
+        Amharic: { name: "amharic", main: "am", locales: ["am", "am-ET"] },
+        Armenian: { name: "armenian", main: "hy", locales: ["hy", "hy-AM"] },
+        Azerbaijani: { name: "azerbaijani", main: "az", locales: ["az", "az-AZ"] },
+        Belarusian: { name: "belarusian", main: "be", locales: ["be", "be-BY"] },
+        Bengali: { name: "bengali", main: "bn", locales: ["bn", "bn-BD"] },
+        Bosnian: { name: "bosnian", main: "bs", locales: ["bs", "bs-BA"] },
+        Galician: { name: "galician", locales: ["gl", "gl-ES"] },
+        // Add more languages here
+    };
+    /**
+     * This class is used to get the language from the locale
+     * @author akrck02
+     */
+    class Language {
+        /**
+         * Get the language from the locale
+         * @param locale The locale
+         * @returns The language
+         */
+        static get(locale) {
+            if (locale === undefined)
+                return Language.DEFAULT;
+            const found = Language.available.find((lang) => lang.locales.includes(locale));
+            if (found === undefined)
+                return Language.DEFAULT;
+            return found;
+        }
+    }
+    /**
+     * Available languages for the app
+     */
+    Language.available = [
+        Languages.English,
+        Languages.Spanish,
+    ];
+    /**
+     * Default language for the app
+     */
+    Language.DEFAULT = Languages.English;
+
+    var __decorate$6 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var Configuration_1;
+    /**
+     * Environment states
+     */
+    var Environment;
+    (function (Environment) {
+        Environment["DEVELOPMENT"] = "development";
+        Environment["PRODUCTION"] = "production";
+    })(Environment || (Environment = {}));
+    /**
+     * Available themes for the application
+     */
+    var Theme;
+    (function (Theme) {
+        Theme["DARK"] = "dark";
+        Theme["LIGHT"] = "light";
+    })(Theme || (Theme = {}));
+    /**
+     * Configuration for the application
+     */
+    let Configuration = Configuration_1 = class Configuration {
+        /**
+         * Load a configuration object into the class
+         * this mehod adapts the urls
+         */
+        load(response) {
+            this.variables = response.variables;
+            this.base = response.base;
+            this.path = response.path;
+            this.views = response.views;
+            this.api = response.api;
+            for (const key in this.path) {
+                if (key == Configuration_1.URL_KEY) {
+                    this.path[key] = Urls.addSlash(this.path[key]);
+                    continue;
+                }
+                this.path[key] = this.path.url + Urls.addSlash(this.path[key]);
+            }
+            for (const key in this.views) {
+                this.views[key];
+                if (key == Configuration_1.URL_KEY) {
+                    this.views[key] = Urls.addStartSlash(this.views[key]);
+                    this.views[key] = Urls.addSlash(this.views[key]);
+                    continue;
+                }
+                this.views[key] = this.views.url + Urls.addSlash(this.views[key]);
+            }
+            for (const key in this.api) {
+                this.api[key];
+                if (key == Configuration_1.URL_KEY) {
+                    this.api[key] = Urls.addSlash(this.api[key]);
+                    continue;
+                }
+                this.api[key] = this.api.url + this.api[key];
+            }
+            this.setDefaultVariablesIfNeeded();
+        }
+        /**
+         * Set configuration variables with default values
+         * if they are not set
+         */
+        setDefaultVariablesIfNeeded() {
+            if (this.getStorageConfigurationVariable(Configuration_1.ANIMATION_KEY) ==
+                undefined)
+                this.setAnimations(true);
+            if (this.getStorageConfigurationVariable(Configuration_1.LANGUAGE_KEY) ==
+                undefined)
+                this.setLanguage(Language.get(navigator.language).main);
+            if (this.getStorageConfigurationVariable(Configuration_1.THEME) == undefined)
+                this.setTheme(Theme.LIGHT);
+            else if (this.isDarkTheme())
+                this.setDarkTheme();
+            else
+                this.setLightTheme();
+            console.debug("Theme: " + this.getStorageConfigurationVariable(Configuration_1.THEME));
+        }
+        /**
+         * Get application configurations from storage
+         * @returns the application configurations
+         */
+        getStorageConfiguration() {
+            let localStorageConfiguration = JSON.parse(localStorage.getItem(this.base.app_name + Configuration_1.CONFIGURATION_NAME_APPENDIX));
+            if (!localStorageConfiguration)
+                localStorageConfiguration = {};
+            return localStorageConfiguration;
+        }
+        /**
+         * Add a configuration variable to storage
+         * @param key the name of the variable
+         * @param value the value of the variable
+         */
+        setStorageConfigurationVariable(key, value) {
+            let localStorageConfiguration = this.getStorageConfiguration();
+            const config = localStorageConfiguration;
+            config[key] = value;
+            localStorage.setItem(this.base.app_name + Configuration_1.CONFIGURATION_NAME_APPENDIX, JSON.stringify(config));
+        }
+        /**
+         * Get a configuration variable from storage
+         * @param key the name of the variable
+         * @returns the value of the variable
+         */
+        getStorageConfigurationVariable(key) {
+            let localStorageConfiguration = this.getStorageConfiguration();
+            return localStorageConfiguration[key];
+        }
+        /**
+         * Set animation for application on|off
+         * @param on The boolean to set animations
+         */
+        setAnimations(on) {
+            this.setStorageConfigurationVariable(Configuration_1.ANIMATION_KEY, on);
+        }
+        /**
+         * Get if animations are enabled
+         * @returns if animations are enabled
+         */
+        areAnimationsEnabled() {
+            return (this.getStorageConfigurationVariable(Configuration_1.ANIMATION_KEY) ===
+                "true");
+        }
+        /**
+         * Set the application language
+         */
+        setLanguage(lang) {
+            this.setStorageConfigurationVariable(Configuration_1.LANGUAGE_KEY, lang);
+        }
+        /**
+         * Get the current app language
+         * @returns The app language
+         */
+        getLanguage() {
+            return Language.get(this.getStorageConfigurationVariable(Configuration_1.LANGUAGE_KEY));
+        }
+        /**
+         * Set the title of the page
+         * @param title The title of the page
+         */
+        setTitle(title) {
+            document.title = title;
+            window.history.pushState({}, title, window.location.href);
+        }
+        /**
+         * Set animation for application on|off
+         * @param on The boolean to set animations
+         */
+        setTheme(theme) {
+            this.setStorageConfigurationVariable(Configuration_1.THEME, theme);
+        }
+        /**
+         * Get if animations are enabled
+         * @returns if animations are enabled
+         */
+        isDarkTheme() {
+            return (this.getStorageConfigurationVariable(Configuration_1.THEME) === Theme.DARK);
+        }
+        /**
+         * Toggle the theme of the application
+         */
+        toggleTheme() {
+            if (this.isDarkTheme())
+                return this.setLightTheme();
+            else
+                return this.setDarkTheme();
+        }
+        /**
+         * Set the theme of the application to dark
+         */
+        setDarkTheme() {
+            document.documentElement.dataset.theme = Theme.DARK;
+            this.setTheme(Theme.DARK);
+            return Theme.DARK;
+        }
+        /**
+         * Set the theme of the application to light
+         */
+        setLightTheme() {
+            document.documentElement.dataset.theme = Theme.LIGHT;
+            this.setTheme(Theme.LIGHT);
+            return Theme.LIGHT;
+        }
+        /**
+         * Get if the application is in development mode
+         */
+        isDevelopment() {
+            return this.base.environment === Environment.DEVELOPMENT;
+        }
+    };
+    Configuration.ANIMATION_KEY = "animations";
+    Configuration.LANGUAGE_KEY = "language";
+    Configuration.THEME = "theme";
+    Configuration.URL_KEY = "url";
+    Configuration.CONFIGURATION_NAME_APPENDIX = "-config";
+    Configuration = Configuration_1 = __decorate$6([
+        Singleton(),
+        StaticImplements()
+    ], Configuration);
+
+    /**
+     * This enum represents the available HTTP methods
+     * @author akrck02
+     */
+    var HttpMethod;
+    (function (HttpMethod) {
+        HttpMethod["Get"] = "GET";
+        HttpMethod["Post"] = "POST";
+        HttpMethod["Put"] = "PUT";
+        HttpMethod["Delete"] = "DELETE";
+        HttpMethod["Update"] = "UPDATE";
+        HttpMethod["Patch"] = "PATCH";
+        HttpMethod["Head"] = "HEAD";
+        HttpMethod["Options"] = "OPTIONS";
+        HttpMethod["Connect"] = "CONNECT";
+        HttpMethod["Trace"] = "TRACE";
+        HttpMethod["All"] = "ALL";
+    })(HttpMethod || (HttpMethod = {}));
+    /**
+     * This enum represents the available mime types
+     * @author akrck02
+     */
+    var MimeType;
+    (function (MimeType) {
+        MimeType["Json"] = "application/json";
+        MimeType["Xml"] = "application/xml";
+        MimeType["Html"] = "text/html";
+        MimeType["Text"] = "text/plain";
+        MimeType["Form"] = "multipart/form-data";
+        MimeType["UrlEncoded"] = "application/x-www-form-urlencoded";
+        MimeType["Blob"] = "application/octet-stream";
+        MimeType["Pdf"] = "application/pdf";
+        MimeType["Zip"] = "application/zip";
+        MimeType["Mp3"] = "audio/mpeg";
+        MimeType["Mp4"] = "video/mp4";
+        MimeType["Png"] = "image/png";
+        MimeType["Jpeg"] = "image/jpeg";
+        MimeType["Gif"] = "image/gif";
+        MimeType["Svg"] = "image/svg+xml";
+        MimeType["Ico"] = "image/x-icon";
+        MimeType["Csv"] = "text/csv";
+        MimeType["Css"] = "text/css";
+        MimeType["Javascript"] = "text/javascript";
+        MimeType["Typescript"] = "text/typescript";
+        MimeType["Webm"] = "video/webm";
+        MimeType["Ogg"] = "video/ogg";
+        MimeType["Ogv"] = "video/ogv";
+        MimeType["Wav"] = "audio/wav";
+        MimeType["Webp"] = "image/webp";
+        MimeType["Woff"] = "font/woff";
+        MimeType["Woff2"] = "font/woff2";
+        MimeType["Ttf"] = "font/ttf";
+        MimeType["Eot"] = "application/vnd.ms-fontobject";
+        MimeType["Otf"] = "font/otf";
+        MimeType["Xls"] = "application/vnd.ms-excel";
+        MimeType["Xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+        MimeType["Doc"] = "application/msword";
+        MimeType["Docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+        MimeType["Ppt"] = "application/vnd.ms-powerpoint";
+        MimeType["Pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+        MimeType["Msg"] = "application/vnd.ms-outlook";
+        MimeType["Rtf"] = "application/rtf";
+        MimeType["Psd"] = "application/photoshop";
+        MimeType["Ai"] = "application/postscript";
+        MimeType["Eps"] = "application/postscript";
+        MimeType["Xps"] = "application/vnd.ms-xpsdocument";
+        MimeType["Swf"] = "application/x-shockwave-flash";
+        MimeType["Flv"] = "video/x-flv";
+        MimeType["Midi"] = "audio/midi";
+        MimeType["Wma"] = "audio/x-ms-wma";
+        MimeType["Wax"] = "audio/x-ms-wax";
+        MimeType["Mka"] = "audio/x-matroska";
+        MimeType["Mkv"] = "video/x-matroska";
+        MimeType["Avi"] = "video/x-msvideo";
+        MimeType["Mov"] = "video/quicktime";
+        MimeType["Wmv"] = "video/x-ms-wmv";
+        MimeType["M4a"] = "audio/mp4";
+        MimeType["M4v"] = "video/mp4";
+        MimeType["F4v"] = "video/mp4";
+        MimeType["F4a"] = "audio/mp4";
+        MimeType["F4b"] = "audio/mp4";
+        MimeType["M4b"] = "audio/mp4";
+        MimeType["M4r"] = "audio/mp4";
+        MimeType["Mpga"] = "audio/mpeg";
+        MimeType["Mp2"] = "audio/mpeg";
+        MimeType["Mp2A"] = "audio/mpeg";
+        MimeType["M2a"] = "audio/mpeg";
+        MimeType["M3a"] = "audio/mpeg";
+        MimeType["Oga"] = "audio/ogg";
+    })(MimeType || (MimeType = {}));
+    /**
+     * This enum represents the available text encodings
+     * @author akrck02
+     */
+    var TextEncoding;
+    (function (TextEncoding) {
+        TextEncoding["Utf8"] = "UTF-8";
+        TextEncoding["Utf16"] = "UTF-16";
+        TextEncoding["Utf16be"] = "UTF-16BE";
+        TextEncoding["Utf16le"] = "UTF-16LE";
+        TextEncoding["Iso88591"] = "ISO-8859-1";
+        TextEncoding["Iso88592"] = "ISO-8859-2";
+        TextEncoding["Iso88593"] = "ISO-8859-3";
+        TextEncoding["Iso88594"] = "ISO-8859-4";
+        TextEncoding["Iso88595"] = "ISO-8859-5";
+        TextEncoding["Iso88596"] = "ISO-8859-6";
+        TextEncoding["Iso88597"] = "ISO-8859-7";
+        TextEncoding["Iso88598"] = "ISO-8859-8";
+        TextEncoding["Iso88599"] = "ISO-8859-9";
+        TextEncoding["Iso885910"] = "ISO-8859-10";
+        TextEncoding["Iso885913"] = "ISO-8859-13";
+        TextEncoding["Iso885914"] = "ISO-8859-14";
+        TextEncoding["Iso885915"] = "ISO-8859-15";
+        TextEncoding["Iso885916"] = "ISO-8859-16";
+        TextEncoding["Koi8R"] = "KOI8-R";
+        TextEncoding["Koi8U"] = "KOI8-U";
+        TextEncoding["Macintosh"] = "macintosh";
+        TextEncoding["Windows1250"] = "windows-1250";
+        TextEncoding["Windows1251"] = "windows-1251";
+        TextEncoding["Windows1252"] = "windows-1252";
+        TextEncoding["Windows1253"] = "windows-1253";
+        TextEncoding["Windows1254"] = "windows-1254";
+        TextEncoding["Windows1255"] = "windows-1255";
+        TextEncoding["Windows1256"] = "windows-1256";
+        TextEncoding["Windows1257"] = "windows-1257";
+        TextEncoding["Windows1258"] = "windows-1258";
+        TextEncoding["Xmaccyrillic"] = "x-mac-cyrillic";
+        TextEncoding["Gb18030"] = "GB18030";
+        TextEncoding["Big5"] = "Big5";
+        TextEncoding["Shiftjis"] = "Shift_JIS";
+        TextEncoding["Eucjp"] = "EUC-JP";
+        TextEncoding["Iso2022jp"] = "ISO-2022-JP";
+        TextEncoding["Euckr"] = "EUC-KR";
+        TextEncoding["Iso2022kr"] = "ISO-2022-KR";
+        TextEncoding["Ibm866"] = "IBM866";
+        TextEncoding["Ibm775"] = "IBM775";
+        TextEncoding["Iso885911"] = "ISO-8859-11";
+        TextEncoding["Windows874"] = "windows-874";
+        TextEncoding["Tis620"] = "TIS-620";
+    })(TextEncoding || (TextEncoding = {}));
+
+    /**
+     * A class that represents a response from a fetch request.
+     * @description Encapsulates the data and methods for easy fetching
+     * @author Akrck02
+     */
+    class Response {
+        constructor(response) {
+            this.response = response;
+            this.middleware = [];
+            this.errorFunction = (err) => console.error("Error in response : ", err);
+            this.statusFunctions = new Map();
+            this.statusFunctions.set(200, (res) => console.log("Success", res));
+        }
+        /**
+         * Handles the response status code transforming the response with the responseTransformFunction
+         * and executing the corresponding status function.
+         * @param res The response object
+         * @param statusFunctions The map of status functions
+         * @param errorFunction The error function
+         * @param responseTranformFunction The response transform function
+         */
+        async handleResponseStatus(res, statusFunctions, errorFunction, responseTranformFunction) {
+            if (this.statusFunctions.has(res.status)) {
+                let data = await responseTranformFunction(res);
+                await this.statusFunctions.get(res.status)(data);
+            }
+            else
+                this.errorFunction(new Error("Status code not handled"));
+        }
+        /**
+         * Executes the callback functions corresponding to the status code getting the response as a json object.
+         * in case of an error, the error function will be executed.
+         *
+         * @example
+         * await EasyFetch.get({
+         *   url: "https://mydomain/json/1",
+         *   parameters: {
+         *        name: "John",
+         *   },
+         *   headers: {
+         *      "Content-type": "application/json",
+         *   }
+         * })
+         * .status(200,(response) => {
+         *    console.log(response);
+         * })
+         * .status(404,(response) => {
+         *   console.log("NOT FOUND: ",response);
+         * })
+         * .error((error) => {
+         *   console.error(error);
+         * })
+         * .json()
+         */
+        async json() {
+            await this.response
+                .then(async (res) => await this.handleResponseStatus(res, this.statusFunctions, this.errorFunction, async (res) => await res.json()))
+                .catch((err) => this.errorFunction(err));
+        }
+        /**
+         * Executes the callback function corresponding to the status code getting the response as a text.
+         * in case of an error, the error function will be executed.
+         * @example
+         * await EasyFetch.get({
+         *   url: "https://mydomain/text/1",
+         *   parameters: {
+         *        name: "John",
+         *   },
+         *   headers: {
+         *      "Content-type": "text/plain",
+         *   }
+         * })
+         * .status(200,(response) => {
+         *    console.log(response);
+         * })
+         * .status(404,(response) => {
+         *   console.log("NOT FOUND: ",response);
+         * })
+         * .error((error) => {
+         *   console.error(error);
+         * })
+         * .text()
+         */
+        async text() {
+            await this.response
+                .then(async (res) => await this.handleResponseStatus(res, this.statusFunctions, this.errorFunction, async (res) => await res.text()))
+                .catch((err) => this.errorFunction(err));
+        }
+        /**
+         * Executes the callback function corresponding to the status code getting the response as a blob.
+         * in case of an error, the error function will be executed.
+         * @example
+         * await EasyFetch.get({
+         *  url: "https://mydomain/blob/1",
+         * parameters: {
+         *     name: "John",
+         * },
+         * headers: {
+         *    "Content-type": "application/octet-stream",
+         * }
+         * })
+         * .status(200,(response) => {
+         *   console.log(response);
+         * })
+         * .status(404,(response) => {
+         *  console.log("NOT FOUND: ",response);
+         * })
+         * .error((error) => {
+         *  console.error(error);
+         * })
+         * .blob()
+         */
+        async blob() {
+            await this.response
+                .then(async (res) => await this.handleResponseStatus(res, this.statusFunctions, this.errorFunction, async (res) => await res.blob()))
+                .catch((err) => this.errorFunction(err));
+        }
+        /**
+         * Sets the callback function to be executed corresponding to the status code.
+         * @param code the status code or list of status codes
+         * @param success the callback function
+         * @returns the response itself
+         */
+        status(code, func) {
+            let numbers = [];
+            if (typeof code === "number") {
+                numbers.push(code);
+            }
+            else {
+                numbers = code;
+            }
+            for (let i = 0; i < numbers.length; i++) {
+                this.statusFunctions.set(numbers[i], func);
+            }
+            return this;
+        }
+        /**
+         * Sets the callback function to be executed when the response is unsuccessful.
+         * @param error the callback function
+         * @returns the response itself
+         */
+        error(error) {
+            this.errorFunction = error;
+            return this;
+        }
+    }
+    class EasyFetch {
+        static get(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Get,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static post(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Post,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static put(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Put,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static delete(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Delete,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static patch(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Patch,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static head(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Head,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static options(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Options,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static connect(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Connect,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static trace(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Trace,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        static update(properties) {
+            return EasyFetch.exec({
+                method: HttpMethod.Update,
+                parameters: properties.parameters,
+                url: properties.url,
+                headers: properties.headers,
+                charset: properties.charset,
+                contentType: properties.contentType,
+            });
+        }
+        /**
+         * Adds a middleware function to be executed before the request is sent.
+         * @param func the middleware function
+         */
+        static addMiddleware(func) {
+            EasyFetch.middleware.push(func);
+        }
+        /**
+         * Removes a middleware function.
+         * @param func the middleware function
+         * @returns true if the function was removed, false otherwise
+         */
+        static exec(properties) {
+            let options = {
+                method: properties.method,
+                headers: {
+                    "Content-type": `${properties.contentType || "application/json"};charset=${properties.charset || "UTF-8"}`,
+                    mode: "cors",
+                    "Sec-Fetch-Site": "cross-site",
+                },
+            };
+            properties.headers && Object.assign(options.headers, properties.headers);
+            if (properties.method !== HttpMethod.Get) {
+                if (properties.parameters instanceof FormData) {
+                    options["body"] = properties.parameters;
+                    options.headers["Content-type"] =
+                        `multipart/form-data;charset=${properties.charset || "UTF-8"}`;
+                }
+                else {
+                    options["body"] = JSON.stringify(properties.parameters);
+                }
+            }
+            const promise = fetch(properties.url, options);
+            return new Response(promise);
+        }
+    }
+    EasyFetch.middleware = [];
+
+    class ConfigurationLoader {
+        async start() {
+            console.debug("ConfigurationLoader start");
+            await EasyFetch.get({
+                url: "./gtdf.config.json",
+                parameters: {},
+            })
+                .status(200, (configuration) => Configuration.instance.load(configuration))
+                .error(this.errorHandle)
+                .json();
+            console.debug("Configuration loaded");
+        }
+        errorHandle(error) {
+            console.error(error);
+        }
+    }
+
+    class KeyboardLoader {
+        async start() {
+            console.log("KeyboardLoader started");
+        }
+    }
+
+    /**
+     * This enum represents the Bubble UI css framework
+     */
+    var BubbleUI;
+    (function (BubbleUI) {
+        BubbleUI["BoxColumn"] = "box-column";
+        BubbleUI["BoxRow"] = "box-row";
+        BubbleUI["boxWrap"] = "box-warp";
+        BubbleUI["BoxCenter"] = "box-center";
+        BubbleUI["BoxXCenter"] = "box-x-center";
+        BubbleUI["BoxYCenter"] = "box-y-center";
+        BubbleUI["BoxXStart"] = "box-x-start";
+        BubbleUI["BoxXEnd"] = "box-x-end";
+        BubbleUI["BoxYStart"] = "box-y-start";
+        BubbleUI["BoxXBetween"] = "box-x-between";
+        BubbleUI["TextCenter"] = "text-center";
+    })(BubbleUI || (BubbleUI = {}));
+
+    /**
+     * This class contains methods to manipulate the DOM elements
+     * @author akrck02
+     */
     class DOM {
         /**
          * Set HTML attributes to the given element.
@@ -199,105 +1062,77 @@
             return new Promise((resolve) => resolve(1));
         }
     }
-    var HTML;
-    (function (HTML) {
-        HTML["VIEW"] = "view";
-        HTML["DIV"] = "div";
-        HTML["SPAN"] = "span";
-        HTML["INPUT"] = "input";
-        HTML["BUTTON"] = "button";
-        HTML["TEXTAREA"] = "textarea";
-        HTML["SELECT"] = "select";
-        HTML["OPTION"] = "option";
-        HTML["FORM"] = "form";
-        HTML["LABEL"] = "label";
-        HTML["IMG"] = "img";
-        HTML["A"] = "a";
-        HTML["B"] = "b";
-        HTML["TABLE"] = "table";
-        HTML["THEAD"] = "thead";
-        HTML["TBODY"] = "tbody";
-        HTML["TR"] = "tr";
-        HTML["TH"] = "th";
-        HTML["TD"] = "td";
-        HTML["I"] = "i";
-        HTML["UL"] = "ul";
-        HTML["LI"] = "li";
-        HTML["NAV"] = "nav";
-        HTML["HEADER"] = "header";
-        HTML["FOOTER"] = "footer";
-        HTML["SECTION"] = "section";
-        HTML["ARTICLE"] = "article";
-        HTML["ASIDE"] = "aside";
-        HTML["H1"] = "h1";
-        HTML["H2"] = "h2";
-        HTML["H3"] = "h3";
-        HTML["H4"] = "h4";
-        HTML["H5"] = "h5";
-        HTML["H6"] = "h6";
-        HTML["P"] = "p";
-        HTML["HR"] = "hr";
-        HTML["BR"] = "br";
-        HTML["CANVAS"] = "canvas";
-        HTML["SVG"] = "svg";
-        HTML["PATH"] = "path";
-        HTML["POLYGON"] = "polygon";
-        HTML["POLYLINE"] = "polyline";
-        HTML["CIRCLE"] = "circle";
-        HTML["ELLIPSE"] = "ellipse";
-        HTML["RECT"] = "rect";
-        HTML["LINE"] = "line";
-        HTML["TEXT"] = "text";
-        HTML["TSPAN"] = "tspan";
-        HTML["G"] = "g";
-        HTML["MASK"] = "mask";
-        HTML["PATTERN"] = "pattern";
-        HTML["DEFS"] = "defs";
-        HTML["SYMBOL"] = "symbol";
-        HTML["USE"] = "use";
-        HTML["CLIPPATH"] = "clipPath";
-        HTML["STOP"] = "stop";
-        HTML["LINEARGRADIENT"] = "linearGradient";
-        HTML["RADIALGRADIENT"] = "radialGradient";
-        HTML["FILTER"] = "filter";
-        HTML["FEIMAGE"] = "feImage";
-        HTML["FEMERGE"] = "feMerge";
-        HTML["FEMERGENODE"] = "feMergeNode";
-        HTML["FEGAUSSIANBLUR"] = "feGaussianBlur";
-        HTML["FEOFFSET"] = "feOffset";
-        HTML["FEDISPLACEMAP"] = "feDisplacementMap";
-        HTML["FEPOINTLIGHT"] = "fePointLight";
-        HTML["FESPOTLIGHT"] = "feSpotLight";
-        HTML["FEDIFFUSELIGHTING"] = "feDiffuseLighting";
-        HTML["FETURBULENCE"] = "feTurbulence";
-        HTML["FECONVOLVEMATRIX"] = "feConvolveMatrix";
-        HTML["FECOMPOSITE"] = "feComposite";
-        HTML["FEFLOOD"] = "feFlood";
-        HTML["FEMORPHOLOGY"] = "feMorphology";
-        HTML["FEDISTANTLIGHT"] = "feDistantLight";
-        HTML["FEDROPSHADOW"] = "feDropShadow";
-        HTML["FEFUNCOLORMATRIX"] = "feFuncColorMatrix";
-        HTML["FEFUNCA"] = "feFuncA";
-        HTML["FEFUNCRGB"] = "feFuncR";
-        HTML["FEFUNCG"] = "feFuncG";
-        HTML["FEFUNCB"] = "feFuncB";
-        HTML["FECONVOLVE"] = "feConvolve";
-        HTML["FEMATRIX"] = "feMatrix";
-        HTML["FESPECULARLIGHTING"] = "feSpecularLighting";
-        HTML["FEPOINTLIGHTELEMENT"] = "fePointLightElement";
-        HTML["FESPOTLIGHTELEMENT"] = "feSpotLightElement";
-        HTML["FEDISTANTLIGHTELEMENT"] = "feDistantLightElement";
-        HTML["FEFLOODELEMENT"] = "feFloodElement";
-        HTML["FEGAUSSIANBLURELEMENT"] = "feGaussianBlurElement";
-        HTML["FEMORPHOLOGYELEMENT"] = "feMorphologyElement";
-        HTML["FEDROPSHADOWELEMENT"] = "feDropShadowElement";
-        HTML["FETURBULENCEELEMENT"] = "feTurbulenceElement";
-    })(HTML || (HTML = {}));
+    /**
+     * This enum contains the most common HTML tags
+     */
+    var Html;
+    (function (Html) {
+        Html["View"] = "view";
+        Html["Div"] = "div";
+        Html["Span"] = "span";
+        Html["Input"] = "input";
+        Html["Button"] = "button";
+        Html["Textarea"] = "textarea";
+        Html["Select"] = "select";
+        Html["Option"] = "option";
+        Html["Form"] = "form";
+        Html["Label"] = "label";
+        Html["Img"] = "img";
+        Html["A"] = "a";
+        Html["B"] = "b";
+        Html["Table"] = "table";
+        Html["Thead"] = "thead";
+        Html["Tbody"] = "tbody";
+        Html["Tr"] = "tr";
+        Html["Th"] = "th";
+        Html["Td"] = "td";
+        Html["I"] = "i";
+        Html["Ul"] = "ul";
+        Html["Li"] = "li";
+        Html["Nav"] = "nav";
+        Html["Header"] = "header";
+        Html["Footer"] = "footer";
+        Html["Section"] = "section";
+        Html["Article"] = "article";
+        Html["Aside"] = "aside";
+        Html["H1"] = "h1";
+        Html["H2"] = "h2";
+        Html["H3"] = "h3";
+        Html["H4"] = "h4";
+        Html["H5"] = "h5";
+        Html["H6"] = "h6";
+        Html["P"] = "p";
+        Html["Hr"] = "hr";
+        Html["Br"] = "br";
+        Html["Canvas"] = "canvas";
+        Html["Svg"] = "svg";
+        Html["Path"] = "path";
+        Html["Polygon"] = "polygon";
+        Html["Polyline"] = "polyline";
+        Html["Circle"] = "circle";
+        Html["Ellipse"] = "ellipse";
+        Html["Rect"] = "rect";
+        Html["Line"] = "line";
+        Html["Text"] = "text";
+        Html["Tspan"] = "tspan";
+        Html["G"] = "g";
+        Html["Mask"] = "mask";
+        Html["Pattern"] = "pattern";
+        Html["Defs"] = "defs";
+        Html["Symbol"] = "symbol";
+        Html["Use"] = "use";
+        Html["Clippath"] = "clipPath";
+        Html["Stop"] = "stop";
+        Html["LinearGradient"] = "linearGradient";
+        Html["RadialGradient"] = "radialGradient";
+        Html["Filter"] = "filter";
+    })(Html || (Html = {}));
 
     /**
      * Class representing a UI component (HTML element) with custom properties and methods.
      * @description This class is a base class for all UI components.
      * @class UIComponent
+     * @author akrck02
      */
     class UIComponent {
         constructor(props) {
@@ -306,6 +1141,7 @@
             this.id = props.id;
             this.classes = props.classes;
             this.attributes = props.attributes;
+            this.selectable = props.selectable;
             this.styles = props.styles;
             this.data = props.data;
             this.events = props.events;
@@ -313,31 +1149,25 @@
         }
         createElement() {
             let element;
-            if (!this.type) {
+            if (!this.type)
                 throw "Element without type.";
-            }
             element = document.createElement(this.type);
-            if (this.text) {
+            if (this.text)
                 element.innerHTML = this.text;
-            }
-            if (this.id) {
+            if (this.id)
                 element.id = this.id;
-            }
-            if (this.classes) {
+            if (this.classes)
                 DOM.setClasses(element, this.classes);
-            }
-            if (this.attributes) {
+            if (this.attributes)
                 DOM.setAttributes(element, this.attributes);
-            }
-            if (this.styles) {
+            if (this.styles)
                 DOM.setStyles(element, this.styles);
-            }
-            if (this.data) {
+            if (this.data)
                 DOM.setDataset(element, this.data);
-            }
-            if (this.events) {
+            if (this.events)
                 DOM.setEvents(element, this.events);
-            }
+            if (this.selectable == false)
+                DOM.setStyles(element, { userSelect: "none" });
             return element;
         }
         /**
@@ -523,433 +1353,6 @@
         }
     }
 
-    const Language = {
-        ENGLISH: "en",
-        // SPANISH : "es",
-        // GALICIAN : "gl"
-    };
-    /**
-     * Get the language given a locale
-     * or the first occurrence if nothing was found
-     * @param locale The locale to search for
-     * @returns A language for the locale
-     */
-    function getLanguage(locale) {
-        if (!locale) {
-            return Language.ENGLISH;
-        }
-        const keys = Object.keys(Language);
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            if (locale.includes(Language[key])) {
-                return Language[key];
-            }
-        }
-        return Language[keys[0]];
-    }
-
-    class URLs {
-        /**
-         * Get parameters of a url by breakpoint
-         * @param url url to get parameters from
-         * @param breakpoint breakpoint to get parameters from
-         * @description This method is useful for getting parameters of a url by breakpoint.
-         * @returns parameters of a url
-         * @example
-         *     const url = "https://www.website.org/search/user/1/page/2";
-         *     const breakpoint = "search";
-         *     const parameters = getParametersByBreakPoint(url, breakpoint);
-         *     console.log(parameters); // ["user","1","page","2"]
-         */
-        static getParametersByBreakPoint(url, breakpoint) {
-            let params = url.split("/");
-            const index = params.indexOf(breakpoint);
-            if (index == -1)
-                return [];
-            params = params.slice(index, params.length);
-            return params;
-        }
-        ;
-        /**
-         * Get parameters of a url by index
-         * @param url url to get parameters from
-         * @param index index to get parameters from
-         * @description This method is useful for getting parameters of a url by index.
-         * @returns parameters of a url
-         * @example
-         *      const url = "https://www.website.org/search/user/1/page/2";
-         *      const index = 1;
-         *      const parameters = getParametersByIndex(url, index);
-         *      console.log(parameters); // ["1","page","2"]
-         */
-        static getParametersByIndex(url, index) {
-            let params = url.split("/");
-            params = params.slice(index, params.length);
-            return params;
-        }
-        ;
-        /**
-         * Download a file from a url on the client
-         * @param url url of the file
-         * @param filename name of the file
-         * @description This method is useful for downloading a file from a url on the client.
-         * @example
-         *     const url = "https://www.website.org/search/files/17293.jpg";
-         *     const filename = "cat.jpg";
-         *     downloadFile(url, filename);
-         */
-        static downloadFile(uri, name) {
-            let link = document.createElement("a");
-            link.download = name;
-            link.href = uri;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-        /**
-         * Get url GET parameters
-         * @param url url to get parameters from
-         * @description This method is useful for getting parameters of a url.
-         * @returns parameters of a url
-         * @example
-         *    const url = "https://www.website.org?search=&user=akrck02&page=2";
-         *    const parameters = getUrlGetParameters(url);
-         *    console.log(parameters); // {search: "", user: "akrck02", page: "2"}
-         */
-        static getUrlGetParameters(url) {
-            let params = url.split("?");
-            if (params.length < 2)
-                return {};
-            params = params[1].split("&");
-            let result = {};
-            params.forEach((param) => {
-                let paramArray = param.split("=");
-                result[paramArray[0]] = paramArray[1];
-            });
-            return result;
-        }
-        /**
-         * Get url GET parameter
-         * @param url url to get parameter from
-         * @returns parameter of a url
-         */
-        static addSlash(url) {
-            if (url[url.length - 1] != "/") {
-                url += "/";
-            }
-            return url;
-        }
-        /**
-         * Get url GET parameter
-         * @param url url to get parameter from
-         * @returns parameter of a url
-         */
-        static addStartSlash(url) {
-            if (url[0] != "/") {
-                url = "/" + url;
-            }
-            return url;
-        }
-    }
-
-    /**
-     * Environment states
-     */
-    var ENVIRONMENT;
-    (function (ENVIRONMENT) {
-        ENVIRONMENT["DEVELOPMENT"] = "development";
-        ENVIRONMENT["PRODUCTION"] = "production";
-    })(ENVIRONMENT || (ENVIRONMENT = {}));
-    /**
-     * Configuration for the application
-     */
-    class Configuration {
-        constructor() {
-            this.CONFIG_FILE = "../gtdf.config.json";
-            this.Variables = {
-                animations: true,
-                environment: ENVIRONMENT.DEVELOPMENT,
-                language: Language.ENGLISH
-            };
-            this.Base = {
-                app_name: "",
-                app_version: "",
-                host: "",
-                port: 80,
-                environment: ENVIRONMENT.DEVELOPMENT,
-                debug: false,
-                log_level: "",
-                website: "",
-                author: ""
-            };
-            this.Path = {
-                url: "",
-                app: "",
-                resources: "",
-                language: "",
-                images: "",
-                icons: "",
-            };
-            this.Views = {
-                url: "",
-                login: "",
-                home: "",
-                error: "",
-                blank: ""
-            };
-            this.Api = {
-                url: "",
-                login: "",
-                login_auth: "",
-                register: "",
-            };
-        }
-        async update() {
-            const config = await fetch(this.CONFIG_FILE).then((response) => response.json());
-            this.Variables = config.variables;
-            this.Base = config.base;
-            this.Path = config.path;
-            this.Views = config.views;
-            this.Api = config.api;
-            for (const key in this.Path) {
-                if (key == "url") {
-                    this.Path[key] = URLs.addSlash(this.Path[key]);
-                    continue;
-                }
-                this.Path[key] = this.Path.url + URLs.addSlash(this.Path[key]);
-            }
-            for (const key in this.Views) {
-                this.Views[key];
-                if (key == "url") {
-                    this.Views[key] = URLs.addStartSlash(this.Views[key]);
-                    this.Views[key] = URLs.addSlash(this.Views[key]);
-                    continue;
-                }
-                this.Views[key] = this.Views.url + URLs.addSlash(this.Views[key]);
-            }
-            for (const key in this.Api) {
-                this.Api[key];
-                if (key == "url") {
-                    this.Api[key] = URLs.addSlash(this.Api[key]);
-                    continue;
-                }
-                this.Api[key] = this.Api.url + this.Api[key];
-            }
-            console.log(this.Api);
-            await this.setDefaultVariables();
-        }
-        /**
-         * Get a configuration instance
-         */
-        static get instance() {
-            if (!this._instance) {
-                this._instance = new Configuration();
-            }
-            return this._instance;
-        }
-        /**
-         * Set default configurations for the application
-         */
-        async setDefaultVariables() {
-            if (this.getConfigVariable(Configuration.ANIMATION_KEY) == undefined) {
-                this.setAnimations(true);
-            }
-            if (this.getConfigVariable(Configuration.LANGUAGE_KEY) == undefined) {
-                console.log(getLanguage(navigator.language));
-                this.setLanguage(getLanguage(navigator.language));
-            }
-            if (this.getConfigVariable(Configuration.THEME) == undefined) {
-                this.setTheme("light");
-            }
-            else {
-                if (this.isDarkTheme()) {
-                    this.setDarkMode();
-                }
-                else {
-                    this.setLightMode();
-                }
-            }
-        }
-        /**
-         * Get application configurations
-         * @returns the application configurations
-         */
-        getConfig() {
-            let localStorageConfiguration = JSON.parse(localStorage.getItem(this.Base.app_name + "-config"));
-            if (!localStorageConfiguration) {
-                localStorageConfiguration = {};
-            }
-            return localStorageConfiguration;
-        }
-        isLogged() {
-            return this.getConfigVariable("auth-token") != undefined;
-        }
-        /**
-         * Add a configuration variable
-         * @param key the name of the variable
-         * @param value the value of the variable
-         */
-        setConfigVariable(key, value) {
-            let localStorageConfiguration = this.getConfig();
-            const config = localStorageConfiguration;
-            config[key] = value;
-            localStorage.setItem(this.Base.app_name + "-config", JSON.stringify(config));
-        }
-        /**
-         * Get a configuration variable
-         * @param key the name of the variable
-         * @returns the value of the variable
-         */
-        getConfigVariable(key) {
-            let localStorageConfiguration = this.getConfig();
-            return localStorageConfiguration[key];
-        }
-        /**
-         * Set animation for application on|off
-         * @param on The boolean to set animations
-         */
-        setAnimations(on) {
-            this.setConfigVariable(Configuration.ANIMATION_KEY, on);
-        }
-        /**
-         * Get if animations are enabled
-         * @returns if animations are enabled
-         */
-        areAnimationsEnabled() {
-            return this.getConfigVariable(Configuration.ANIMATION_KEY) === "true";
-        }
-        /**
-         * Set the application language
-         */
-        setLanguage(lang) {
-            this.setConfigVariable(Configuration.LANGUAGE_KEY, lang);
-        }
-        /**
-         * Get the current app language
-         * @returns The app language
-         */
-        getLanguage() {
-            return getLanguage(this.getConfigVariable(Configuration.LANGUAGE_KEY));
-        }
-        /**
-         * Set the title of the page
-         * @param title The title of the page
-         */
-        setTitle(title) {
-            document.title = title;
-            window.history.pushState({}, title, window.location.href);
-        }
-        /**
-         * Set animation for application on|off
-         * @param on The boolean to set animations
-         */
-        setTheme(theme) {
-            this.setConfigVariable(Configuration.THEME, theme);
-        }
-        /**
-         * Get if animations are enabled
-         * @returns if animations are enabled
-         */
-        isDarkTheme() {
-            return this.getConfigVariable(Configuration.THEME) === "dark";
-        }
-        toggleTheme() {
-            if (Config.isDarkTheme()) {
-                this.setLightMode();
-                return "dark";
-            }
-            else {
-                this.setDarkMode();
-                return "light";
-            }
-        }
-        setDarkMode() {
-            document.documentElement.dataset.theme = 'dark';
-            Config.setTheme("dark");
-        }
-        setLightMode() {
-            document.documentElement.dataset.theme = 'light';
-            Config.setTheme("light");
-        }
-    }
-    Configuration.ANIMATION_KEY = "animations";
-    Configuration.LANGUAGE_KEY = "language";
-    Configuration.THEME = "theme";
-    const Config = Configuration.instance;
-
-    const Errors = {
-        200: {
-            code: 200,
-            message: 'Success',
-            friendly: 'Success',
-            description: 'The operation succeded.'
-        },
-        400: {
-            code: 400,
-            message: 'Bad request',
-            friendly: 'The request is not valid',
-            description: 'The parameters may be wrong or missing.'
-        },
-        401: {
-            code: 401,
-            message: 'Unauthorized',
-            friendly: 'You have no permissions to access this content 🔐',
-            description: 'The content is protected, contact the administrator to get access.'
-        },
-        404: {
-            code: 404,
-            message: 'Not found',
-            friendly: 'We can\'t find the page you are looking for 😓',
-            description: 'The page you\'re searching for is no longer available.'
-        },
-        500: {
-            code: 500,
-            message: 'Internal server error',
-            friendly: 'Ups, something went wrong 😓',
-            description: 'The server is experimenting an unexpected error, contact the administrator for more information.'
-        },
-    };
-    /**
-     * Returns the error corresponding to the given code
-     * @param code The code of the error
-     * @returns The corresponding error by code
-     */
-    function getErrorByCode(code) {
-        return Errors[code];
-    }
-
-    const Routes = [];
-    function Route(value) {
-        return function (target) {
-            if (typeof value == "string") {
-                target.instance().routes = [value];
-            }
-            else {
-                target.instance().routes = value;
-            }
-            console.debug(`Route registered /${value}`);
-            Routes.push(target.instance());
-        };
-    }
-
-    function Singleton() {
-        return function (target) {
-            console.debug(`Singleton instanciated: ${target.name}`);
-            target.instance = () => {
-                if (!target._instance) {
-                    target._instance = new target();
-                }
-                return target._instance;
-            };
-            target.instance();
-        };
-    }
-
-    /* class decorator */
-    function StaticImplements() {
-        return (constructor) => { };
-    }
-
     var __decorate$5 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
         if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -959,22 +1362,251 @@
     var __metadata$5 = (undefined && undefined.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
-    let ViewUI = class ViewUI extends UIComponent {
-        static instance() {
-            return this._instance;
+    var MaterialIcons_1;
+    /**
+     * Material icon loader class
+     * loads the material icons from the json file
+     * @implements IObserver the observer interface
+     * @author akrck02
+     */
+    class MaterialIconsLoader {
+        constructor() { }
+        async update() {
+            if (this.collection != undefined)
+                return;
+            this.collection = await fetch(Configuration.instance.path.icons + "materialicons.json").then((response) => response.json());
         }
-        constructor(details) {
-            super(details);
-            this.routes = [];
+    }
+    /**
+     * Material Icon utility class
+     * @implements IObserver the observer interface
+     * @implements ISingleton the singleton interface
+     * @author akrck02
+     */
+    let MaterialIcons = MaterialIcons_1 = class MaterialIcons {
+        constructor() {
+            this.loader = new MaterialIconsLoader();
         }
-        isPointing(name) {
-            return this.routes.includes(name);
+        /**
+         * Get collection of Material Icons
+         * @returns The collection of Material Icons
+         * @example
+         *   MaterialIcons.collection();
+         *
+         *  // Returns
+         * {
+         *   "add": "<svg>...</svg>",
+         *  "add_circle": "<svg>...</svg>",
+         * ...
+         * }
+         */
+        get collection() {
+            return this.loader.collection;
+        }
+        /**
+         * Get a Material Icons SVG by name.
+         * @param name The name of the icon.
+         * @param properties The properties of the icon.
+         * @returns The container of the SVG as a UIComponent.
+         */
+        static get(name, properties) {
+            properties.svg = MaterialIcons_1.instance.collection[name] || "";
+            const icon = new UIComponent({
+                type: Html.Div,
+                classes: ["icon", BubbleUI.BoxCenter],
+                text: createSVG(properties),
+            });
+            return icon;
         }
     };
-    ViewUI = __decorate$5([
+    MaterialIcons = MaterialIcons_1 = __decorate$5([
+        Singleton(),
         StaticImplements(),
-        __metadata$5("design:paramtypes", [Object])
-    ], ViewUI);
+        __metadata$5("design:paramtypes", [])
+    ], MaterialIcons);
+    var MaterialIcons$1 = MaterialIcons;
+    /**
+     * Create svg in 24 x 24 viewBox
+     * @param properties properties
+     * @returns svg inside a string
+     * @example
+     *    createSvg({
+     *        fill: '#202020',
+     *        size: '24',
+     *        classes: ['material-icons'],
+     *        svg: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>'
+     *    });
+     *    // returns: <svg viewBox="0 0 24 24" class="material-icons">
+     */
+    function createSVG(properties) {
+        const svg = `
+    <svg class="${properties?.classes?.join(" ")}" width="${properties.size}" height="${properties.size}" viewBox="0 0 24 24" fill="${properties.fill}" xmlns="http://www.w3.org/2000/svg">
+    ${properties.svg}
+    </svg>
+    `;
+        return svg;
+    }
+
+    class ResourceLoader {
+        async start() {
+            await MaterialIcons$1.instance.loader.update();
+        }
+    }
+
+    class BootHandler {
+        constructor() {
+            this.configuration = new ConfigurationLoader();
+            this.resources = new ResourceLoader();
+            this.keyboard = new KeyboardLoader();
+        }
+        async start() {
+            await this.configuration.start();
+            await this.resources.start();
+            await this.keyboard.start();
+        }
+    }
+
+    class InitializeError extends Error {
+        constructor(m) {
+            super(m);
+            // Set the prototype explicitly.
+            Object.setPrototypeOf(this, InitializeError.prototype);
+        }
+    }
+
+    /*
+     * This is filled by the annotation processor with the ViewUI instances
+     * that have the @Route annotation
+     * @author akrck02
+     */
+    const Routes = [];
+    /*
+     * This is the annotation that will be used to register the routes
+     * @author akrck02
+     */
+    function Route(value) {
+        return (target) => {
+            if (!target.instance)
+                throw new Error("The @Route annotation can only be used in ViewUI instances");
+            if (typeof value == "string")
+                target.instance.routes = [value];
+            else
+                target.instance.routes = value;
+            // if it is no ViewUI instance, it will not be added to the Routes
+            console.debug(`Route registered /${value}`);
+            Routes.push(target.instance);
+        };
+    }
+
+    class Crypto {
+        /**
+         * Hash a message using SHA-256
+         * @param message The message to hash
+         * @returns The hash of the message
+         */
+        static async sha256(message) {
+            // encode as UTF-8
+            const msgBuffer = new TextEncoder().encode(message);
+            // hash the message
+            const hashBuffer = await window.crypto.subtle.digest("SHA-256", msgBuffer);
+            // convert ArrayBuffer to Array
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            // convert bytes to hex string
+            const hashHex = hashArray
+                .map((b) => b.toString(16).padStart(2, "0"))
+                .join("");
+            return hashHex;
+        }
+    }
+
+    /**
+     * This class represents a signal that can be emitted
+     * and listen by functions
+     * @author akrck02
+     */
+    class Signal {
+        /**
+         * Create a new signal
+         * @param id The id of the signal
+         */
+        constructor(id) {
+            this.id = id;
+            this.actions = {};
+        }
+        /**
+         * @inheritdoc
+         */
+        async connect(action) {
+            action.action.toString();
+            this.actions[await this.hashAction(action)] = action;
+        }
+        /**
+         * @inheritdoc
+         */
+        async disconnect(action) {
+            this.actions[await this.hashAction(action)] = undefined;
+        }
+        /**
+         * @inheritdoc
+         */
+        async emit(data) {
+            for (const name in this.actions) {
+                await this.actions[name].action(data);
+            }
+        }
+        /**
+         * Hash the body of the action using sha256
+         */
+        async hashAction(action) {
+            const prototypeString = action.toString();
+            const hashedBody = await Crypto.sha256(prototypeString);
+            const hashedOrigin = await Crypto.sha256(action.origin);
+            return `${hashedOrigin}-${hashedBody}`;
+        }
+    }
+
+    class Errors {
+        /**
+         * Returns the error corresponding to the given code
+         * @param code The code of the error
+         * @returns The corresponding error by code
+         */
+        static getByCode(code) {
+            return Error[code];
+        }
+    }
+    Errors.archive = {
+        200: {
+            code: 200,
+            message: "Success",
+            friendly: "Success",
+            description: "The operation succeded.",
+        },
+        400: {
+            code: 400,
+            message: "Bad request",
+            friendly: "The request is not valid",
+            description: "The parameters may be wrong or missing.",
+        },
+        401: {
+            code: 401,
+            message: "Unauthorized",
+            friendly: "You have no permissions to access this content 🔐",
+            description: "The content is protected, contact the administrator to get access.",
+        },
+        404: {
+            code: 404,
+            message: "Not found",
+            friendly: "We can't find the page you are looking for 😓",
+            description: "The page you're searching for is no longer available.",
+        },
+        500: {
+            code: 500,
+            message: "Internal server error",
+            friendly: "Ups, something went wrong 😓",
+            description: "The server is experimenting an unexpected error, contact the administrator for more information.",
+        },
+    };
 
     var __decorate$4 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -983,6 +1615,46 @@
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __metadata$4 = (undefined && undefined.__metadata) || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    /**
+     * This class is the base class for all views
+     * containing the basic functionality for a view
+     * @implements ISingleton the singleton interface
+     * that assure that only one instance of this class is created
+     * @author akrck02
+     */
+    let ViewUI = class ViewUI extends UIComponent {
+        /**
+         * The constructor of the view
+         * @param details The details of the view,
+         * same as the UIComponent constructor
+         */
+        constructor(details) {
+            super(details);
+            this.routes = [];
+        }
+        /**
+         * Check if the view is pointing to the given path
+         * @param name The name to check
+         * @returns if the view is pointing to the given path
+         */
+        isPointing(path) {
+            return this.routes.includes(path);
+        }
+    };
+    ViewUI = __decorate$4([
+        StaticImplements(),
+        __metadata$4("design:paramtypes", [Object])
+    ], ViewUI);
+
+    var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata$3 = (undefined && undefined.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
     var ErrorView_1;
@@ -994,34 +1666,34 @@
                 classes: ["box-column", "box-center"],
             });
         }
-        show(params, container) {
+        async show(params, container) {
             this.clean();
             const code = parseInt(params[0]);
-            let error = getErrorByCode(code);
+            let error = Errors.getByCode(code);
             // Default error set if no error parameter was given
             if (!error) {
-                error = getErrorByCode(ErrorView_1.DEFAULT_ERROR_CODE);
+                error = Errors.getByCode(ErrorView_1.DEFAULT_ERROR_CODE);
             }
             // Image
             const image = new UIComponent({
-                type: "img",
+                type: Html.Img,
                 id: ErrorView_1.IMAGE_ID,
                 attributes: {
-                    src: Config.Path.icons + "error.svg",
+                    src: Configuration.instance.path.icons + "error.svg",
                 },
             });
             this.appendChild(image);
             // Error title
             const title = new UIComponent({
-                type: "h1",
+                type: Html.H1,
                 id: ErrorView_1.TITLE_ID,
                 text: error.friendly,
             });
             this.appendChild(title);
             // Error description
             const description = new UIComponent({
-                type: "p",
-                text: error.description
+                type: Html.P,
+                text: error.description,
             });
             this.appendChild(description);
             this.appendTo(container);
@@ -1031,40 +1703,12 @@
     ErrorView.ID = "error";
     ErrorView.IMAGE_ID = "error-img";
     ErrorView.TITLE_ID = "error-title";
-    ErrorView = ErrorView_1 = __decorate$4([
+    ErrorView = ErrorView_1 = __decorate$3([
         Route("error"),
         Singleton(),
-        __metadata$4("design:paramtypes", [])
+        __metadata$3("design:paramtypes", [])
     ], ErrorView);
     var ErrorView$1 = ErrorView;
-
-    class Signal {
-        constructor(id) {
-            this.id = id;
-            this.subscribers = [];
-            this.content = {};
-        }
-        subscribe(observer) {
-            this.subscribers.push(observer);
-        }
-        unsubscribe(observer) {
-            this.subscribers = this.subscribers.filter((obs) => obs !== observer);
-        }
-        async notify() {
-            for (let observer of this.subscribers) {
-                try {
-                    await observer.update(this.content);
-                }
-                catch (e) {
-                    console.error(`Error notifying observer on signal ${this.id}`, e);
-                }
-            }
-        }
-        async emit(data) {
-            this.content = data;
-            await this.notify();
-        }
-    }
 
     class Browser {
         /**
@@ -1146,59 +1790,87 @@
     Browser.SMALL_DEVICE_WIDTH = 760;
     Browser.MEDIUM_DEVICE_WIDTH = 1024;
 
-    var Gtdf;
-    (function (Gtdf) {
-        Gtdf["BOX_COLUMN"] = "box-column";
-        Gtdf["BOX_ROW"] = "box-row";
-        Gtdf["BOX_CENTER"] = "box-center";
-        Gtdf["BOX_X_CENTER"] = "box-x-center";
-        Gtdf["BOX_Y_CENTER"] = "box-y-center";
-        Gtdf["BOX_X_START"] = "box-x-start";
-        Gtdf["BOX_X_END"] = "box-x-end";
-        Gtdf["BOX_Y_START"] = "box-y-start";
-        Gtdf["BOX_X_BETWEEN"] = "box-x-between";
-        Gtdf["TEXT_CENTER"] = "text-center";
-    })(Gtdf || (Gtdf = {}));
-
-    class Gallery extends UIComponent {
-        constructor(name, images) {
+    /**
+     * Gallery component to show images
+     * for a project
+     */
+    class ProjectGallery extends UIComponent {
+        constructor(project) {
             super({
-                type: HTML.DIV,
+                type: Html.Div,
                 classes: [
-                    Gallery.CLASS,
-                    Gtdf.BOX_COLUMN,
-                    Gtdf.BOX_X_START,
-                    Gtdf.BOX_Y_START,
+                    ProjectGallery.CLASS,
+                    BubbleUI.BoxColumn,
+                    BubbleUI.BoxXStart,
+                    BubbleUI.BoxYStart,
                 ],
             });
-            this.configure(name, images);
+            this.configure(project);
         }
-        async configure(name, images) {
+        /**
+         * Configure the gallery
+         * @param project Project to show
+         * @returns void
+         */
+        async configure(project) {
+            // if nothing to show, return
+            if (undefined == project ||
+                undefined == project.images ||
+                project.images.length == 0)
+                return;
+            // turn on mobile class if needed
             if (Browser.isSmallDevice()) {
-                this.element.classList.add(Gallery.MOBILE_CLASS);
+                this.element.classList.add(ProjectGallery.MOBILE_CLASS);
             }
+            // Add a list of images to show
+            // in the gallery
             const list = new UIComponent({
-                type: HTML.UL,
-                id: Gallery.LIST_ID,
+                type: Html.Ul,
+                id: ProjectGallery.LIST_ID,
             });
-            images.forEach((image) => {
-                const listItem = new UIComponent({ type: HTML.LI });
-                const imageComponent = this.createImage(image.url, 100);
-                imageComponent.appendTo(listItem);
-                listItem.appendTo(list);
-            });
+            project.images?.forEach((image) => this.register(list, image));
             list.appendTo(this);
         }
-        createImage(image, speed) {
-            const canvas = new UIComponent({
-                type: "div",
+        /**
+         * Register an image to the gallery
+         * @param list List to append the image
+         * @param image Image to register
+         */
+        register(list, image) {
+            const listItem = new UIComponent({ type: Html.Li });
+            image.url;
+            const canvas = new ImageCanvas(image);
+            setTimeout(() => (canvas.element.style.opacity = "1"), 1);
+            canvas.appendTo(listItem);
+            listItem.appendTo(list);
+        }
+    }
+    ProjectGallery.CLASS = "gallery";
+    ProjectGallery.TITLE_ID = "title";
+    ProjectGallery.LIST_ID = "image-list";
+    ProjectGallery.MOBILE_CLASS = "mobile";
+    /**
+     * ImageCanvas component to show an image
+     * in the gallery
+     */
+    class ImageCanvas extends UIComponent {
+        constructor(image) {
+            super({
+                type: Html.Div,
                 classes: ["canvas"],
             });
+            this.configure(image);
+        }
+        /**
+         * Configure the image
+         * @param image Image to show
+         */
+        configure(image) {
             const imageComponent = new UIComponent({
-                type: "img",
+                type: Html.Img,
                 attributes: {
-                    src: image,
-                    alt: image,
+                    src: image.url,
+                    alt: image.title,
                     loading: "lazy",
                     background: "#fff",
                 },
@@ -1206,45 +1878,42 @@
             imageComponent.setEvents({
                 load: () => (imageComponent.element.style.opacity = "1"),
             });
-            imageComponent.appendTo(canvas);
-            canvas.appendTo(this);
-            setTimeout(() => (canvas.element.style.opacity = "1"), speed);
-            return canvas;
+            imageComponent.appendTo(this);
         }
     }
-    Gallery.CLASS = "gallery";
-    Gallery.TITLE_ID = "title";
-    Gallery.LIST_ID = "image-list";
-    Gallery.MOBILE_CLASS = "mobile";
 
     /**
      * Header component for the website
      */
     class Header extends UIComponent {
-        constructor() {
+        constructor(tags) {
             super({
-                type: HTML.DIV,
+                type: Html.Div,
                 id: Header.ID,
-                classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
             });
-            this.configure();
+            this.tagSelectedSignal = new Signal("menu-changed");
+            this.configure(tags);
         }
-        async configure() {
+        async configure(tags) {
             const profilePicture = new UIComponent({
-                type: HTML.IMG,
+                type: Html.Img,
                 id: "logo",
                 attributes: {
-                    src: `${Config.Path.images}logo.jpg`,
+                    src: `${Configuration.instance.path.images}logo.jpg`,
                 },
             });
             const title = new UIComponent({
-                type: HTML.H1,
+                type: Html.H1,
                 text: "Skylerie",
                 id: "title",
-                classes: [Gtdf.TEXT_CENTER],
+                classes: [BubbleUI.TextCenter],
             });
+            const selected = tags.values().next().value;
+            const tagMenu = new TagMenu(this.tagSelectedSignal, tags, selected);
             profilePicture.appendTo(this);
             title.appendTo(this);
+            tagMenu.appendTo(this);
         }
     }
     Header.ID = "header";
@@ -1252,130 +1921,55 @@
      * TagMenu is a UIComponent that displays a list of tags as buttons.
      */
     class TagMenu extends UIComponent {
-        constructor(tags) {
+        constructor(signal, tags, selectedTag) {
             super({
-                type: HTML.DIV,
+                type: Html.Div,
                 id: TagMenu.ID,
-                classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
-                styles: {
-                    width: "100%",
-                    height: "5vh",
-                    padding: "1rem",
-                },
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
             });
-            this.configure(tags);
+            this.buttons = new Map();
+            this.tagSelectedSignal = signal;
+            this.configure(tags, selectedTag);
         }
-        async configure(tags) {
-            tags.forEach((tag) => this.addTagButton(tag));
+        async configure(tags, selectedTag) {
+            tags.forEach((tag) => this.addTagButton(tag, selectedTag));
         }
         /**
          * Add a tag button to the tag menu.
          */
-        addTagButton(tag) {
+        addTagButton(tag, selectedTag) {
             const button = new UIComponent({
-                type: HTML.BUTTON,
+                type: Html.Button,
                 text: tag,
-                classes: [],
-                styles: {
-                    backgroundColor: "rgba(0, 0, 0, 0.05)",
-                    margin: "10px",
+                classes: selectedTag == tag ? ["selected"] : [],
+                events: {
+                    click: () => this.selectTag(tag),
                 },
             });
+            this.buttons.set(tag, button);
             button.appendTo(this);
+        }
+        selectTag(selectedTag) {
+            this.buttons.forEach((button, tag, map) => {
+                button.element.classList.remove("selected");
+                if (tag === selectedTag) {
+                    button.element.classList.add("selected");
+                }
+            });
+            this.tagSelectedSignal.emit({ tag: selectedTag });
         }
     }
     TagMenu.ID = "tag-menu";
 
     /**
-     * Material icon loader observer
+     * Image visualizer component
      */
-    class MaterialIconsLoader {
-        constructor() {
-            this.collection = null;
-        }
-        async update() {
-            if (!this.collection) {
-                this.collection = await fetch(Config.Path.icons + "materialicons.json").then((response) => response.json());
-            }
-        }
-    }
-    /**
-     * Material Icons utility class
-     */
-    class MaterialIcons {
-        constructor() {
-            this.observer = new MaterialIconsLoader();
-        }
-        static get instance() {
-            if (!MaterialIcons._instance) {
-                MaterialIcons._instance = new MaterialIcons();
-            }
-            return MaterialIcons._instance;
-        }
-        get loader() {
-            return this.observer;
-        }
-        /**
-         * Get collection of Material Icons
-         * @returns The collection of Material Icons
-         * @example
-         *   MaterialIcons.collection();
-         *
-         *  // Returns
-         * {
-         *   "add": "<svg>...</svg>",
-         *  "add_circle": "<svg>...</svg>",
-         * ...
-         * }
-         */
-        get collection() {
-            return this.observer.collection;
-        }
-        /**
-         * Get a Material Icons SVG by name.
-         * @param name The name of the icon.
-         * @param properties The properties of the icon.
-         * @returns The container of the SVG as a UIComponent.
-         */
-        static get(name, properties) {
-            properties.svg = MaterialIcons.instance.collection[name] || "";
-            let text = createSVG(properties);
-            const icon = new UIComponent({
-                type: "div",
-                classes: ["icon", "box-center"],
-                text: text,
-            });
-            return icon;
-        }
-    }
-    /**
-     * Create svg in 24 x 24 viewBox
-     * @param properties properties
-     * @returns svg inside a string
-     * @example
-     *    createSvg({
-     *        fill: '#202020',
-     *        size: '24',
-     *        classes: ['material-icons'],
-     *        svg: '<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/>'
-     *    });
-     *    // returns: <svg viewBox="0 0 24 24" class="material-icons">
-     */
-    function createSVG(properties) {
-        const svg = `
-    <svg class="${properties?.classes?.join(" ")}" width="${properties.size}" height="${properties.size}" viewBox="0 0 24 24" fill="${properties.fill}" xmlns="http://www.w3.org/2000/svg">
-    ${properties.svg}
-    </svg>
-    `;
-        return svg;
-    }
-
-    class Visualizer extends UIComponent {
+    class ImageVisualizer extends UIComponent {
         constructor() {
             super({
-                type: "div",
-                id: Visualizer.ID,
-                classes: ["box-row", "box-center"],
+                type: Html.Div,
+                id: ImageVisualizer.ID,
+                classes: [BubbleUI.BoxRow, BubbleUI.BoxCenter],
             });
             this.setEvents({
                 click: (event) => {
@@ -1385,55 +1979,61 @@
                     }
                     event.stopPropagation();
                     this.close();
-                }
+                },
             });
-            this.buttonClose = MaterialIcons.get("close", {
+            this.buttonClose = MaterialIcons$1.get("close", {
                 fill: "white",
                 size: "48px",
             });
             this.buttonClose.setEvents({
-                click: () => this.close()
+                click: () => this.close(),
             });
             this.buttonClose.setStyles({
                 position: "absolute",
                 top: "0px",
                 right: "0px",
             });
-            this.buttonBack = MaterialIcons.get("back", {
+            this.buttonBack = MaterialIcons$1.get("back", {
                 fill: "white",
                 size: "48px",
             });
             this.buttonBack.setEvents({
-                click: () => this.showBack()
+                click: () => this.showBack(),
             });
             this.image = new UIComponent({
-                type: "img",
+                type: Html.Img,
                 attributes: { src: "" },
             });
-            this.buttonNext = MaterialIcons.get("front", {
+            this.buttonNext = MaterialIcons$1.get("front", {
                 fill: "white",
                 size: "48px",
             });
             this.buttonNext.setEvents({
-                click: () => this.showNext()
+                click: () => this.showNext(),
             });
             this.infoText = new UIComponent({
-                type: "p",
-                id: Visualizer.INFO_TEXT_ID,
+                type: Html.P,
+                id: ImageVisualizer.INFO_TEXT_ID,
                 text: "Touch outside the image to close the visualizer.",
                 classes: ["info-text"],
             });
-            this.buttonClose.element.id = Visualizer.BUTTON_CLOSE_ID;
-            this.buttonBack.element.id = Visualizer.BUTTON_BACK_ID;
-            this.buttonNext.element.id = Visualizer.BUTTON_NEXT_ID;
+            this.buttonClose.element.id = ImageVisualizer.BUTTON_CLOSE_ID;
+            this.buttonBack.element.id = ImageVisualizer.BUTTON_BACK_ID;
+            this.buttonNext.element.id = ImageVisualizer.BUTTON_NEXT_ID;
             this.buttonClose.appendTo(this);
             this.buttonBack.appendTo(this);
             this.image.appendTo(this);
             this.buttonNext.appendTo(this);
             this.infoText.appendTo(this);
         }
+        /**
+         * Show the image visualizer
+         * @param image Image to show
+         * @param list List of images
+         * @returns void
+         */
         async show(image, list) {
-            console.log(image);
+            console.debug("Showing image: ", image);
             this.list = list;
             this.index = list.indexOf(image);
             this.element.style.display = "flex";
@@ -1461,120 +2061,11 @@
             this.element.style.display = "none";
         }
     }
-    Visualizer.ID = "visualizer";
-    Visualizer.BUTTON_CLOSE_ID = "close";
-    Visualizer.BUTTON_BACK_ID = "back";
-    Visualizer.BUTTON_NEXT_ID = "next";
-    Visualizer.INFO_TEXT_ID = "info-text";
-
-    var __decorate$3 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata$3 = (undefined && undefined.__metadata) || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var HomeView_1;
-    let HomeView = HomeView_1 = class HomeView extends ViewUI {
-        constructor() {
-            super({
-                type: HTML.VIEW,
-                id: HomeView_1.ID,
-                classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
-                styles: {
-                    minHeight: "100vh",
-                    height: "100%",
-                    width: "100%",
-                },
-            });
-        }
-        async show(params, container) {
-            Config.setTitle(`${Config.Base.app_name} - home`);
-            if (Browser.isSmallDevice()) {
-                this.element.classList.add(HomeView_1.MOBILE_CLASS);
-            }
-            this.visualizer = new Visualizer();
-            new Header().appendTo(this);
-            const response = await fetch(Config.Path.resources + "/data/images.json");
-            const galleryData = await response.json();
-            let galleryContainer = new UIComponent({
-                type: HTML.DIV,
-                classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
-                styles: {
-                    width: "100%",
-                    height: "100vh",
-                    maxHeight: "100vh",
-                    overflow: "auto",
-                },
-            });
-            // Draw project bar
-            const projects = new Set();
-            const tags = new Set();
-            galleryData.forEach((project) => {
-                projects.add(project.name);
-                project.images.forEach((image) => image.tags.forEach((tag) => tags.add(tag)));
-            });
-            const project = galleryData[0];
-            const title = new UIComponent({
-                type: HTML.H1,
-                text: project.name,
-                id: "title",
-                styles: {
-                    fontFamily: "just another hand",
-                    fontSize: "10rem",
-                    color: "#9a8e75",
-                    width: "100%",
-                    textAlign: "center",
-                    paddingTop: "2rem",
-                },
-            });
-            title.appendTo(galleryContainer);
-            let projectBar = this.getProjectBar(projects);
-            projectBar.appendTo(galleryContainer);
-            new Gallery(project.name, project.images).appendTo(galleryContainer);
-            galleryContainer.appendTo(this);
-            this.appendTo(container);
-        }
-        /**
-         * Get the project selection bar
-         */
-        getProjectBar(projects) {
-            const projectBar = new UIComponent({
-                type: HTML.DIV,
-                classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_CENTER, Gtdf.BOX_Y_START],
-                styles: {
-                    width: "100%",
-                    height: "5vh",
-                    padding: "1rem",
-                },
-            });
-            projects.forEach((project) => {
-                const button = new UIComponent({
-                    type: HTML.BUTTON,
-                    text: project,
-                    classes: [],
-                    styles: {
-                        backgroundColor: "#D9D2C3",
-                        color: "#9A8E75",
-                        fontSize: "1.2rem",
-                        margin: "10px",
-                    },
-                });
-                button.appendTo(projectBar);
-            });
-            return projectBar;
-        }
-    };
-    HomeView.ID = "home";
-    HomeView.MOBILE_CLASS = "mobile";
-    HomeView = HomeView_1 = __decorate$3([
-        Route(["home", "", undefined]),
-        Singleton(),
-        __metadata$3("design:paramtypes", [])
-    ], HomeView);
-    var HomeView$1 = HomeView;
+    ImageVisualizer.ID = "visualizer";
+    ImageVisualizer.BUTTON_CLOSE_ID = "close";
+    ImageVisualizer.BUTTON_BACK_ID = "back";
+    ImageVisualizer.BUTTON_NEXT_ID = "next";
+    ImageVisualizer.INFO_TEXT_ID = "info-text";
 
     var __decorate$2 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1585,32 +2076,210 @@
     var __metadata$2 = (undefined && undefined.__metadata) || function (k, v) {
         if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
     };
+    var HomeView_1;
+    let HomeView = HomeView_1 = class HomeView extends ViewUI {
+        constructor() {
+            super({
+                type: Html.View,
+                id: HomeView_1.ID,
+                classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+            });
+            this.redrawSignal = new Signal("load-project");
+            this.galleryData = [];
+            this.tags = new Set();
+            this.redrawSignal.connect({
+                origin: HomeView_1.ID,
+                action: async (params) => {
+                    await this.showTag(params?.tag, params?.project?.name);
+                },
+            });
+        }
+        /**
+         * Show the view
+         * @param params The parameters of the view
+         * @param container The container to append the view to
+         */
+        async show(params, container) {
+            Configuration.instance.setTitle(`${Configuration.instance.base.app_name} - home`);
+            if (Browser.isSmallDevice()) {
+                this.element.classList.add(HomeView_1.MOBILE_CLASS);
+            }
+            this.visualizer = new ImageVisualizer();
+            this.galleryContainer = new UIComponent({
+                type: Html.Div,
+                id: "gallery-container",
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+            });
+            this.galleryData = await this.getGalleryData();
+            // Get all tags and the selected tag or the first one
+            this.tags = this.getTags(this.galleryData);
+            const currentTag = params.length > 0 ? params[0] : this.tags.values().next().value;
+            // Show the header
+            this.header = new Header(this.tags);
+            this.header.tagSelectedSignal.connect({
+                origin: HomeView_1.ID,
+                action: async (data) => this.redrawSignal.emit(data),
+            });
+            this.header.appendTo(this);
+            // Get the current project
+            let currentProject = undefined;
+            if (params.length > 1) {
+                currentProject = this.galleryData.find((project) => project.name == params[1]);
+            }
+            this.redrawSignal.emit({
+                tag: currentTag,
+                project: currentProject,
+            });
+            this.galleryContainer.appendTo(this);
+            this.appendTo(container);
+        }
+        /**
+         * Get the gallery data from JSON file
+         * @returns Promise<Array<Project>> The gallery data
+         */
+        async getGalleryData() {
+            const dataPath = `${Configuration.instance.path.resources}/data/images.json`;
+            const response = await fetch(dataPath);
+            return await response.json();
+        }
+        /**
+         * Get all tags
+         * @param projects The projects
+         * @returns Set<string> The tags
+         */
+        getTags(projects) {
+            const tags = new Set();
+            projects.forEach((project) => project.tags.forEach((tag) => tags.add(tag)));
+            return tags;
+        }
+        /**
+         * Show the projects of the selected tag
+         * @param currentTag The selected tag
+         * @returns Promise<void>
+         */
+        async showTag(currentTag, currentProjectName) {
+            if (!this.tags.has(currentTag)) {
+                console.error(`Tag ${currentTag} not found`);
+                return;
+            }
+            // get the projects with the current tag
+            const projects = this.galleryData.filter((project) => project.tags.includes(currentTag));
+            // find the project with the current name
+            let currentProject = projects.find((project) => project.name == currentProjectName);
+            // if the project is not found, get the first one
+            if (currentProject == undefined) {
+                currentProject = projects.values().next().value;
+            }
+            // Clear the gallery container
+            this.galleryContainer.clean();
+            // Add tag title to UI
+            const title = new UIComponent({
+                type: Html.H1,
+                text: currentTag,
+                id: "title",
+            });
+            title.appendTo(this.galleryContainer);
+            // Create the project bar
+            const projectBar = new ProjectBar(projects, currentProject, currentTag);
+            projectBar.projectSelectedSignal.connect({
+                origin: HomeView_1.ID,
+                action: async (data) => this.redrawSignal.emit(data),
+            });
+            projectBar.appendTo(this.galleryContainer);
+            // Create the project gallery
+            const gallery = new ProjectGallery(currentProject);
+            gallery.appendTo(this.galleryContainer);
+        }
+    };
+    HomeView.ID = "home";
+    HomeView.MOBILE_CLASS = "mobile";
+    HomeView = HomeView_1 = __decorate$2([
+        Route(["home", "", undefined]),
+        Singleton(),
+        __metadata$2("design:paramtypes", [])
+    ], HomeView);
+    var HomeView$1 = HomeView;
+    /**
+     * Bar with the available projects
+     */
+    class ProjectBar extends UIComponent {
+        constructor(projects, current, tag) {
+            super({
+                type: Html.Div,
+                id: "project-bar",
+                classes: [BubbleUI.BoxRow, BubbleUI.BoxXCenter, BubbleUI.BoxYStart],
+            });
+            this.projectSelectedSignal = new Signal("project-selected");
+            this.configure(projects, current, tag);
+        }
+        /**
+         * Configure the project bar
+         * @param projects The available projects
+         * @param current The current project
+         * @param tag The current tag
+         */
+        configure(projects, current, tag) {
+            projects.forEach((project) => {
+                const button = new UIComponent({
+                    type: Html.Button,
+                    text: project.name,
+                    classes: project.name == current.name ? ["selected"] : [],
+                });
+                button.element.onclick = () => this.projectSelectedSignal.emit({
+                    tag: tag,
+                    project: project,
+                });
+                button.appendTo(this);
+            });
+        }
+    }
+
+    var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata$1 = (undefined && undefined.__metadata) || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
     var Router_1;
     let Router = Router_1 = class Router {
         constructor() {
             this.Endpoints = [HomeView$1, ErrorView$1];
-            {
-                this.parent = document.getElementById("view-container");
-                //If no parent is present on the HTML file throws an error
-                if (!this.parent) {
-                    throw new InitializeError("view-container does not exist");
-                }
-                this.container = new UIComponent({
-                    type: "div",
-                    id: "view-container-box",
-                    styles: {
-                        width: "100%",
-                        height: "100%",
-                    },
-                });
-                this.container.appendTo(this.parent);
-                this.changeViewSignal = new Signal(Router_1.CHAGE_VIEW_SIGNAL);
-                SignalBuffer.add(this.changeViewSignal);
-                this.changeViewSignal.subscribe(this);
-                this.viewChangedSignal = new Signal(Router_1.VIEW_CHANGED_SIGNAL);
-                SignalBuffer.add(this.viewChangedSignal);
-            }
+            this.parent = document.getElementById("view-container");
+            //If no parent is present on the HTML file throws an error
+            if (!this.parent)
+                throw new InitializeError("view-container does not exist");
+            this.container = new UIComponent({
+                type: Html.Div,
+                id: Router_1.VIEW_CONTAINER_BOX_ID,
+                styles: {
+                    width: "100%",
+                    height: "100%",
+                },
+            });
+            this.suscribeToSignals();
+            this.container.appendTo(this.parent);
         }
+        /**
+         * Suscribe to the signals
+         */
+        suscribeToSignals() {
+            this.changeViewRequestedSignal = new Signal(Router_1.VIEW_CHANGE_REQUESTED_SIGNAL);
+            this.changeViewRequestedSignal.connect({
+                origin: "Router",
+                action: async () => console.log("a"),
+            });
+            this.reloadCurrentViewSignal = new Signal(Router_1.VIEW_RELOAD_SIGNAL);
+            this.reloadCurrentViewSignal.connect({
+                origin: "Router",
+                action: async () => this.reloadCurrentView(),
+            });
+        }
+        /**
+         * @inheritdoc
+         */
         async update(data) {
             console.debug(data);
             console.debug(`Router update to /${data.view}`);
@@ -1627,34 +2296,35 @@
          */
         async load(params) {
             try {
-                this.clear();
                 this.container.clean();
-                let found = false;
-                for (const route of Routes) {
-                    if (found) {
-                        break;
-                    }
-                    if (route.isPointing(params[0])) {
-                        route.clean();
-                        route.show(params.splice(1), this.container);
-                        await this.viewChangedSignal.emit({
-                            view: route.routes[0],
-                            params: params.splice(1),
-                        });
-                        found = true;
-                    }
-                }
-                if (!found) {
-                    ErrorView$1.instance().show(["404"], this.container);
-                    await this.viewChangedSignal.emit({
-                        view: ErrorView$1.instance().routes[0],
-                        params: ["404"],
-                    });
-                }
+                this.clear();
+                // load the ViewUI instances created with the @Route decorator
+                for (const route of Routes)
+                    if (await this.navigate(route, params))
+                        return;
+                ErrorView$1.instance.show(["404"], this.container);
             }
             catch (error) {
                 console.error(error);
             }
+        }
+        /**
+         * Navigate to the given view
+         */
+        async navigate(view, params = []) {
+            if (!view.isPointing(params[0]))
+                return false;
+            this.currentView = view;
+            this.currentParams = params;
+            view.clean();
+            await view.show(params.splice(1), this.container);
+            return true;
+        }
+        /**
+         * Reload the current view
+         */
+        async reloadCurrentView() {
+            await this.currentView.show(this.currentParams, this.container);
         }
         /**
          * Clear the container
@@ -1663,223 +2333,16 @@
             this.container.element.innerHTML = "";
         }
     };
-    Router.CHAGE_VIEW_SIGNAL = "changeView";
-    Router.VIEW_CHANGED_SIGNAL = "viewChanged";
-    Router = Router_1 = __decorate$2([
-        Singleton(),
-        StaticImplements(),
-        __metadata$2("design:paramtypes", [])
-    ], Router);
-    var Router$1 = Router;
-
-    /**
-     * Abstract class representing those classes
-     * that listen to events to handle them in a
-     * specific way.
-     *
-     * The ping() method has testing purposes and
-     * can be deleted.
-     */
-    class Listener {
-        ping() {
-            alert({
-                title: "Connected",
-                icon: "notifications",
-                message: "Pong!",
-                desktop: true,
-            });
-        }
-        ;
-    }
-
-    /**
-     * Example listener to show how to create Listener
-     * extended classes
-     */
-    class ExampleListener extends Listener {
-        constructor() {
-            super();
-        }
-    }
-
-    /**
-     * Event listeners for the application
-     */
-    const Events = {
-        example: new ExampleListener()
-    };
-
-    class Keyboard {
-        static setEventListeners(listeners) {
-            document.addEventListener('keyup', function (event) {
-                // CTRL + period
-                if (event.ctrlKey && event.code === 'Period') {
-                    listeners.example.ping();
-                }
-            });
-        }
-    }
-
-    class NotificationUI extends UIComponent {
-        constructor() {
-            super({
-                type: "notification",
-                classes: ["box-column"],
-            });
-            this.bar = new UIComponent({
-                id: "nt-bar",
-            });
-            this.content = new UIComponent({
-                id: "nt-content",
-                classes: ["box-row", "box-y-center", "box-x-between"],
-            });
-            this.showing = false;
-            this.appendChild(this.bar);
-            this.appendChild(this.content);
-        }
-        /**
-         * Set the notification content
-         * @param properties The content to set with title, message and other properties
-         */
-        setContent(properties) {
-            this.bar.clean();
-            this.content.clean();
-            if (properties.title) {
-                const title = new UIComponent({
-                    type: "h1",
-                    id: "nt-title",
-                    text: properties.title,
-                });
-                this.bar.element.classList.remove("hidden");
-                this.bar.appendChild(title);
-            }
-            else {
-                this.bar.setClasses(["hidden"]);
-            }
-            if (properties.message) {
-                const text = new UIComponent({
-                    type: "span",
-                    text: properties.message
-                });
-                this.content.appendChild(text);
-            }
-            if (properties.icon) {
-                const icon = MaterialIcons.get(properties.icon, { size: "1.5em", fill: "#404040" });
-                this.content.appendChild(icon);
-            }
-        }
-        async show(seconds = 1) {
-            if (this.showing)
-                return;
-            setTimeout(() => {
-                this.setClasses(["show"]);
-            }, 1);
-            this.showing = true;
-            setTimeout(() => {
-                this.element.classList.remove("show");
-                this.showing = false;
-            }, 1000 + seconds * 1000);
-        }
-    }
-
-    class TextBundle {
-        constructor() { }
-        /**
-         * Get the singleton instance of the class
-         * @returns The singleton instance of the class
-         */
-        static get instance() {
-            if (!TextBundle._instance) {
-                TextBundle._instance = new TextBundle();
-            }
-            return TextBundle._instance;
-        }
-        /**
-         * Update the bundle with the current language
-         */
-        async update() {
-            this.bundle = {};
-            for (let bundle of TextBundle.AVAILABLE_BUNDLES) {
-                this.bundle[bundle] = await fetch(`${Config.Path.language}${Config.getLanguage()}/${bundle}.json`).then(response => response.json());
-            }
-            for (let bundle of TextBundle.AVAILABLE_BUNDLES) {
-                this.bundle[bundle] = new Proxy(this.bundle[bundle], {
-                    get: function (target, prop, receiver) {
-                        return target[prop] || "";
-                    },
-                    set: function (target, prop, value) {
-                        return false;
-                    }
-                });
-            }
-        }
-    }
-    TextBundle.AVAILABLE_BUNDLES = [
-        "login",
-        "errors",
-        "info"
-    ];
-    TextBundle.reloadSignal = new Signal("reload_text");
-    new Proxy(TextBundle.instance, {
-        get: function (target, prop, receiver) {
-            if (!target.bundle) {
-                return "";
-            }
-            return target.bundle[prop] || "";
-        },
-        set: function (target, prop, value) {
-            return false;
-        }
-    });
-    TextBundle.reloadSignal.subscribe(TextBundle.instance);
-
-    var __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
-        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-        return c > 3 && r && Object.defineProperty(target, key, r), r;
-    };
-    var __metadata$1 = (undefined && undefined.__metadata) || function (k, v) {
-        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-    };
-    var Initializer_1;
-    let Initializer = Initializer_1 = class Initializer {
-        constructor() {
-            this.performed = false;
-            this.subscribers = [
-                Configuration.instance,
-                MaterialIcons.instance.loader,
-                TextBundle.instance
-            ];
-            this.initSignal = new Signal(Initializer_1.SIGNAL_ID);
-        }
-        /**
-         * Subscribe to the init signal
-         * @returns The observable instance
-         */
-        async subscribeInitializables() {
-            if (this.performed) {
-                return;
-            }
-            for (let subscriber of this.subscribers) {
-                await this.initSignal.subscribe(subscriber);
-            }
-        }
-        async notify() {
-            if (this.performed) {
-                return;
-            }
-            this.performed = true;
-            await this.initSignal.emit();
-        }
-    };
-    Initializer.SIGNAL_ID = "init";
-    Initializer = Initializer_1 = __decorate$1([
+    Router.VIEW_CONTAINER_ID = "view-container";
+    Router.VIEW_CONTAINER_BOX_ID = "view-container-box";
+    Router.VIEW_CHANGE_REQUESTED_SIGNAL = "viewChangeRequested";
+    Router.VIEW_RELOAD_SIGNAL = "viewReload";
+    Router = Router_1 = __decorate$1([
         Singleton(),
         StaticImplements(),
         __metadata$1("design:paramtypes", [])
-    ], Initializer);
-    var Initializer$1 = Initializer;
+    ], Router);
+    var Router$1 = Router;
 
     var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1894,58 +2357,28 @@
      * Class that represents the application frontend proccess
      * it can be intantiated more than once, but the classic
      * web application structure wont need it.
+     * @author akrck02
      */
     let App = class App {
-        /**
-         * Create an instance of the apjplication
-         */
-        constructor() {
-            this.router = Router$1.instance();
-            this.events = Events;
-            Keyboard.setEventListeners(this.events);
-            // Set the notification element
-            this.notification = new NotificationUI();
-            document.body.appendChild(this.notification.element);
-            this.setNoficationSystem();
-        }
-        /**
-         * Load the app state with the given URL address
-         * The URL get parsed to take the parameters in
-         * a list.
-         *
-         * In the URL https://mydomain.org/#/object/123
-         * the parameter list will be the following : [object,123]
-         *
-         * The first parameter must be a view name, otherwise the
-         * app will redirect the user to an 404 error page.
-         */
+        constructor() { }
         async load() {
-            await Initializer$1.instance().subscribeInitializables();
-            await Initializer$1.instance().notify();
-            const params = URLs.getParametersByIndex(window.location.hash.slice(1).toLowerCase(), 1);
-            this.router.load(params);
+            this.boot = new BootHandler();
+            await this.boot.start();
+            this.overrides();
+            const params = Urls.getParametersByIndex(window.location.hash.slice(1).toLowerCase(), 1);
+            Router$1.instance.load(params);
+            console.debug("App is starting...");
         }
-        /**
-         * Override the alert system  with a custom notification widget
-         * to send notifications across the app without having to
-         * implement an external alert system,
-         */
-        setNoficationSystem() {
-            // Override the default notification function
-            window.alert = (properties) => {
-                this.notification.setContent(properties);
-                this.notification.show(properties.time);
-                // If the desktop notification are active 
-                if (properties.desktop) {
-                    new Notification(Config.Base.app_name, {
-                        icon: Config.Path.icons + "logo.svg",
-                        body: properties.message,
-                    });
-                }
+        overrides() {
+            console.debug = (logs) => {
+                if (Configuration.instance.isDevelopment())
+                    console.log(logs);
             };
         }
+        async start() {
+            await this.boot.start();
+        }
     };
-    App.performed = false;
     App = __decorate([
         Singleton(),
         StaticImplements(),
@@ -1957,15 +2390,11 @@
      * When the dynamic URL changes loads
      * the correspoding view from the URL
      */
-    window.addEventListener("hashchange", async () => {
-        await App$1.instance().load();
-    });
+    window.addEventListener("hashchange", async () => await App$1.instance.load());
     /**
      * When the window is loaded load
      * the app state to show
      */
-    window.onload = async () => {
-        await App$1.instance().load();
-    };
+    window.onload = async () => App$1.instance.load();
 
 })();

@@ -1,10 +1,10 @@
 export default interface Project {
-    name : string;
-    images : Image[];
+  name: string;
+  images: Image[];
+  tags: string[];
 }
 
 export interface Image {
-    url : string;
-    title : string;
-    tags : string[];
+  url: string;
+  title: string;
 }

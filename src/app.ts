@@ -1,87 +1,45 @@
+import { Configuration } from "./configuration/configuration.js";
+import BootHandler from "./core/boot.handler.js";
+import { ISingleton, Singleton } from "./lib/gtdf/core/decorator/singleton.js";
+import { StaticImplements } from "./lib/gtdf/core/static/static.inteface.js";
+import Urls from "./lib/gtdf/data/urls.js";
 import Router from "./views/router.js";
-import  URLs from "./lib/gtdf/data/urls.js";
-import { Config } from "./config/config.js";
-import { Events, IEvents } from "./core/events/events.js";
-import Keyboard from "./core/events/keyboard.js";
-import NotificationUI, { NotificationProperties } from "./components/notifications/notification.js";
-import Initializer from "./core/initializer.js";
-import { ISingleton, Singleton } from "./lib/gtdf/decorators/Singleton.js";
-import { StaticImplements } from "./lib/gtdf/core/static/static.interface.js";
+
 /**
  * Class that represents the application frontend proccess
- * it can be intantiated more than once, but the classic 
+ * it can be intantiated more than once, but the classic
  * web application structure wont need it.
+ * @author akrck02
  */
 @Singleton()
 @StaticImplements<ISingleton<App>>()
 export default class App {
+  private boot: BootHandler;
+  static instanceFn: () => App;
+  static instance: App;
 
-    static _instance : App;
-    static instance;
-    private static performed : boolean = false;
+  constructor() {}
 
-    private router : Router;
-    private events : IEvents;
-    private notification : NotificationUI;
+  async load() {
+    this.boot = new BootHandler();
+    await this.boot.start();
+    this.overrides();
 
-    /**
-     * Create an instance of the apjplication
-     */
-    constructor(){        
-       
-        this.router = Router.instance();
-        this.events = Events;
-        Keyboard.setEventListeners(this.events);
+    const params = Urls.getParametersByIndex(
+      window.location.hash.slice(1).toLowerCase(),
+      1,
+    );
+    Router.instance.load(params);
+    console.debug("App is starting...");
+  }
 
-        // Set the notification element
-        this.notification = new NotificationUI();
-        document.body.appendChild(this.notification.element);
-        this.setNoficationSystem();
-    }
+  overrides() {
+    console.debug = (logs) => {
+      if (Configuration.instance.isDevelopment()) console.log(logs);
+    };
+  }
 
-    /**
-     * Load the app state with the given URL address
-     * The URL get parsed to take the parameters in 
-     * a list.
-     * 
-     * In the URL https://mydomain.org/#/object/123
-     * the parameter list will be the following : [object,123]
-     * 
-     * The first parameter must be a view name, otherwise the 
-     * app will redirect the user to an 404 error page.
-     */
-    async load(){
-        await Initializer.instance().subscribeInitializables();
-        await Initializer.instance().notify();
-
-        const params = URLs.getParametersByIndex(window.location.hash.slice(1).toLowerCase(),1);
-        this.router.load(params);
-    }
-
-    /**
-     * Override the alert system  with a custom notification widget
-     * to send notifications across the app without having to 
-     * implement an external alert system,
-     */
-    private setNoficationSystem(){
-        
-        // Override the default notification function
-        window.alert = (properties : NotificationProperties) => {
-            this.notification.setContent(properties);
-            this.notification.show(properties.time);
-
-            // If the desktop notification are active 
-            if(properties.desktop){
-
-                new Notification(Config.Base.app_name ,{
-                    icon: Config.Path.icons + "logo.svg",
-                    body: properties.message,
-                })
-            }
-
-        };
-
-    }
-
+  async start() {
+    await this.boot.start();
+  }
 }
-

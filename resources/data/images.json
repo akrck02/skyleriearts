@@ -1,71 +1,60 @@
 [
   {
-    "name": "Dark souls series",
+    "name": "Anthropomorphic animals",
+    "tags": ["Concept art"],
     "images": [
       {
-        "url": "https://i.pinimg.com/originals/d6/30/4c/d6304c4d2b43f97edd575c94a84dc040.jpg",
-        "tags": ["Concept art"]
+        "url": "resources/images/uploads/oslo scene.png"
       },
       {
-        "url": "https://cdn.domestika.org/c_fit,dpr_auto,f_auto,q_80,t_base_params,w_820/v1597580595/content-items/005/513/873/color_2-original.jpg?1597580595",
-        "tags": ["Concept art"]
+        "url": "resources/images/uploads/andoru.png"
       },
       {
-        "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
-        "tags": ["Concept art"]
+        "url": "resources/images/uploads/owl.png"
       },
       {
-        "url": "https://i.pinimg.com/originals/d6/30/4c/d6304c4d2b43f97edd575c94a84dc040.jpg",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://cdn.domestika.org/c_fit,dpr_auto,f_auto,q_80,t_base_params,w_820/v1597580595/content-items/005/513/873/color_2-original.jpg?1597580595",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://i.pinimg.com/originals/d6/30/4c/d6304c4d2b43f97edd575c94a84dc040.jpg",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://cdn.domestika.org/c_fit,dpr_auto,f_auto,q_80,t_base_params,w_820/v1597580595/content-items/005/513/873/color_2-original.jpg?1597580595",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://i.pinimg.com/originals/d6/30/4c/d6304c4d2b43f97edd575c94a84dc040.jpg",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://cdn.domestika.org/c_fit,dpr_auto,f_auto,q_80,t_base_params,w_820/v1597580595/content-items/005/513/873/color_2-original.jpg?1597580595",
-        "tags": ["Concept art"]
-      },
-      {
-        "url": "https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/6460b554749551.5967ba465545f.jpg",
-        "tags": ["Concept art"]
+        "url": "resources/images/uploads/ana amari portrait.png"
       }
     ]
   },
   {
-    "name": "Titulo random 2",
+    "name": "Overwatch",
+    "tags": ["Concept art"],
+    "images": [
+      {
+        "url": "resources/images/uploads/Xionix ana icon.png"
+      },
+      {
+        "url": "resources/images/uploads/zephyr headshot overwatch sombra.png"
+      }
+    ]
+  },
+  {
+    "name": "Isopets",
+    "tags": ["Pixel art", "Concept art"],
     "images": []
   },
   {
-    "name": "Titulo random 3",
+    "name": "Spiderman",
+    "tags": ["Comics"],
+    "images": [
+      {
+        "url": "resources/images/uploads/miles morales study.png"
+      }
+    ]
+  },
+  {
+    "name": "Nunna",
+    "tags": ["Comics"],
     "images": []
   },
   {
-    "name": "Titulo random 4",
-    "images": []
-  },
-  {
-    "name": "Titulo random 5",
-    "images": []
+    "name": "Val",
+    "tags": ["Commisions"],
+    "images": [
+      {
+        "url": "resources/images/uploads/val.png"
+      }
+    ]
   }
 ]
