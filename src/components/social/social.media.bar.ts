@@ -6,6 +6,9 @@ import {
 import { SocialIcons } from "../../lib/gtdf/resources/SocialIcons.js";
 import { Gtdf } from "../../lib/others/gtdf.js";
 
+/**
+ * SocialMediaBar is a UIComponent that displays a bar of social media icons.
+ */
 export default class SocialMediaBar extends UIComponent {
   public constructor() {
     super({
@@ -20,6 +23,9 @@ export default class SocialMediaBar extends UIComponent {
     this.configure();
   }
 
+  /**
+   * Configures the social media bar by adding social media buttons.
+   */
   private configure(): void {
     const socialMedia = {
       twitter: "https://twitter.com/Skyleriearts",
@@ -40,11 +46,17 @@ export default class SocialMediaBar extends UIComponent {
   }
 }
 
+/**
+ * SocialMediaButtonProperties is an interface that defines the properties of a SocialMediaButton.
+ */
 interface SocialMediaButtonProperties {
   icon: string;
   url: string;
 }
 
+/**
+ * SocialMediaButton is a UIComponent that displays a social media icon as a button.
+ */
 class SocialMediaButton extends UIComponent {
   public constructor(properties: SocialMediaButtonProperties) {
     super({
@@ -57,6 +69,10 @@ class SocialMediaButton extends UIComponent {
     this.configure(properties);
   }
 
+  /**
+   * Configures the social media button by adding an icon.
+   * @param properties The properties of the social media button.
+   */
   private configure(properties: SocialMediaButtonProperties): void {
     const iconComponent = SocialIcons.get(properties.icon, {
       fill: "#444",

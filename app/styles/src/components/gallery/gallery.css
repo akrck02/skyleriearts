@@ -34,7 +34,7 @@ div.gallery.mobile ul#image-list {
 
 div.gallery ul#image-list li {
     display: inline-block;
-    margin: 1rem 0.35rem;
+    margin: 0.45rem;
     list-style-type: none;
 }
 
@@ -47,8 +47,8 @@ div.gallery ul#image-list li div.canvas {
 
 div.gallery ul#image-list li div.canvas,
 div.gallery ul#image-list li div.canvas img {
-    height: 15rem;
-    border-radius: 0rem;
+    height: 25rem;
+    border-radius: 0.5rem;
     cursor: pointer;
     padding: 0;
     transition: var(--animation-fast) ease-in-out;

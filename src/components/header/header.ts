@@ -10,16 +10,16 @@ import { Gtdf } from "../../lib/others/gtdf.js";
 export default class Header extends UIComponent {
   private static readonly ID = "header";
 
-  public constructor() {
+  public constructor(tags: Set<string>) {
     super({
       type: HTML.DIV,
       id: Header.ID,
       classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
     });
-    this.configure();
+    this.configure(tags);
   }
 
-  public async configure(): Promise<void> {
+  public async configure(tags: Set<string>): Promise<void> {
     const profilePicture = new UIComponent({
       type: HTML.IMG,
       id: "logo",
@@ -35,8 +35,12 @@ export default class Header extends UIComponent {
       classes: [Gtdf.TEXT_CENTER],
     });
 
+    const selected = tags.values().next().value;
+    const tagMenu = new TagMenu(tags, selected);
+
     profilePicture.appendTo(this);
     title.appendTo(this);
+    tagMenu.appendTo(this);
   }
 }
 
@@ -45,38 +49,49 @@ export default class Header extends UIComponent {
  */
 class TagMenu extends UIComponent {
   private static readonly ID = "tag-menu";
+  private buttons: Map<string, UIComponent> = new Map();
 
-  public constructor(tags: Set<string>) {
+  public constructor(tags: Set<string>, selectedTag?: string) {
     super({
       type: HTML.DIV,
       id: TagMenu.ID,
-      classes: [Gtdf.BOX_ROW, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
-      styles: {
-        width: "100%",
-        height: "5vh",
-        padding: "1rem",
-      },
+      classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
     });
-    this.configure(tags);
+    this.configure(tags, selectedTag);
   }
 
-  public async configure(tags: Set<string>): Promise<void> {
-    tags.forEach((tag) => this.addTagButton(tag));
+  public async configure(
+    tags: Set<string>,
+    selectedTag?: string,
+  ): Promise<void> {
+    tags.forEach((tag) => this.addTagButton(tag, selectedTag));
   }
 
   /**
    * Add a tag button to the tag menu.
    */
-  addTagButton(tag: string): void {
+  addTagButton(tag: string, selectedTag?: string): void {
     const button = new UIComponent({
       type: HTML.BUTTON,
       text: tag,
-      classes: [],
-      styles: {
-        backgroundColor: "rgba(0, 0, 0, 0.05)",
-        margin: "10px",
+      classes: selectedTag == tag ? ["selected"] : [],
+      events: {
+        click: () => this.selectTag(tag),
       },
     });
+    this.buttons.set(tag, button);
     button.appendTo(this);
+  }
+
+  selectTag(selectedTag: string): void {
+    this.buttons.forEach(
+      (button: UIComponent, tag: string, map: Map<string, UIComponent>) => {
+        button.element.classList.remove("selected");
+
+        if (tag === selectedTag) {
+          button.element.classList.add("selected");
+        }
+      },
+    );
   }
 }
