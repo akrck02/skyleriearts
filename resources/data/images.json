@@ -4,16 +4,16 @@
     "tags": ["Concept art"],
     "images": [
       {
-        "url": "resources/images/uploads/oslo scene.png"
+        "url": "/resources/images/uploads/oslo scene.png"
       },
       {
-        "url": "resources/images/uploads/andoru.png"
+        "url": "/resources/images/uploads/andoru.png"
       },
       {
-        "url": "resources/images/uploads/owl.png"
+        "url": "/resources/images/uploads/owl.png"
       },
       {
-        "url": "resources/images/uploads/ana amari portrait.png"
+        "url": "/resources/images/uploads/ana amari portrait.png"
       }
     ]
   },
@@ -22,10 +22,10 @@
     "tags": ["Concept art"],
     "images": [
       {
-        "url": "resources/images/uploads/Xionix ana icon.png"
+        "url": "/resources/images/uploads/Xionix ana icon.png"
       },
       {
-        "url": "resources/images/uploads/zephyr headshot overwatch sombra.png"
+        "url": "/resources/images/uploads/zephyr headshot overwatch sombra.png"
       }
     ]
   },
@@ -39,7 +39,7 @@
     "tags": ["Comics"],
     "images": [
       {
-        "url": "resources/images/uploads/miles morales study.png"
+        "url": "/resources/images/uploads/miles morales study.png"
       }
     ]
   },
@@ -53,7 +53,7 @@
     "tags": ["Commisions"],
     "images": [
       {
-        "url": "resources/images/uploads/val.png"
+        "url": "/resources/images/uploads/val.png"
       }
     ]
   }
