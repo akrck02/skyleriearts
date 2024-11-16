@@ -1,6 +1,7 @@
 import { BubbleUI } from "../../lib/bubble/bubble.js";
 import { Html } from "../../lib/gtdf/component/dom.js";
 import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import { Signal } from "../../lib/gtdf/core/signals/signals.js";
 import { Browser } from "../../lib/gtdf/web/browser.js";
 /**
  * Gallery component to show images
@@ -17,6 +18,7 @@ export default class ProjectGallery extends UIComponent {
                 BubbleUI.BoxYStart,
             ],
         });
+        this.visualizeImageSignal = new Signal("visualize-image");
         this.configure(project);
     }
     /**

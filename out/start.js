@@ -1805,6 +1805,7 @@
                     BubbleUI.BoxYStart,
                 ],
             });
+            this.visualizeImageSignal = new Signal("visualize-image");
             this.configure(project);
         }
         /**

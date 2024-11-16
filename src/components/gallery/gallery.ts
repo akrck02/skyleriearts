@@ -3,7 +3,13 @@ import Project, { Image } from "../../core/models/project.js";
 import { BubbleUI } from "../../lib/bubble/bubble.js";
 import { Html } from "../../lib/gtdf/component/dom.js";
 import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import { Signal } from "../../lib/gtdf/core/signals/signals.js";
 import { Browser } from "../../lib/gtdf/web/browser.js";
+
+interface ImageGalleryData {
+  images: Image[];
+  selected: number;
+}
 
 /**
  * Gallery component to show images
@@ -14,6 +20,9 @@ export default class ProjectGallery extends UIComponent {
   private static readonly TITLE_ID = "title";
   private static readonly LIST_ID = "image-list";
   private static readonly MOBILE_CLASS = "mobile";
+
+  public visualizeImageSignal: Signal<ImageGalleryData> =
+    new Signal<ImageGalleryData>("visualize-image");
 
   public constructor(project: Project) {
     super({

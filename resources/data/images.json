@@ -32,7 +32,23 @@
   {
     "name": "Isopets",
     "tags": ["Pixel art", "Concept art"],
-    "images": []
+    "images": [
+      {
+        "url": "resources/images/uploads/tas.png"
+      },
+      {
+        "url": "resources/images/uploads/teko.png"
+      },
+      {
+        "url": "resources/images/uploads/soriel.png"
+      },
+      {
+        "url": "resources/images/uploads/cat.png"
+      },
+      {
+        "url": "resources/images/uploads/gomi.png"
+      }
+    ]
   },
   {
     "name": "Spiderman",
@@ -46,7 +62,11 @@
   {
     "name": "Nunna",
     "tags": ["Comics"],
-    "images": []
+    "images": [
+      {
+        "url": "resources/images/uploads/nunna.png"
+      }
+    ]
   },
   {
     "name": "Val",
