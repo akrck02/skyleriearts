@@ -1,10 +1,7 @@
-import { HTML } from "../../lib/gtdf/components/dom";
-import {
-  UIComponent,
-  UIProperties,
-} from "../../lib/gtdf/components/uicomponent.js";
-import { SocialIcons } from "../../lib/gtdf/resources/SocialIcons.js";
-import { Gtdf } from "../../lib/others/gtdf.js";
+import { BubbleUI } from "../../lib/bubble/bubble.js";
+import { Html } from "../../lib/gtdf/component/dom.js";
+import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import { SocialIcons } from "../../lib/social/SocialIcons";
 
 /**
  * SocialMediaBar is a UIComponent that displays a bar of social media icons.
@@ -12,13 +9,8 @@ import { Gtdf } from "../../lib/others/gtdf.js";
 export default class SocialMediaBar extends UIComponent {
   public constructor() {
     super({
-      type: HTML.DIV,
-      classes: [
-        "social-media-bar",
-        Gtdf.BOX_ROW,
-        Gtdf.BOX_X_CENTER,
-        Gtdf.BOX_Y_CENTER,
-      ],
+      type: Html.Div,
+      classes: ["social-media-bar", BubbleUI.BoxRow, BubbleUI.BoxCenter],
     });
     this.configure();
   }
@@ -60,8 +52,8 @@ interface SocialMediaButtonProperties {
 class SocialMediaButton extends UIComponent {
   public constructor(properties: SocialMediaButtonProperties) {
     super({
-      type: HTML.A,
-      classes: [Gtdf.BOX_CENTER],
+      type: Html.A,
+      classes: [BubbleUI.BoxCenter],
       attributes: {
         href: properties.url,
       },

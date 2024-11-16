@@ -1,7 +1,7 @@
-import { HTML } from "../../lib/gtdf/components/dom.js";
-import { UIComponent } from "../../lib/gtdf/components/uicomponent.js";
-import MaterialIcons from "../../lib/gtdf/resources/MaterialIcons.js";
-import { Gtdf } from "../../lib/others/gtdf.js";
+import { BubbleUI } from "../../lib/bubble/bubble.js";
+import { Html } from "../../lib/gtdf/component/dom.js";
+import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import MaterialIcons from "../../lib/material/material.icons.js";
 
 /**
  * Image visualizer component
@@ -24,9 +24,9 @@ export class ImageVisualizer extends UIComponent {
 
   constructor() {
     super({
-      type: HTML.DIV,
+      type: Html.Div,
       id: ImageVisualizer.ID,
-      classes: [Gtdf.BOX_ROW, Gtdf.BOX_CENTER],
+      classes: [BubbleUI.BoxRow, BubbleUI.BoxCenter],
     });
     this.setEvents({
       click: (event) => {
@@ -65,7 +65,7 @@ export class ImageVisualizer extends UIComponent {
     });
 
     this.image = new UIComponent({
-      type: HTML.IMG,
+      type: Html.Img,
       attributes: { src: "" },
     });
 
@@ -79,7 +79,7 @@ export class ImageVisualizer extends UIComponent {
     });
 
     this.infoText = new UIComponent({
-      type: HTML.P,
+      type: Html.P,
       id: ImageVisualizer.INFO_TEXT_ID,
       text: "Touch outside the image to close the visualizer.",
       classes: ["info-text"],

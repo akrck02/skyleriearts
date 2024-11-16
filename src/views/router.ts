@@ -1,125 +1,136 @@
-import SignalBuffer from "../core/signal.buffer.js";
-import { InitializeError } from "../errors/initialize.error.js";
-import { UIComponent } from "../lib/gtdf/components/uicomponent.js";
+import { SignalBuffer } from "../core/signal.buffer.js";
+import InitializeError from "../error/initialize.error.js";
+import { Html } from "../lib/gtdf/component/dom.js";
+import { UIComponent } from "../lib/gtdf/component/ui.component.js";
+import { Routes } from "../lib/gtdf/core/decorator/route.js";
+import { ISingleton, Singleton } from "../lib/gtdf/core/decorator/singleton.js";
 import { IObserver } from "../lib/gtdf/core/observable/observer.js";
-import ErrorView from "./error/error.view.js";
-import { ISingleton, Singleton } from "../lib/gtdf/decorators/Singleton.js";
-import { StaticImplements } from "../lib/gtdf/core/static/static.interface.js";
-import { Routes } from "../lib/gtdf/decorators/Route.js";
-import { Signal } from "../lib/gtdf/core/signals/signal.js";
-import HomeView from "./home/home.view.js";
+import { Signal } from "../lib/gtdf/core/signals/signals.js";
+import { StaticImplements } from "../lib/gtdf/core/static/static.inteface.js";
+import { ViewUI } from "../lib/gtdf/view/view.ui.js";
+import ErrorView from "./error/error.view.ui.js";
+import HomeView from "./home/home.view.ui.js";
 
 @Singleton()
 @StaticImplements<ISingleton<Router>>()
 export default class Router implements IObserver {
-    private parent: HTMLElement;
-    private container: UIComponent;
+  private static readonly VIEW_CONTAINER_ID = "view-container";
+  private static readonly VIEW_CONTAINER_BOX_ID = "view-container-box";
 
-    public static _instance: Router;
-    public static instance;
+  private static readonly VIEW_CHANGE_REQUESTED_SIGNAL = "viewChangeRequested";
+  private static readonly VIEW_RELOAD_SIGNAL = "viewReload";
 
-    private static readonly CHAGE_VIEW_SIGNAL = "changeView";
-    private static readonly VIEW_CHANGED_SIGNAL = "viewChanged";
+  public static instance: Router;
+  public static instanceFn: () => Router;
 
-    private changeViewSignal : Signal;
-    private viewChangedSignal : Signal;
+  private parent: HTMLElement;
+  private container: UIComponent;
+  private currentView: ViewUI;
+  private currentParams: string[];
 
-    private constructor() {
-        {
-            this.parent = document.getElementById(
-                "view-container"
-            ) as HTMLElement;
+  private changeViewRequestedSignal: Signal<void>;
+  private reloadCurrentViewSignal: Signal<void>;
 
-            //If no parent is present on the HTML file throws an error
-            if (!this.parent) {
-                throw new InitializeError("view-container does not exist");
-            }
+  private constructor() {
+    this.parent = document.getElementById("view-container") as HTMLElement;
 
-            this.container = new UIComponent({
-                type: "div",
-                id: "view-container-box",
-                styles: {
-                    width: "100%",
-                    height: "100%",
-                },
-            });
+    //If no parent is present on the HTML file throws an error
+    if (!this.parent)
+      throw new InitializeError("view-container does not exist");
 
-            this.container.appendTo(this.parent);
+    this.container = new UIComponent({
+      type: Html.Div,
+      id: Router.VIEW_CONTAINER_BOX_ID,
+      styles: {
+        width: "100%",
+        height: "100%",
+      },
+    });
 
-            this.changeViewSignal = new Signal(Router.CHAGE_VIEW_SIGNAL);
-            SignalBuffer.add(this.changeViewSignal);
-            this.changeViewSignal.subscribe(this);
+    this.suscribeToSignals();
+    this.container.appendTo(this.parent);
+  }
 
-            this.viewChangedSignal = new Signal(Router.VIEW_CHANGED_SIGNAL);
-            SignalBuffer.add(this.viewChangedSignal);
-        }
+  /**
+   * Suscribe to the signals
+   */
+  private suscribeToSignals() {
+    this.changeViewRequestedSignal = new Signal(
+      Router.VIEW_CHANGE_REQUESTED_SIGNAL,
+    );
+    this.changeViewRequestedSignal.connect({
+      origin: "Router",
+      action: async () => console.log("a"),
+    });
+
+    this.reloadCurrentViewSignal = new Signal(Router.VIEW_RELOAD_SIGNAL);
+    this.reloadCurrentViewSignal.connect({
+      origin: "Router",
+      action: async () => this.reloadCurrentView(),
+    });
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async update(data?: any): Promise<void> {
+    console.debug(data);
+    console.debug(`Router update to /${data.view}`);
+
+    let params = [];
+    if (data.params) {
+      params.push(data.view);
+      params = params.concat(data.params);
     }
 
-    async update(data?: any): Promise<void> {
+    await this.load(params);
+  }
 
-        console.debug(data);
-        console.debug(`Router update to /${data.view}`);
-       
-        let params = [];
-        if (data.params) {
-            params.push(data.view);
-            params = params.concat(data.params);            
-        } 
+  Endpoints = [HomeView, ErrorView];
 
-        await this.load(params);
+  /**
+   * Load the app state with the given params
+   * @param params The list of params
+   */
+  public async load(params: string[]) {
+    try {
+      this.container.clean();
+      this.clear();
+
+      // load the ViewUI instances created with the @Route decorator
+      for (const route of Routes)
+        if (await this.navigate(route, params)) return;
+
+      ErrorView.instance.show(["404"], this.container);
+    } catch (error) {
+      console.error(error);
     }
+  }
 
-    Endpoints = [HomeView, ErrorView];
+  /**
+   * Navigate to the given view
+   */
+  public async navigate(view: ViewUI, params: string[] = []): Promise<boolean> {
+    if (!view.isPointing(params[0])) return false;
 
-    /**
-     * Load the app state with the given params
-     * @param params The list of params
-     */
-    public async load(params: string[]) {
-        try {
-            this.clear();
-            this.container.clean();
+    this.currentView = view;
+    this.currentParams = params;
+    view.clean();
+    await view.show(params.splice(1), this.container);
+    return true;
+  }
 
-            let found = false;
-            for (const route of Routes) {
-                
-                if(found){
-                    break;
-                }
+  /**
+   * Reload the current view
+   */
+  public async reloadCurrentView() {
+    await this.currentView.show(this.currentParams, this.container);
+  }
 
-                if (route.isPointing(params[0])) {
-                    route.clean();
-                    route.show(params.splice(1), this.container);
-
-                    await this.viewChangedSignal.emit({
-                        view: route.routes[0],
-                        params: params.splice(1),
-                    });
-
-                    found = true;
-                }
-            }
-
-
-            if (!found) {
-                ErrorView.instance().show(["404"], this.container);
-
-                await this.viewChangedSignal.emit({
-                    view: ErrorView.instance().routes[0],
-                    params: ["404"],
-                });
-                
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-
-    /**
-     * Clear the container
-     */
-    public clear() {
-        this.container.element.innerHTML = "";
-    }
+  /**
+   * Clear the container
+   */
+  public clear() {
+    this.container.element.innerHTML = "";
+  }
 }

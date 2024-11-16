@@ -4,22 +4,28 @@
     "tags": ["Concept art"],
     "images": [
       {
-        "url": "oslo scene.png"
+        "url": "resources/images/uploads/oslo scene.png"
       },
       {
-        "url": "andoru.png"
+        "url": "resources/images/uploads/andoru.png"
       },
       {
-        "url": "owl.png"
+        "url": "resources/images/uploads/owl.png"
       },
       {
-        "url": "Xionix ana icon.png"
+        "url": "resources/images/uploads/ana amari portrait.png"
+      }
+    ]
+  },
+  {
+    "name": "Overwatch",
+    "tags": ["Concept art"],
+    "images": [
+      {
+        "url": "resources/images/uploads/Xionix ana icon.png"
       },
       {
-        "url": "zephyr headshot overwatch sombra.png"
-      },
-      {
-        "url": "ana amari portrait.png"
+        "url": "resources/images/uploads/zephyr headshot overwatch sombra.png"
       }
     ]
   },
@@ -33,7 +39,7 @@
     "tags": ["Comics"],
     "images": [
       {
-        "url": "miles morales study.png"
+        "url": "resources/images/uploads/miles morales study.png"
       }
     ]
   },
@@ -47,7 +53,7 @@
     "tags": ["Commisions"],
     "images": [
       {
-        "url": "val.png"
+        "url": "resources/images/uploads/val.png"
       }
     ]
   }

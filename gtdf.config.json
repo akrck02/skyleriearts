@@ -1,43 +1,27 @@
 {
   "base": {
-    "app_name": "SkylerieArts",
-    "app_version": "v2.0.0b",
-    "host": "fuyu.local:3333",
-    "port": "5500",
+    "app_name": "skyleriearts",
+    "app_version": "v2.0.0",
     "enviroment": "development",
-    "debug": "true",
-    "log_level": "debug",
-    "website": "https://akrck02.org/#/software/valhalla",
     "author": "akrck02"
   },
-
   "path": {
     "url": "..",
-    "app": "app",
     "resources": "resources",
     "language": "resources/i18n",
     "images": "resources/images",
     "icons": "resources/icons"
   },
-
   "views": {
-    "url": "app/#",
-    "login": "login",
-    "error": "error",
+    "url": "/#",
     "home": "home",
+    "error": "error",
     "blank": "blank"
   },
-
-  "api": {
-    "url": "http://127.0.0.1:3333/api/v1",
-    "login": "user/login",
-    "login_auth": "user/login/auth",
-    "register": "user/register"
-  },
-
+  "api": {},
   "variables": {
     "animations": "true",
-    "language": "es",
+    "language": "en",
     "theme": "light"
   }
 }

@@ -1,9 +1,9 @@
-import { Config } from "../../config/config.js";
+import { Configuration } from "../../configuration/configuration.js";
 import Project, { Image } from "../../core/models/project.js";
-import { Browser } from "../../lib/gtdf/components/browser.js";
-import { HTML } from "../../lib/gtdf/components/dom.js";
-import { UIComponent } from "../../lib/gtdf/components/uicomponent.js";
-import { Gtdf } from "../../lib/others/gtdf.js";
+import { BubbleUI } from "../../lib/bubble/bubble.js";
+import { Html } from "../../lib/gtdf/component/dom.js";
+import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import { Browser } from "../../lib/gtdf/web/browser.js";
 
 /**
  * Gallery component to show images
@@ -17,12 +17,12 @@ export default class ProjectGallery extends UIComponent {
 
   public constructor(project: Project) {
     super({
-      type: HTML.DIV,
+      type: Html.Div,
       classes: [
         ProjectGallery.CLASS,
-        Gtdf.BOX_COLUMN,
-        Gtdf.BOX_X_START,
-        Gtdf.BOX_Y_START,
+        BubbleUI.BoxColumn,
+        BubbleUI.BoxXStart,
+        BubbleUI.BoxYStart,
       ],
     });
     this.configure(project);
@@ -50,7 +50,7 @@ export default class ProjectGallery extends UIComponent {
     // Add a list of images to show
     // in the gallery
     const list = new UIComponent({
-      type: HTML.UL,
+      type: Html.Ul,
       id: ProjectGallery.LIST_ID,
     });
 
@@ -64,12 +64,8 @@ export default class ProjectGallery extends UIComponent {
    * @param image Image to register
    */
   register(list: UIComponent, image: Image): void {
-    const listItem = new UIComponent({ type: HTML.LI });
-    const url = image.url.startsWith("https://")
-      ? image.url
-      : `${Config.Path.images}uploads/${image.url}`;
-
-    image.url = url;
+    const listItem = new UIComponent({ type: Html.Li });
+    const url = image.url;
     const canvas = new ImageCanvas(image);
     setTimeout(() => (canvas.element.style.opacity = "1"), 1);
     canvas.appendTo(listItem);
@@ -84,7 +80,7 @@ export default class ProjectGallery extends UIComponent {
 class ImageCanvas extends UIComponent {
   public constructor(image: Image) {
     super({
-      type: HTML.DIV,
+      type: Html.Div,
       classes: ["canvas"],
     });
 
@@ -97,7 +93,7 @@ class ImageCanvas extends UIComponent {
    */
   configure(image: Image): void {
     const imageComponent = new UIComponent({
-      type: HTML.IMG,
+      type: Html.Img,
       attributes: {
         src: image.url,
         alt: image.title,

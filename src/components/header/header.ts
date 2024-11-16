@@ -1,42 +1,45 @@
-import { Config } from "../../config/config.js";
-import { HTML } from "../../lib/gtdf/components/dom.js";
-import { UIComponent } from "../../lib/gtdf/components/uicomponent.js";
-import { SocialIcons } from "../../lib/gtdf/resources/SocialIcons.js";
-import { Gtdf } from "../../lib/others/gtdf.js";
+import { Configuration } from "../../configuration/configuration.js";
+import { GalleryRequestParams } from "../../core/models/gallery.request.params.js";
+import { BubbleUI } from "../../lib/bubble/bubble.js";
+import { Html } from "../../lib/gtdf/component/dom.js";
+import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
+import { Signal } from "../../lib/gtdf/core/signals/signals.js";
 
 /**
  * Header component for the website
  */
 export default class Header extends UIComponent {
   private static readonly ID = "header";
+  public tagSelectedSignal: Signal<GalleryRequestParams>;
 
   public constructor(tags: Set<string>) {
     super({
-      type: HTML.DIV,
+      type: Html.Div,
       id: Header.ID,
-      classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_CENTER],
+      classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
     });
+    this.tagSelectedSignal = new Signal<GalleryRequestParams>("menu-changed");
     this.configure(tags);
   }
 
   public async configure(tags: Set<string>): Promise<void> {
     const profilePicture = new UIComponent({
-      type: HTML.IMG,
+      type: Html.Img,
       id: "logo",
       attributes: {
-        src: `${Config.Path.images}logo.jpg`,
+        src: `${Configuration.instance.path.images}logo.jpg`,
       },
     });
 
     const title = new UIComponent({
-      type: HTML.H1,
+      type: Html.H1,
       text: "Skylerie",
       id: "title",
-      classes: [Gtdf.TEXT_CENTER],
+      classes: [BubbleUI.TextCenter],
     });
 
     const selected = tags.values().next().value;
-    const tagMenu = new TagMenu(tags, selected);
+    const tagMenu = new TagMenu(this.tagSelectedSignal, tags, selected);
 
     profilePicture.appendTo(this);
     title.appendTo(this);
@@ -50,13 +53,19 @@ export default class Header extends UIComponent {
 class TagMenu extends UIComponent {
   private static readonly ID = "tag-menu";
   private buttons: Map<string, UIComponent> = new Map();
+  private tagSelectedSignal: Signal<GalleryRequestParams>;
 
-  public constructor(tags: Set<string>, selectedTag?: string) {
+  public constructor(
+    signal: Signal<GalleryRequestParams>,
+    tags: Set<string>,
+    selectedTag?: string,
+  ) {
     super({
-      type: HTML.DIV,
+      type: Html.Div,
       id: TagMenu.ID,
-      classes: [Gtdf.BOX_COLUMN, Gtdf.BOX_X_START, Gtdf.BOX_Y_START],
+      classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
     });
+    this.tagSelectedSignal = signal;
     this.configure(tags, selectedTag);
   }
 
@@ -72,7 +81,7 @@ class TagMenu extends UIComponent {
    */
   addTagButton(tag: string, selectedTag?: string): void {
     const button = new UIComponent({
-      type: HTML.BUTTON,
+      type: Html.Button,
       text: tag,
       classes: selectedTag == tag ? ["selected"] : [],
       events: {
@@ -93,5 +102,7 @@ class TagMenu extends UIComponent {
         }
       },
     );
+
+    this.tagSelectedSignal.emit({ tag: selectedTag });
   }
 }
