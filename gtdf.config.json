@@ -6,7 +6,7 @@
     "author": "akrck02"
   },
   "path": {
-    "url": "..",
+    "url": "/",
     "resources": "resources",
     "language": "resources/i18n",
     "images": "resources/images",
