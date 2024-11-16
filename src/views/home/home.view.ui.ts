@@ -153,6 +153,10 @@ export default class HomeView extends ViewUI {
       currentProject = projects.values().next().value;
     }
 
+    // disappear animation
+    this.galleryContainer.element.style.opacity = "0";
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // Clear the gallery container
     this.galleryContainer.clean();
 
@@ -176,6 +180,10 @@ export default class HomeView extends ViewUI {
     // Create the project gallery
     const gallery = new ProjectGallery(currentProject);
     gallery.appendTo(this.galleryContainer);
+
+    // appear animation
+    this.galleryContainer.element.style.opacity = "1";
+    await new Promise((resolve) => setTimeout(resolve, 260));
   }
 }
 
