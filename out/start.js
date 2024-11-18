@@ -1829,18 +1829,20 @@
                 type: Html.Ul,
                 id: ProjectGallery.LIST_ID,
             });
-            project.images?.forEach((image) => this.register(list, image));
+            project.images?.forEach((image) => this.register(list, image, project.images));
             list.appendTo(this);
         }
         /**
          * Register an image to the gallery
          * @param list List to append the image
          * @param image Image to register
+         * @param album Album of images
+         * @returns void
          */
-        register(list, image) {
+        register(list, image, album) {
             const listItem = new UIComponent({ type: Html.Li });
             image.url;
-            const canvas = new ImageCanvas(image);
+            const canvas = new ImageCanvas(image, album, this.visualizeImageSignal);
             setTimeout(() => (canvas.element.style.opacity = "1"), 1);
             canvas.appendTo(listItem);
             listItem.appendTo(list);
@@ -1855,10 +1857,19 @@
      * in the gallery
      */
     class ImageCanvas extends UIComponent {
-        constructor(image) {
+        constructor(image, album, signal) {
             super({
                 type: Html.Div,
-                classes: ["canvas"],
+                classes: ["canvas"]
+            });
+            this.imageClickedSignal = signal;
+            this.setEvents({
+                click: () => {
+                    this.imageClickedSignal?.emit({
+                        images: album,
+                        selected: album.indexOf(image),
+                    });
+                },
             });
             this.configure(image);
         }
@@ -1983,7 +1994,7 @@
                 },
             });
             this.buttonClose = MaterialIcons$1.get("close", {
-                fill: "white",
+                fill: "var(--text-color)",
                 size: "48px",
             });
             this.buttonClose.setEvents({
@@ -1995,7 +2006,7 @@
                 right: "0px",
             });
             this.buttonBack = MaterialIcons$1.get("back", {
-                fill: "white",
+                fill: "var(--text-color)",
                 size: "48px",
             });
             this.buttonBack.setEvents({
@@ -2006,7 +2017,7 @@
                 attributes: { src: "" },
             });
             this.buttonNext = MaterialIcons$1.get("front", {
-                fill: "white",
+                fill: "var(--text-color)",
                 size: "48px",
             });
             this.buttonNext.setEvents({
@@ -2050,7 +2061,7 @@
             else {
                 this.buttonNext.element.style.visibility = "visible";
             }
-            this.image.element.setAttribute("src", image);
+            this.image.element.setAttribute("src", image.url);
         }
         showBack() {
             this.show(this.list[this.index - 1], this.list);
@@ -2106,6 +2117,7 @@
                 this.element.classList.add(HomeView_1.MOBILE_CLASS);
             }
             this.visualizer = new ImageVisualizer();
+            this.visualizer.appendTo(this);
             this.galleryContainer = new UIComponent({
                 type: Html.Div,
                 id: "gallery-container",
@@ -2192,6 +2204,13 @@
             projectBar.appendTo(this.galleryContainer);
             // Create the project gallery
             const gallery = new ProjectGallery(currentProject);
+            gallery.visualizeImageSignal.connect({
+                action: async (data) => {
+                    console.log("Show image: ", data);
+                    await this.visualizer.show(data.images[data.selected], data.images);
+                },
+                origin: HomeView_1.ID,
+            });
             gallery.appendTo(this.galleryContainer);
             // appear animation
             this.galleryContainer.element.style.opacity = "1";

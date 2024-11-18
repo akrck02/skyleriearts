@@ -1,12 +1,12 @@
 import { Configuration } from "../../configuration/configuration.js";
 import Project, { Image } from "../../core/models/project.js";
 import { BubbleUI } from "../../lib/bubble/bubble.js";
-import { Html } from "../../lib/gtdf/component/dom.js";
+import DOM, { Html } from "../../lib/gtdf/component/dom.js";
 import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
 import { Signal } from "../../lib/gtdf/core/signals/signals.js";
 import { Browser } from "../../lib/gtdf/web/browser.js";
 
-interface ImageGalleryData {
+export interface ImageGalleryData {
   images: Image[];
   selected: number;
 }
@@ -63,7 +63,7 @@ export default class ProjectGallery extends UIComponent {
       id: ProjectGallery.LIST_ID,
     });
 
-    project.images?.forEach((image) => this.register(list, image));
+    project.images?.forEach((image) => this.register(list, image, project.images));
     list.appendTo(this);
   }
 
@@ -71,11 +71,13 @@ export default class ProjectGallery extends UIComponent {
    * Register an image to the gallery
    * @param list List to append the image
    * @param image Image to register
+   * @param album Album of images
+   * @returns void
    */
-  register(list: UIComponent, image: Image): void {
+  register(list: UIComponent, image: Image, album : Array<Image>): void {
     const listItem = new UIComponent({ type: Html.Li });
     const url = image.url;
-    const canvas = new ImageCanvas(image);
+    const canvas = new ImageCanvas(image, album, this.visualizeImageSignal);
     setTimeout(() => (canvas.element.style.opacity = "1"), 1);
     canvas.appendTo(listItem);
     listItem.appendTo(list);
@@ -87,10 +89,23 @@ export default class ProjectGallery extends UIComponent {
  * in the gallery
  */
 class ImageCanvas extends UIComponent {
-  public constructor(image: Image) {
+  
+  private imageClickedSignal: Signal<ImageGalleryData>;
+
+  public constructor(image: Image, album : Array<Image>, signal?: Signal<ImageGalleryData>) {
     super({
       type: Html.Div,
-      classes: ["canvas"],
+      classes: ["canvas"]
+    });
+
+    this.imageClickedSignal = signal;
+    this.setEvents({
+      click: () => {
+          this.imageClickedSignal?.emit({
+            images: album,
+            selected: album.indexOf(image),
+          });
+      },
     });
 
     this.configure(image);

@@ -42,18 +42,20 @@ export default class ProjectGallery extends UIComponent {
             type: Html.Ul,
             id: ProjectGallery.LIST_ID,
         });
-        project.images?.forEach((image) => this.register(list, image));
+        project.images?.forEach((image) => this.register(list, image, project.images));
         list.appendTo(this);
     }
     /**
      * Register an image to the gallery
      * @param list List to append the image
      * @param image Image to register
+     * @param album Album of images
+     * @returns void
      */
-    register(list, image) {
+    register(list, image, album) {
         const listItem = new UIComponent({ type: Html.Li });
         const url = image.url;
-        const canvas = new ImageCanvas(image);
+        const canvas = new ImageCanvas(image, album, this.visualizeImageSignal);
         setTimeout(() => (canvas.element.style.opacity = "1"), 1);
         canvas.appendTo(listItem);
         listItem.appendTo(list);
@@ -68,10 +70,19 @@ ProjectGallery.MOBILE_CLASS = "mobile";
  * in the gallery
  */
 class ImageCanvas extends UIComponent {
-    constructor(image) {
+    constructor(image, album, signal) {
         super({
             type: Html.Div,
-            classes: ["canvas"],
+            classes: ["canvas"]
+        });
+        this.imageClickedSignal = signal;
+        this.setEvents({
+            click: () => {
+                this.imageClickedSignal?.emit({
+                    images: album,
+                    selected: album.indexOf(image),
+                });
+            },
         });
         this.configure(image);
     }

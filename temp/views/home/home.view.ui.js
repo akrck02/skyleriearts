@@ -48,6 +48,7 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
             this.element.classList.add(HomeView_1.MOBILE_CLASS);
         }
         this.visualizer = new ImageVisualizer();
+        this.visualizer.appendTo(this);
         this.galleryContainer = new UIComponent({
             type: Html.Div,
             id: "gallery-container",
@@ -134,6 +135,13 @@ let HomeView = HomeView_1 = class HomeView extends ViewUI {
         projectBar.appendTo(this.galleryContainer);
         // Create the project gallery
         const gallery = new ProjectGallery(currentProject);
+        gallery.visualizeImageSignal.connect({
+            action: async (data) => {
+                console.log("Show image: ", data);
+                await this.visualizer.show(data.images[data.selected], data.images);
+            },
+            origin: HomeView_1.ID,
+        });
         gallery.appendTo(this.galleryContainer);
         // appear animation
         this.galleryContainer.element.style.opacity = "1";

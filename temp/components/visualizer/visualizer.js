@@ -23,7 +23,7 @@ export class ImageVisualizer extends UIComponent {
             },
         });
         this.buttonClose = MaterialIcons.get("close", {
-            fill: "white",
+            fill: "var(--text-color)",
             size: "48px",
         });
         this.buttonClose.setEvents({
@@ -35,7 +35,7 @@ export class ImageVisualizer extends UIComponent {
             right: "0px",
         });
         this.buttonBack = MaterialIcons.get("back", {
-            fill: "white",
+            fill: "var(--text-color)",
             size: "48px",
         });
         this.buttonBack.setEvents({
@@ -46,7 +46,7 @@ export class ImageVisualizer extends UIComponent {
             attributes: { src: "" },
         });
         this.buttonNext = MaterialIcons.get("front", {
-            fill: "white",
+            fill: "var(--text-color)",
             size: "48px",
         });
         this.buttonNext.setEvents({
@@ -90,7 +90,7 @@ export class ImageVisualizer extends UIComponent {
         else {
             this.buttonNext.element.style.visibility = "visible";
         }
-        this.image.element.setAttribute("src", image);
+        this.image.element.setAttribute("src", image.url);
     }
     showBack() {
         this.show(this.list[this.index - 1], this.list);
