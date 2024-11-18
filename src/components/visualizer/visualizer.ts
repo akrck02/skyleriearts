@@ -1,3 +1,4 @@
+import { Image } from "../../core/models/project.js";
 import { BubbleUI } from "../../lib/bubble/bubble.js";
 import { Html } from "../../lib/gtdf/component/dom.js";
 import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
@@ -19,7 +20,7 @@ export class ImageVisualizer extends UIComponent {
   private buttonNext: UIComponent;
   private infoText: UIComponent;
 
-  private list: string[];
+  private list: Image[];
   private index: number;
 
   constructor() {
@@ -41,7 +42,7 @@ export class ImageVisualizer extends UIComponent {
     });
 
     this.buttonClose = MaterialIcons.get("close", {
-      fill: "white",
+      fill: "var(--text-color)",
       size: "48px",
     });
 
@@ -56,7 +57,7 @@ export class ImageVisualizer extends UIComponent {
     });
 
     this.buttonBack = MaterialIcons.get("back", {
-      fill: "white",
+      fill: "var(--text-color)",
       size: "48px",
     });
 
@@ -70,7 +71,7 @@ export class ImageVisualizer extends UIComponent {
     });
 
     this.buttonNext = MaterialIcons.get("front", {
-      fill: "white",
+      fill: "var(--text-color)",
       size: "48px",
     });
 
@@ -102,7 +103,7 @@ export class ImageVisualizer extends UIComponent {
    * @param list List of images
    * @returns void
    */
-  public async show(image: string, list: string[]): Promise<void> {
+  public async show(image: Image, list: Image[]): Promise<void> {
     console.debug("Showing image: ", image);
     this.list = list;
     this.index = list.indexOf(image);
@@ -121,7 +122,7 @@ export class ImageVisualizer extends UIComponent {
       this.buttonNext.element.style.visibility = "visible";
     }
 
-    this.image.element.setAttribute("src", image);
+    this.image.element.setAttribute("src", image.url);
   }
 
   public showBack() {
