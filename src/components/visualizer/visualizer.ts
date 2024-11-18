@@ -70,9 +70,13 @@ export class ImageVisualizer extends UIComponent {
       attributes: { src: "" },
     });
 
-    this.buttonNext = MaterialIcons.get("front", {
+    this.buttonNext = MaterialIcons.get("back", {
       fill: "var(--text-color)",
       size: "48px",
+    });
+
+    this.buttonNext.setStyles({
+      transform: "rotate(180deg)",
     });
 
     this.buttonNext.setEvents({

@@ -679,7 +679,9 @@ font-size: 1.5rem;
 padding: 1rem 2rem;
 height: auto;
 border-radius: 0 5rem 5rem 0;
-transition: padding 0.5s;
+transition:
+padding 0.5s,
+background 0.5s;
 }
 div#header > div#tag-menu > button:active {
 transform: scale(1);

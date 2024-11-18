@@ -45,9 +45,12 @@ export class ImageVisualizer extends UIComponent {
             type: Html.Img,
             attributes: { src: "" },
         });
-        this.buttonNext = MaterialIcons.get("front", {
+        this.buttonNext = MaterialIcons.get("back", {
             fill: "var(--text-color)",
             size: "48px",
+        });
+        this.buttonNext.setStyles({
+            transform: "rotate(180deg)",
         });
         this.buttonNext.setEvents({
             click: () => this.showNext(),

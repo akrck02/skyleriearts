@@ -2016,9 +2016,12 @@
                 type: Html.Img,
                 attributes: { src: "" },
             });
-            this.buttonNext = MaterialIcons$1.get("front", {
+            this.buttonNext = MaterialIcons$1.get("back", {
                 fill: "var(--text-color)",
                 size: "48px",
+            });
+            this.buttonNext.setStyles({
+                transform: "rotate(180deg)",
             });
             this.buttonNext.setEvents({
                 click: () => this.showNext(),
