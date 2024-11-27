@@ -1860,7 +1860,7 @@
         constructor(image, album, signal) {
             super({
                 type: Html.Div,
-                classes: ["canvas"]
+                classes: ["canvas"],
             });
             this.imageClickedSignal = signal;
             this.setEvents({

@@ -1,4 +1,6 @@
-import ProjectGallery, { ImageGalleryData } from "../../components/gallery/gallery.js";
+import ProjectGallery, {
+  ImageGalleryData,
+} from "../../components/gallery/gallery.js";
 import Header from "../../components/header/header.js";
 import Select from "../../components/select/select.component.js";
 import { ImageVisualizer } from "../../components/visualizer/visualizer.js";
@@ -182,7 +184,7 @@ export default class HomeView extends ViewUI {
     // Create the project gallery
     const gallery = new ProjectGallery(currentProject);
     gallery.visualizeImageSignal.connect({
-      action: async (data : ImageGalleryData) => {
+      action: async (data: ImageGalleryData) => {
         console.log("Show image: ", data);
         await this.visualizer.show(data.images[data.selected], data.images);
       },

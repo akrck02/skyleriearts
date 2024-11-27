@@ -8,6 +8,10 @@ div#header {
     overflow-y: auto;
 }
 
+:root[data-theme="dark"] div#header {
+    background: #211c1a;
+}
+
 div#header > img#logo {
     --logo-size: 10rem;
     width: var(--logo-size);
@@ -21,6 +25,10 @@ div#header > h1#title {
     margin-top: 1.5rem;
     color: #9a8e75;
     margin-bottom: 1.75rem;
+}
+
+:root[data-theme="dark"] div#header > h1#title {
+    color: #eee;
 }
 
 div#header > div#tag-menu {
@@ -42,6 +50,11 @@ div#header > div#tag-menu > button {
         background 0.5s;
 }
 
+:root[data-theme="dark"] div#header > div#tag-menu > button {
+    background-color: #161311;
+    color: #ccc4c3;
+}
+
 div#header > div#tag-menu > button:active {
     transform: scale(1);
 }
@@ -56,4 +69,9 @@ div#header > div#tag-menu > button:hover {
 div#header > div#tag-menu > button.selected {
     background-color: #9a8e75;
     color: #ccc2ae;
+}
+
+:root[data-theme="dark"] div#header > div#tag-menu > button.selected {
+    background-color: var(--accent-color);
+    color: #161311;
 }

@@ -63,7 +63,9 @@ export default class ProjectGallery extends UIComponent {
       id: ProjectGallery.LIST_ID,
     });
 
-    project.images?.forEach((image) => this.register(list, image, project.images));
+    project.images?.forEach((image) =>
+      this.register(list, image, project.images),
+    );
     list.appendTo(this);
   }
 
@@ -74,7 +76,7 @@ export default class ProjectGallery extends UIComponent {
    * @param album Album of images
    * @returns void
    */
-  register(list: UIComponent, image: Image, album : Array<Image>): void {
+  register(list: UIComponent, image: Image, album: Array<Image>): void {
     const listItem = new UIComponent({ type: Html.Li });
     const url = image.url;
     const canvas = new ImageCanvas(image, album, this.visualizeImageSignal);
@@ -89,22 +91,25 @@ export default class ProjectGallery extends UIComponent {
  * in the gallery
  */
 class ImageCanvas extends UIComponent {
-  
   private imageClickedSignal: Signal<ImageGalleryData>;
 
-  public constructor(image: Image, album : Array<Image>, signal?: Signal<ImageGalleryData>) {
+  public constructor(
+    image: Image,
+    album: Array<Image>,
+    signal?: Signal<ImageGalleryData>,
+  ) {
     super({
       type: Html.Div,
-      classes: ["canvas"]
+      classes: ["canvas"],
     });
 
     this.imageClickedSignal = signal;
     this.setEvents({
       click: () => {
-          this.imageClickedSignal?.emit({
-            images: album,
-            selected: album.indexOf(image),
-          });
+        this.imageClickedSignal?.emit({
+          images: album,
+          selected: album.indexOf(image),
+        });
       },
     });
 
