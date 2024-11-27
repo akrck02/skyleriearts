@@ -17,7 +17,7 @@
     max-height: 80%;
     max-width: 70%;
     user-select: none;
-    filter: drop-shadow(0 .5rem 1rem rgba(0,0,0,0.25));
+    filter: drop-shadow(0 0.5rem 1rem rgba(0, 0, 0, 0.25));
 }
 
 #visualizer #close {
@@ -30,20 +30,21 @@
     display: none;
 }
 
-
-#visualizer #back, #visualizer #next {
+#visualizer #back,
+#visualizer #next {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     min-width: 5rem;
     min-height: 5rem;
     border-radius: 50%;
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(255, 255, 255, 0.05);
     cursor: pointer;
-    transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    transition:
+        background-color 0.3s ease-in-out,
+        transform 0.3s ease-in-out;
     margin: 0 1rem;
 }
-
 
 #visualizer #next {
     right: 2rem;
@@ -51,16 +52,6 @@
 
 #visualizer #back {
     left: 2rem;
-}
-
-#visualizer #back:hover, #visualizer #next:hover {
-    background-color: rgba(255,255,255,0.1);
-    transform: scale(0.9) translateY(-50%);
-}
-
-#visualizer #back:active, #visualizer #next:active {
-    background-color: rgba(255,255,255,0.2);
-    transform: scale(0.9) translateY(-50%);
 }
 
 #visualizer #info-text {
@@ -79,17 +70,17 @@
 }
 
 @media screen and (max-width: 768px) {
-
     #visualizer img {
         max-height: 80%;
         max-width: 80%;
     }
 
-    #visualizer #back, #visualizer #next {
-      display: none;
-    }    
+    #visualizer #back,
+    #visualizer #next {
+        display: none;
+    }
 
     #visualizer #info-text {
-        font-size: .9rem;
+        font-size: 0.9rem;
     }
 }
