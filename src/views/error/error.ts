@@ -16,7 +16,6 @@ export async function showErrorView(params: string[], container: HTMLElement) {
     classes: ["box-column", "box-center"],
   });
 
-  this.clean();
   const code = parseInt(params[0]);
   let error = getErrorByCode(code);
 
@@ -30,10 +29,10 @@ export async function showErrorView(params: string[], container: HTMLElement) {
     type: Html.Img,
     id: IMAGE_ID,
     attributes: {
-      src: `${getConfiguration("paths")["icons"]}error.svg`,
+      src: `${getConfiguration("path")["icons"]}/error.svg`,
     },
   });
-  this.appendChild(image);
+  view.appendChild(image);
 
   // Error title
   const title = uiComponent({
@@ -42,7 +41,7 @@ export async function showErrorView(params: string[], container: HTMLElement) {
     text: error.friendly,
   });
 
-  this.appendChild(title);
+  view.appendChild(title);
 
   // Error description
   const description = uiComponent({
@@ -50,6 +49,6 @@ export async function showErrorView(params: string[], container: HTMLElement) {
     text: error.description,
   });
 
-  this.appendChild(description);
-  this.appendTo(container);
+  view.appendChild(description);
+  container.appendChild(view);
 }
