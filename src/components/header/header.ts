@@ -2,7 +2,6 @@ import { BubbleUI } from "../../lib/bubble.js"
 import { getConfiguration } from "../../lib/configuration.js"
 import { setDomEvents, uiComponent } from "../../lib/dom.js"
 import { Html } from "../../lib/html.js"
-import { handleResponseStatus } from "../../lib/http.js"
 import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js"
 
 export class Header {
@@ -10,7 +9,7 @@ export class Header {
   private static readonly TAG_MENU_ID = "tag-menu"
   private static readonly TAG_BUTTON_CLASS = "tag-button"
 
-  private static readonly tagSelectedSignal = setSignal()
+  static readonly TAG_SELECTED_SIGNAL = setSignal()
 
   static render(tags: Set<string>): HTMLElement {
     return Header.create(tags)
@@ -29,14 +28,14 @@ export class Header {
       attributes: {
         src: `${getConfiguration("path")["images"]}/logo.jpg`,
       },
-    });
+    })
 
     const title = uiComponent({
       type: Html.H1,
       text: "Skylerie",
       id: "title",
       classes: [BubbleUI.TextCenter],
-    });
+    })
 
     const selected = tags.values().next().value;
     const tagMenu = this.drawTags(tags, selected);
@@ -44,8 +43,6 @@ export class Header {
     header.appendChild(profilePicture)
     header.appendChild(title)
     header.appendChild(tagMenu)
-
-    connectToSignal(this.tagSelectedSignal, Header.selectTag)
 
     return header
   }
@@ -72,17 +69,13 @@ export class Header {
           buttons.forEach(b => b.classList.remove("selected"))
           button.classList.add("selected")
 
-          emitSignal(Header.tagSelectedSignal, tag)
+          emitSignal(Header.TAG_SELECTED_SIGNAL, tag)
         }
       })
       menu.appendChild(button)
     })
 
     return menu
-  }
-
-  static async selectTag(selected: string) {
-    console.log(`tag ${selected} selected.`)
   }
 
 } 

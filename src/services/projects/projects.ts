@@ -13,18 +13,20 @@ export function getProjects(): Array<Project> {
   return projects
 }
 
-export function getProject(name: string) {
+export function getProject(name: string): Project {
   return projects.find(project => project?.name === name)
 }
 
-export function getProjectNames() {
+export function getProjectNames(): string[] {
   return projects.map(project => project?.name).filter(obj => null != obj)
 }
 
-export function getProjectTags() {
+export function getProjectTags(): Set<string> {
   const tags = new Set<string>()
   projects.forEach(project => project?.tags?.forEach((tag: string) => tags.add(tag)))
   return tags
 }
 
-export function getImagesOfProjectAndTag(project: string, tag: string) { }
+export function getProjectsByTag(tag: string): Project[] {
+  return projects.filter(projects => projects.tags.indexOf(tag) != -1)
+}

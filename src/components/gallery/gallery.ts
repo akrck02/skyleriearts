@@ -14,7 +14,7 @@ export class ProjectGallery {
   private static readonly LIST_ID = "image-list";
   private static readonly MOBILE_CLASS = "mobile";
 
-  static readonly imageSelectedSignal = setSignal()
+  static readonly IMAGE_SELECTED_SIGNAL = setSignal()
 
   static render(project: Project): HTMLElement {
 
@@ -67,7 +67,7 @@ export class ProjectGallery {
 
     setDomEvents(canvas, {
       click: () => {
-        emitSignal(ProjectGallery.imageSelectedSignal, {
+        emitSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, {
           images: album,
           selected: album.indexOf(image),
         })
