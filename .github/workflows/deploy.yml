@@ -1,7 +1,7 @@
-name: website-deploy
+name: Stable release
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/gtd-v2, test/ci ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -9,19 +9,37 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '20'
 
-    - name: instal node dependencies
-      run: npm install
-     
-    - name: compile typescript
-      run: npm run dist
+    - name: Install node dependencies
+      run: npm install -g rollup && npm install -g typescript
+ 
+    - name: Transpile typescript
+      run: tsc
+    
+    - name: Show directories
+      run: ls -lha temp
 
-    - name: Remove gitignore
-      run: rm .gitignore
-      
+    - name: Minify the js ha
+      run: rollup ./temp/src/start.js --file ./out/start.js --format iife
+
+    - name: Minify the css
+      run: ./bin/lit -f styles.env
+
+    - name: Remove innecesary files and directories
+      run: rm -rf .gitignore temp styles/src src bin environment.js styles.env tsconfig.json .github 
+  
+    - name: Create directories
+      run: mkdir -p styles/src temp/src/
+
+    - name: Move javascript
+      run: mv out/start.js temp/src/start.js 
+
+    - name: Move css
+      run: mv styles/out/master.css styles/src/master.css
+
     - name: Check the output
-      run: ls -lha 
+      run: ls -lha .
 
     - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@v4.3.0

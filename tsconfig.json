@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "outDir": "./temp/",
+    "outDir": "./temp/src/",
     "rootDir": "./src/",
     "esModuleInterop": true,
     "experimentalDecorators": true,
