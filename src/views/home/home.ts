@@ -6,7 +6,7 @@ import { uiComponent } from "../../lib/dom.js";
 import { Html } from "../../lib/html.js";
 import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js";
 import Project from "../../models/project.js";
-import { getProject, getProjects, getProjectsByTag, getProjectTags } from "../../services/projects/projects.js";
+import { getProjectsByTag, getProjectTags } from "../../services/projects/projects.js";
 
 
 // HTML ids and classes
