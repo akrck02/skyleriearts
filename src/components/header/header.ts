@@ -1,108 +1,81 @@
-import { Configuration } from "../../configuration/configuration.js";
-import { GalleryRequestParams } from "../../core/models/gallery.request.params.js";
-import { BubbleUI } from "../../lib/bubble/bubble.js";
-import { Html } from "../../lib/gtdf/component/dom.js";
-import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
-import { Signal } from "../../lib/gtdf/core/signals/signals.js";
+import { BubbleUI } from "../../lib/bubble.js"
+import { getConfiguration } from "../../lib/configuration.js"
+import { setDomEvents, uiComponent } from "../../lib/dom.js"
+import { Html } from "../../lib/html.js"
+import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js"
 
-/**
- * Header component for the website
- */
-export default class Header extends UIComponent {
-  private static readonly ID = "header";
-  public tagSelectedSignal: Signal<GalleryRequestParams>;
+export class Header {
+  private static readonly HEADER_ID = "header"
+  private static readonly TAG_MENU_ID = "tag-menu"
+  private static readonly TAG_BUTTON_CLASS = "tag-button"
 
-  public constructor(tags: Set<string>) {
-    super({
-      type: Html.Div,
-      id: Header.ID,
-      classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
-    });
-    this.tagSelectedSignal = new Signal<GalleryRequestParams>("menu-changed");
-    this.configure(tags);
+  static readonly TAG_SELECTED_SIGNAL = setSignal()
+
+  static render(tags: Set<string>): HTMLElement {
+    return Header.create(tags)
   }
 
-  public async configure(tags: Set<string>): Promise<void> {
-    const profilePicture = new UIComponent({
+  static create(tags: Set<string>): HTMLElement {
+    let header = uiComponent({
+      type: Html.Div,
+      id: Header.HEADER_ID,
+      classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
+    })
+
+    const profilePicture = uiComponent({
       type: Html.Img,
       id: "logo",
       attributes: {
-        src: `${Configuration.instance.path.images}logo.jpg`,
+        src: `${getConfiguration("path")["images"]}/logo.jpg`,
       },
-    });
+    })
 
-    const title = new UIComponent({
+    const title = uiComponent({
       type: Html.H1,
       text: "Skylerie",
       id: "title",
       classes: [BubbleUI.TextCenter],
-    });
+    })
 
     const selected = tags.values().next().value;
-    const tagMenu = new TagMenu(this.tagSelectedSignal, tags, selected);
+    const tagMenu = this.drawTags(tags, selected);
 
-    profilePicture.appendTo(this);
-    title.appendTo(this);
-    tagMenu.appendTo(this);
+    header.appendChild(profilePicture)
+    header.appendChild(title)
+    header.appendChild(tagMenu)
+
+    return header
   }
-}
 
-/**
- * TagMenu is a UIComponent that displays a list of tags as buttons.
- */
-class TagMenu extends UIComponent {
-  private static readonly ID = "tag-menu";
-  private buttons: Map<string, UIComponent> = new Map();
-  private tagSelectedSignal: Signal<GalleryRequestParams>;
+  static drawTags(tags: Set<string>, selected: string): HTMLElement {
 
-  public constructor(
-    signal: Signal<GalleryRequestParams>,
-    tags: Set<string>,
-    selectedTag?: string,
-  ) {
-    super({
+    const menu = uiComponent({
       type: Html.Div,
-      id: TagMenu.ID,
+      id: Header.TAG_MENU_ID,
       classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-    });
-    this.tagSelectedSignal = signal;
-    this.configure(tags, selectedTag);
-  }
+    })
 
-  public async configure(
-    tags: Set<string>,
-    selectedTag?: string,
-  ): Promise<void> {
-    tags.forEach((tag) => this.addTagButton(tag, selectedTag));
-  }
+    tags.forEach(tag => {
 
-  /**
-   * Add a tag button to the tag menu.
-   */
-  addTagButton(tag: string, selectedTag?: string): void {
-    const button = new UIComponent({
-      type: Html.Button,
-      text: tag,
-      classes: selectedTag == tag ? ["selected"] : [],
-      events: {
-        click: () => this.selectTag(tag),
-      },
-    });
-    this.buttons.set(tag, button);
-    button.appendTo(this);
-  }
+      const button = uiComponent({
+        type: Html.Button,
+        text: tag,
+        classes: selected == tag ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
+      })
 
-  selectTag(selectedTag: string): void {
-    this.buttons.forEach(
-      (button: UIComponent, tag: string, map: Map<string, UIComponent>) => {
-        button.element.classList.remove("selected");
+      setDomEvents(button, {
+        click: () => {
+          const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`)
+          buttons.forEach(b => b.classList.remove("selected"))
+          button.classList.add("selected")
 
-        if (tag === selectedTag) {
-          button.element.classList.add("selected");
+          emitSignal(Header.TAG_SELECTED_SIGNAL, tag)
         }
-      },
-    );
+      })
+      menu.appendChild(button)
+    })
 
-    this.tagSelectedSignal.emit({ tag: selectedTag });
+    return menu
   }
-}
+
+} 

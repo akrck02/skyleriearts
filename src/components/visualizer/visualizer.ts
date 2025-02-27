@@ -1,143 +1,156 @@
-import { Image } from "../../core/models/project.js";
-import { BubbleUI } from "../../lib/bubble/bubble.js";
-import { Html } from "../../lib/gtdf/component/dom.js";
-import { UIComponent } from "../../lib/gtdf/component/ui.component.js";
-import MaterialIcons from "../../lib/material/material.icons.js";
+import { BubbleUI } from "../../lib/bubble.js"
+import { setDomEvents, uiComponent } from "../../lib/dom.js"
+import { Html } from "../../lib/html.js"
+import { getIcon } from "../../lib/icons.js"
+import { Image } from "../../models/project.js"
+
+const VISUALIZER_ID = "visualizer"
+const BUTTON_BACK_ID = "visualizer-back"
+const BUTTON_NEXT_ID = "visualizer-next"
+const IMAGE_ID = "visualizer-image"
+const INFO_TEXT_ID = "visualizer-info-text"
 
 /**
- * Image visualizer component
+ * This class is responsible of processing 
+ * the image gallery and current image to 
+ * display.
  */
-export class ImageVisualizer extends UIComponent {
-  private static ID = "visualizer";
-  private static BUTTON_CLOSE_ID = "close";
-  private static BUTTON_BACK_ID = "back";
-  private static BUTTON_NEXT_ID = "next";
-  private static INFO_TEXT_ID = "info-text";
+export class VisualizerProcessor {
 
-  private buttonClose: UIComponent;
-  private buttonBack: UIComponent;
-  private image: UIComponent;
-  private buttonNext: UIComponent;
-  private infoText: UIComponent;
+  images: Image[] = []
+  index: number = 0
 
-  private list: Image[];
-  private index: number;
+  load(images: Image[]) {
+    this.images = images
+  }
 
-  constructor() {
-    super({
-      type: Html.Div,
-      id: ImageVisualizer.ID,
-      classes: [BubbleUI.BoxRow, BubbleUI.BoxCenter],
-    });
-    this.setEvents({
-      click: (event) => {
-        //if the click is not on the image, close the visualizer
-        if (event.target != this.element) {
-          return;
-        }
+  isFirstImage(): boolean {
+    if (0 == this.images.length) return false
+    return 0 == this.index
+  }
 
-        event.stopPropagation();
-        this.close();
-      },
-    });
+  isLastImage(): boolean {
+    if (0 == this.images.length) return false
+    return this.images.length - 1 == this.index
+  }
 
-    this.buttonClose = MaterialIcons.get("close", {
-      fill: "var(--text-color)",
-      size: "48px",
-    });
+  set(currentImage: Image) {
+    this.index = this.images.findIndex(im => im.url === currentImage.url)
+    if (-1 == this.index) this.index = 0
+  }
 
-    this.buttonClose.setEvents({
-      click: () => this.close(),
-    });
+  getCurrentImage(): Image {
+    if (0 == this.images.length) return null
+    return this.images[this.index]
+  }
 
-    this.buttonClose.setStyles({
-      position: "absolute",
-      top: "0px",
-      right: "0px",
-    });
+  next() {
+    console.log(this)
+    if (0 == this.images.length) return
 
-    this.buttonBack = MaterialIcons.get("back", {
-      fill: "var(--text-color)",
-      size: "48px",
-    });
+    this.index++
+    if (this.images.length <= this.index) this.index = 0
+  }
 
-    this.buttonBack.setEvents({
-      click: () => this.showBack(),
-    });
+  previous() {
+    console.log(this);
 
-    this.image = new UIComponent({
-      type: Html.Img,
-      attributes: { src: "" },
-    });
+    if (0 == this.images.length) return
+    this.index--
+    if (0 > this.index) this.index = this.images.length - 1
+  }
 
-    this.buttonNext = MaterialIcons.get("back", {
-      fill: "var(--text-color)",
-      size: "48px",
-    });
+}
 
-    this.buttonNext.setStyles({
-      transform: "rotate(180deg)",
-    });
+/**
+ * This is a ui component responsible of showing
+ * a gallery of images.
+ */
+export class Visualizer {
 
-    this.buttonNext.setEvents({
-      click: () => this.showNext(),
-    });
-
-    this.infoText = new UIComponent({
-      type: Html.P,
-      id: ImageVisualizer.INFO_TEXT_ID,
-      text: "Touch outside the image to close the visualizer.",
-      classes: ["info-text"],
-    });
-
-    this.buttonClose.element.id = ImageVisualizer.BUTTON_CLOSE_ID;
-    this.buttonBack.element.id = ImageVisualizer.BUTTON_BACK_ID;
-    this.buttonNext.element.id = ImageVisualizer.BUTTON_NEXT_ID;
-
-    this.buttonClose.appendTo(this);
-    this.buttonBack.appendTo(this);
-    this.image.appendTo(this);
-    this.buttonNext.appendTo(this);
-    this.infoText.appendTo(this);
+  /**
+   * Render a visualizer
+   */
+  static render(processor: VisualizerProcessor): HTMLElement {
+    let visualizer = document.getElementById(VISUALIZER_ID)
+    return null == visualizer ? Visualizer.create(processor) : Visualizer.update(visualizer, processor)
   }
 
   /**
-   * Show the image visualizer
-   * @param image Image to show
-   * @param list List of images
-   * @returns void
+   * Create a new visualizer given an state
    */
-  public async show(image: Image, list: Image[]): Promise<void> {
-    console.debug("Showing image: ", image);
-    this.list = list;
-    this.index = list.indexOf(image);
+  private static create(processor: VisualizerProcessor): HTMLElement {
 
-    this.element.style.display = "flex";
+    const visualizer = uiComponent({
+      type: Html.Div,
+      id: VISUALIZER_ID,
+      classes: [BubbleUI.BoxRow, BubbleUI.BoxCenter],
+    })
 
-    if (this.index == 0) {
-      this.buttonBack.element.style.visibility = "hidden";
-    } else {
-      this.buttonBack.element.style.visibility = "visible";
-    }
+    setDomEvents(visualizer, {
+      click: (event) => {
 
-    if (this.index == list.length - 1) {
-      this.buttonNext.element.style.visibility = "hidden";
-    } else {
-      this.buttonNext.element.style.visibility = "visible";
-    }
+        //if the click is not on the image, close the visualizer
+        if (event.target != visualizer) return
 
-    this.image.element.setAttribute("src", image.url);
+        event.stopPropagation()
+        visualizer.style.display = "none";
+      }
+    })
+
+    const buttonBack = getIcon("material", "back", "48px", "var(--text-color)")
+    buttonBack.id = BUTTON_BACK_ID
+    setDomEvents(buttonBack, {
+      click: () => {
+        processor.previous()
+        this.render(processor)
+      }
+    })
+
+    const buttonNext = getIcon("material", "back", "48px", "var(--text-color)")
+    buttonNext.id = BUTTON_NEXT_ID
+    setDomEvents(buttonNext, {
+      click: () => {
+        processor.next()
+        this.render(processor)
+      }
+    })
+
+    const image = uiComponent({
+      type: Html.Img,
+      id: IMAGE_ID,
+      attributes: { src: processor.getCurrentImage()?.url || "" },
+    })
+
+    const infoText = uiComponent({
+      type: Html.P,
+      id: INFO_TEXT_ID,
+      text: "Touch outside the image to close the visualizer.",
+      classes: ["info-text"],
+    })
+
+    visualizer.appendChild(buttonBack)
+    visualizer.appendChild(image)
+    visualizer.appendChild(buttonNext)
+    visualizer.appendChild(infoText)
+
+    return visualizer
   }
 
-  public showBack() {
-    this.show(this.list[this.index - 1], this.list);
+  /**
+   * Update the visualizer with the current processor state.
+   */
+  private static update(visualizer: HTMLElement, processor: VisualizerProcessor): HTMLElement {
+    const image = document.getElementById(IMAGE_ID)
+    image.style.display = "flex"
+    image.setAttribute("src", processor.getCurrentImage()?.url || "")
+    return visualizer
   }
 
-  public showNext() {
-    this.show(this.list[this.index + 1], this.list);
-  }
-
-  public close() {
-    this.element.style.display = "none";
+  static show() {
+    const visualizer = document.getElementById(VISUALIZER_ID)
+    if (null == visualizer) return
+    visualizer.style.display = "flex"
   }
 }
+
