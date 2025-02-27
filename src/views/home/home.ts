@@ -15,17 +15,15 @@ const VIEW_ID = "home";
 // Signals
 const PROJECT_SELECTED_SIGNAL: string = setSignal()
 
-// View internal data
-let tags: Set<string> = new Set<string>()
-
-// Ui components
+// Data
+let visualizerProcessor: VisualizerProcessor = new VisualizerProcessor()
 
 /**
  * Show home view
  */
 export async function showHomeView(parameters: string[], container: HTMLElement) {
 
-  tags = new Set(getProjectTags())
+  const tags = new Set(getProjectTags())
 
   const view = uiComponent({
     type: Html.View,
@@ -106,6 +104,14 @@ async function showTag(container: HTMLElement, currentTag: string, currentProjec
 
   // Create the project gallery
   const gallery = ProjectGallery.render(currentProject)
+  connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async data => {
+    console.log(data);
+
+    visualizerProcessor.load(data.images)
+    visualizerProcessor.set(data.selected)
+    Visualizer.render(visualizerProcessor)
+    Visualizer.show()
+  })
   container.appendChild(gallery)
 
   // appear animation

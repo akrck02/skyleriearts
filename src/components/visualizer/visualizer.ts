@@ -45,6 +45,7 @@ export class VisualizerProcessor {
   }
 
   next() {
+    console.log(this)
     if (0 == this.images.length) return
 
     this.index++
@@ -52,6 +53,8 @@ export class VisualizerProcessor {
   }
 
   previous() {
+    console.log(this);
+
     if (0 == this.images.length) return
     this.index--
     if (0 > this.index) this.index = this.images.length - 1
