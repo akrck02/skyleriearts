@@ -24,18 +24,18 @@ export class VisualizerProcessor {
     this.images = images
   }
 
-  isFirstImage() {
+  isFirstImage(): boolean {
     if (0 == this.images.length) return false
     return 0 == this.index
   }
 
-  isLastImage() {
+  isLastImage(): boolean {
     if (0 == this.images.length) return false
     return this.images.length - 1 == this.index
   }
 
   set(currentImage: Image) {
-    this.index = this.images.indexOf(currentImage)
+    this.index = this.images.findIndex(im => im.url === currentImage.url)
     if (-1 == this.index) this.index = 0
   }
 
@@ -144,7 +144,6 @@ export class Visualizer {
     const image = document.getElementById(IMAGE_ID)
     image.style.display = "flex"
     image.setAttribute("src", processor.getCurrentImage()?.url || "")
-
     return visualizer
   }
 

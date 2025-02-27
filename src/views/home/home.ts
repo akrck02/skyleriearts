@@ -31,7 +31,6 @@ export async function showHomeView(parameters: string[], container: HTMLElement)
     classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
   })
 
-  const visualizerProcessor = new VisualizerProcessor()
   const selectedTag = parameters[0] || getProjectTags().values().next().value
   const visualizer = Visualizer.render(visualizerProcessor)
   const header = Header.render(tags)
@@ -105,8 +104,6 @@ async function showTag(container: HTMLElement, currentTag: string, currentProjec
   // Create the project gallery
   const gallery = ProjectGallery.render(currentProject)
   connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async data => {
-    console.log(data);
-
     visualizerProcessor.load(data.images)
     visualizerProcessor.set(data.selected)
     Visualizer.render(visualizerProcessor)

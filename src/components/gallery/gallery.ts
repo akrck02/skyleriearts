@@ -50,8 +50,6 @@ export class ProjectGallery {
   }
 
   static register(list: HTMLElement, image: Image, album: Array<Image>): void {
-    console.log(image);
-
     const listItem = uiComponent({ type: Html.Li })
     const canvas = this.imageCanvas(image, album)
     setTimeout(() => canvas.style.opacity = "1", 1)
@@ -69,7 +67,7 @@ export class ProjectGallery {
       click: () => {
         emitSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, {
           images: album,
-          selected: album.indexOf(image),
+          selected: image,
         })
       },
     })
