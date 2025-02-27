@@ -439,7 +439,6 @@
             return gallery;
         }
         static register(list, image, album) {
-            console.log(image);
             const listItem = uiComponent({ type: Html.Li });
             const canvas = this.imageCanvas(image, album);
             setTimeout(() => canvas.style.opacity = "1", 1);
@@ -455,7 +454,7 @@
                 click: () => {
                     emitSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, {
                         images: album,
-                        selected: album.indexOf(image),
+                        selected: image,
                     });
                 },
             });
@@ -570,7 +569,7 @@
             return this.images.length - 1 == this.index;
         }
         set(currentImage) {
-            this.index = this.images.indexOf(currentImage);
+            this.index = this.images.findIndex(im => im.url === currentImage.url);
             if (-1 == this.index)
                 this.index = 0;
         }
@@ -692,7 +691,6 @@
             id: VIEW_ID,
             classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
         });
-        const visualizerProcessor = new VisualizerProcessor();
         const selectedTag = parameters[0] || getProjectTags().values().next().value;
         const visualizer = Visualizer.render(visualizerProcessor);
         const header = Header.render(tags);
@@ -752,7 +750,6 @@
         // Create the project gallery
         const gallery = ProjectGallery.render(currentProject);
         connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
-            console.log(data);
             visualizerProcessor.load(data.images);
             visualizerProcessor.set(data.selected);
             Visualizer.render(visualizerProcessor);
