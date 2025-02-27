@@ -580,6 +580,7 @@
             return this.images[this.index];
         }
         next() {
+            console.log(this);
             if (0 == this.images.length)
                 return;
             this.index++;
@@ -587,6 +588,7 @@
                 this.index = 0;
         }
         previous() {
+            console.log(this);
             if (0 == this.images.length)
                 return;
             this.index--;
@@ -678,14 +680,13 @@
     const VIEW_ID = "home";
     // Signals
     const PROJECT_SELECTED_SIGNAL = setSignal();
-    // View internal data
-    let tags = new Set();
-    // Ui components
+    // Data
+    let visualizerProcessor = new VisualizerProcessor();
     /**
      * Show home view
      */
     async function showHomeView(parameters, container) {
-        tags = new Set(getProjectTags());
+        const tags = new Set(getProjectTags());
         const view = uiComponent({
             type: Html.View,
             id: VIEW_ID,
@@ -750,6 +751,13 @@
         container.appendChild(bar);
         // Create the project gallery
         const gallery = ProjectGallery.render(currentProject);
+        connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
+            console.log(data);
+            visualizerProcessor.load(data.images);
+            visualizerProcessor.set(data.selected);
+            Visualizer.render(visualizerProcessor);
+            Visualizer.show();
+        });
         container.appendChild(gallery);
         // appear animation
         container.style.opacity = "1";
