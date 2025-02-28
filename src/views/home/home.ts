@@ -1,142 +1,154 @@
-import { ProjectGallery } from "../../components/gallery/gallery.js";
+import { ImageGallery } from "../../components/gallery/gallery.js";
 import { Header } from "../../components/header/header.js";
 import { Visualizer, VisualizerProcessor } from "../../components/visualizer/visualizer.js";
 import { BubbleUI } from "../../lib/bubble.js";
 import { uiComponent } from "../../lib/dom.js";
 import { Html } from "../../lib/html.js";
 import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js";
-import Project from "../../models/project.js";
-import { getProjectsByTag, getProjectTags } from "../../services/projects/projects.js";
+import ImageService from "../../services/image.js";
 
 
-// HTML ids and classes
-const VIEW_ID = "home";
+export default class HomeView {
 
-// Signals
-const PROJECT_SELECTED_SIGNAL: string = setSignal()
+  // HTML ids and classes
+  static readonly VIEW_ID = "home";
 
-// Data
-let visualizerProcessor: VisualizerProcessor = new VisualizerProcessor()
+  // Signals
+  static readonly PROJECT_SELECTED_SIGNAL: string = setSignal()
 
-/**
- * Show home view
- */
-export async function showHomeView(parameters: string[], container: HTMLElement) {
+  // Data
+  static readonly visualizerProcessor: VisualizerProcessor = new VisualizerProcessor()
 
-  const tags = new Set(getProjectTags())
+  /**
+  * Show home view
+  */
+  static async show(parameters: string[], container: HTMLElement) {
 
-  const view = uiComponent({
-    type: Html.View,
-    id: VIEW_ID,
-    classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-  })
-
-  const selectedTag = parameters[0] || getProjectTags().values().next().value
-  const visualizer = Visualizer.render(visualizerProcessor)
-  const header = Header.render(tags)
-
-  const galleryContainer = uiComponent({
-    type: Html.Div,
-    id: "gallery-container",
-    classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-  });
-
-  connectToSignal(Header.TAG_SELECTED_SIGNAL, async tag => showTag(galleryContainer, tag, undefined))
-  connectToSignal(PROJECT_SELECTED_SIGNAL, async data => showTag(galleryContainer, data?.tag, data?.project?.name))
-
-  view.appendChild(header)
-  view.appendChild(galleryContainer)
-  view.appendChild(visualizer)
-  container.appendChild(view)
-
-  emitSignal(Header.TAG_SELECTED_SIGNAL, selectedTag)
-}
-
-/**
- * Show the projects of the selected tag
- * @param container The container of the gallery
- * @param currentTag The selected tag
- * @param currentProject The selected project
- */
-async function showTag(container: HTMLElement, currentTag: string, currentProjectName: string): Promise<void> {
-
-  // If container is not present, return
-  if (undefined == container) {
-    console.error(`Undefined container`)
-    return
-  }
-
-  // If tag is not selected, return
-  if (undefined == currentTag) {
-    console.error(`Tag ${currentTag} not found`)
-    return
-  }
-
-  console.log(currentProjectName);
-
-  // If the project is not found, return
-  const projects = getProjectsByTag(currentTag)
-  const currentProject = currentProjectName == undefined ? projects[0] : projects.find(project => project.name.toLowerCase() == currentProjectName.toLowerCase())
-  if (undefined == currentProject) {
-    console.error(`Project not selected`)
-    return
-  }
-
-  // Disappear animation
-  container.style.opacity = "0";
-  await new Promise(resolve => setTimeout(resolve, 500))
-
-  // Clear the gallery container
-  container.innerHTML = ""
-
-  // Add tag title to UI
-  const title = uiComponent({
-    type: Html.H1,
-    text: currentTag,
-    id: "title",
-  })
-  container.appendChild(title)
-
-  // Create the project bar
-  const bar = projectBar(projects, currentProject, currentTag)
-  container.appendChild(bar)
-
-  // Create the project gallery
-  const gallery = ProjectGallery.render(currentProject)
-  connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async data => {
-    visualizerProcessor.load(data.images)
-    visualizerProcessor.set(data.selected)
-    Visualizer.render(visualizerProcessor)
-    Visualizer.show()
-  })
-  container.appendChild(gallery)
-
-  // appear animation
-  container.style.opacity = "1";
-  await new Promise(resolve => setTimeout(resolve, 260))
-}
-
-function projectBar(projects: Array<Project>, current: Project, tag: string): HTMLElement {
-  const bar = uiComponent({
-    type: Html.Div,
-    id: "project-bar",
-    classes: [BubbleUI.BoxRow, BubbleUI.BoxXCenter, BubbleUI.BoxYStart],
-  })
-
-  projects.forEach(project => {
-    const button = uiComponent({
-      type: Html.Button,
-      text: project.name,
-      classes: project.name == current.name ? ["selected"] : [],
+    const categories = new Set(ImageService.getCategories())
+    const view = uiComponent({
+      type: Html.View,
+      id: HomeView.VIEW_ID,
+      classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
     })
 
-    button.onclick = () => emitSignal(PROJECT_SELECTED_SIGNAL, {
-      tag: tag,
-      project: project,
+    const selectedCategory = parameters[0] || categories.values().next().value
+    const visualizer = Visualizer.render(HomeView.visualizerProcessor)
+    const header = Header.render(categories)
+
+    const galleryContainer = uiComponent({
+      type: Html.Div,
+      id: "gallery-container",
+      classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+    });
+
+    connectToSignal(Header.OPTION_SELECTED_SIGNAL, async category => HomeView.showImages(galleryContainer, category, undefined))
+    connectToSignal(HomeView.PROJECT_SELECTED_SIGNAL, async data => HomeView.showImages(galleryContainer, data?.category, data?.project))
+
+    view.appendChild(header)
+    view.appendChild(galleryContainer)
+    view.appendChild(visualizer)
+    container.appendChild(view)
+
+    emitSignal(Header.OPTION_SELECTED_SIGNAL, selectedCategory)
+  }
+
+  /**
+   * Show the projects of the selected tag
+   * @param container The container of the gallery
+   * @param currentCategoryName The selected tag
+   * @param currentProject The selected project
+   */
+  private static async showImages(container: HTMLElement, currentCategoryName: string, currentProjectName: string): Promise<void> {
+
+    // If container is not present, return
+    if (undefined == container) {
+      console.error(`Undefined container.`)
+      return
+    }
+
+    // If tag is not selected, return
+    if (undefined == currentCategoryName) {
+      console.error(`Tag ${currentCategoryName} not found.`)
+      return
+    }
+
+    // If the project is not found, return
+    const projects = ImageService.getProjectsOfCategory(currentCategoryName)
+    if (undefined == projects || 0 == projects.size) {
+      console.error(`No projects present.`)
+      return
+    }
+
+    // Get current project
+    if (currentProjectName == undefined) currentProjectName = projects.values().next().value
+    console.log(currentProjectName);
+
+
+    // Disappear animation
+    container.style.opacity = "0";
+    await new Promise(resolve => setTimeout(resolve, 500))
+
+    // Clear the gallery container
+    container.innerHTML = ""
+
+    // Add category title to UI
+    const title = uiComponent({
+      type: Html.H1,
+      text: currentCategoryName,
+      id: "title",
+    })
+    container.appendChild(title)
+
+    // Create the project bar
+    const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName)
+    container.appendChild(bar)
+
+    // Create the project gallery
+    const images = ImageService.getImagesByProjectAndCategory(currentProjectName, currentCategoryName)
+
+    const gallery = ImageGallery.render(images)
+    connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async data => {
+      HomeView.visualizerProcessor.load(data.images)
+      HomeView.visualizerProcessor.set(data.selected)
+      Visualizer.render(HomeView.visualizerProcessor)
+      Visualizer.show()
+    })
+    container.appendChild(gallery)
+
+    // appear animation
+    container.style.opacity = "1";
+    await new Promise(resolve => setTimeout(resolve, 260))
+  }
+
+  /**
+   * Render the project bar
+   * @param projects The projects to add to the bar
+   * @param currentProjectName The current selected project name
+   * @param categoryName The current category name 
+   * @returns The composed HTML element
+   */
+  private static renderProjectBar(projects: Set<string>, currentProjectName: string, categoryName: string): HTMLElement {
+    const bar = uiComponent({
+      type: Html.Div,
+      id: "project-bar",
+      classes: [BubbleUI.BoxRow, BubbleUI.BoxXCenter, BubbleUI.BoxYStart],
     })
 
-    bar.appendChild(button)
-  })
+    projects.forEach(project => {
+      const button = uiComponent({
+        type: Html.Button,
+        text: project,
+        classes: project == currentProjectName ? ["selected"] : [],
+      })
 
-  return bar
+      button.onclick = () => emitSignal(HomeView.PROJECT_SELECTED_SIGNAL, {
+        category: categoryName,
+        project: project,
+      })
+
+      bar.appendChild(button)
+    })
+
+    return bar
+  }
 }

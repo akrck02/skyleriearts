@@ -2,7 +2,7 @@ import { BubbleUI } from "../../lib/bubble.js"
 import { setDomEvents, uiComponent } from "../../lib/dom.js"
 import { Html } from "../../lib/html.js"
 import { getIcon } from "../../lib/icons.js"
-import { Image } from "../../models/project.js"
+import { Image } from "../../models/image.js"
 
 const VISUALIZER_ID = "visualizer"
 const BUTTON_BACK_ID = "visualizer-back"
@@ -17,7 +17,7 @@ const INFO_TEXT_ID = "visualizer-info-text"
  */
 export class VisualizerProcessor {
 
-  images: Image[] = []
+  images: Array<Image> = new Array()
   index: number = 0
 
   load(images: Image[]) {
@@ -35,9 +35,21 @@ export class VisualizerProcessor {
   }
 
   set(currentImage: Image) {
-    this.index = this.images.findIndex(im => im.url === currentImage.url)
-    if (-1 == this.index) this.index = 0
+    this.index = this.getIndexOf(currentImage)
+    if (this.index < 1) this.index = 0
   }
+
+  getIndexOf(currentImage: Image): number {
+    for (let i = 0; i < this.images.length; i++) {
+      const image = this.images[i];
+      if (image.name == currentImage.name) {
+        return i
+      }
+    }
+    return -1
+  }
+
+
 
   getCurrentImage(): Image {
     if (0 == this.images.length) return null
@@ -45,7 +57,6 @@ export class VisualizerProcessor {
   }
 
   next() {
-    console.log(this)
     if (0 == this.images.length) return
 
     this.index++
@@ -53,8 +64,6 @@ export class VisualizerProcessor {
   }
 
   previous() {
-    console.log(this);
-
     if (0 == this.images.length) return
     this.index--
     if (0 > this.index) this.index = this.images.length - 1
@@ -119,7 +128,7 @@ export class Visualizer {
     const image = uiComponent({
       type: Html.Img,
       id: IMAGE_ID,
-      attributes: { src: processor.getCurrentImage()?.url || "" },
+      attributes: { src: processor.getCurrentImage()?.path || "" },
     })
 
     const infoText = uiComponent({
@@ -143,7 +152,7 @@ export class Visualizer {
   private static update(visualizer: HTMLElement, processor: VisualizerProcessor): HTMLElement {
     const image = document.getElementById(IMAGE_ID)
     image.style.display = "flex"
-    image.setAttribute("src", processor.getCurrentImage()?.url || "")
+    image.setAttribute("src", processor.getCurrentImage()?.path || "")
     return visualizer
   }
 

@@ -2,20 +2,27 @@ import { BubbleUI } from "../../lib/bubble.js"
 import { getConfiguration } from "../../lib/configuration.js"
 import { setDomEvents, uiComponent } from "../../lib/dom.js"
 import { Html } from "../../lib/html.js"
-import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js"
+import { emitSignal, setSignal } from "../../lib/signals.js"
 
+/**
+ * This class represents the header of the application
+ * it is static because only one is needed across th app.
+ */
 export class Header {
+
   private static readonly HEADER_ID = "header"
   private static readonly TAG_MENU_ID = "tag-menu"
   private static readonly TAG_BUTTON_CLASS = "tag-button"
 
-  static readonly TAG_SELECTED_SIGNAL = setSignal()
+  static readonly OPTION_SELECTED_SIGNAL = setSignal()
 
-  static render(tags: Set<string>): HTMLElement {
-    return Header.create(tags)
-  }
+  /**
+   * Render the header
+   * @param options The header options
+   * @returns The composed HTML element
+   */
+  static render(options: Set<string>): HTMLElement {
 
-  static create(tags: Set<string>): HTMLElement {
     let header = uiComponent({
       type: Html.Div,
       id: Header.HEADER_ID,
@@ -37,8 +44,8 @@ export class Header {
       classes: [BubbleUI.TextCenter],
     })
 
-    const selected = tags.values().next().value;
-    const tagMenu = this.drawTags(tags, selected);
+    const selected = options.values().next().value;
+    const tagMenu = this.drawOptions(options, selected);
 
     header.appendChild(profilePicture)
     header.appendChild(title)
@@ -47,7 +54,13 @@ export class Header {
     return header
   }
 
-  static drawTags(tags: Set<string>, selected: string): HTMLElement {
+  /**
+   * Draw the options of the menu
+   * @param options The options to show
+   * @param selected The selected option
+   * @returns The composed HTML element 
+   */
+  static drawOptions(options: Set<string>, selected: string): HTMLElement {
 
     const menu = uiComponent({
       type: Html.Div,
@@ -55,12 +68,12 @@ export class Header {
       classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
     })
 
-    tags.forEach(tag => {
+    options.forEach(option => {
 
       const button = uiComponent({
         type: Html.Button,
-        text: tag,
-        classes: selected == tag ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
+        text: option,
+        classes: selected == option ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
       })
 
       setDomEvents(button, {
@@ -69,7 +82,7 @@ export class Header {
           buttons.forEach(b => b.classList.remove("selected"))
           button.classList.add("selected")
 
-          emitSignal(Header.TAG_SELECTED_SIGNAL, tag)
+          emitSignal(Header.OPTION_SELECTED_SIGNAL, option)
         }
       })
       menu.appendChild(button)
@@ -77,5 +90,4 @@ export class Header {
 
     return menu
   }
-
 } 
