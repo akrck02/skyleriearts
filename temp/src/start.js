@@ -188,20 +188,77 @@
         return -1;
     }
 
-    let projects = [];
-    async function loadProjects() {
-        const dataPath = `${getConfiguration("path")["resources"]}/data/images.json`;
-        const response = await fetch(dataPath);
-        projects = await response.json();
+    class ImageService {
+        /**
+         * Load the data from external resource
+         */
+        static async load() {
+            const response = await fetch(`${getConfiguration("path")["resources"]}/data/images.json`);
+            const data = await response.json();
+            ImageService.categories = new Map();
+            for (const imageName in data) {
+                const image = data[imageName];
+                for (const categoryName of image.categories) {
+                    if (ImageService.categories.has(categoryName)) {
+                        ImageService.categories.get(categoryName).add(image);
+                    }
+                    else {
+                        ImageService.categories.set(categoryName, new Set([image]));
+                    }
+                }
+            }
+        }
+        /**
+         * Get image by name
+         * @param name The image name
+         * @returns the image with that name
+         */
+        static getImage(name) {
+            for (const categoryName in ImageService.categories.values()) {
+                const images = ImageService.categories.get(categoryName);
+                for (const image of images) {
+                    if (image.name === name)
+                        return image;
+                }
+            }
+        }
+        /**
+         * Get the images belonging to a project and a category
+         * @param project The project name
+         * @param category The category name
+         * @returns the images belonging to the project and category
+         */
+        static getImagesByProjectAndCategory(project, category) {
+            const foundImages = new Set();
+            ImageService.categories.get(category)?.forEach(image => {
+                if (-1 != image.projects.indexOf(project)) {
+                    foundImages.add(image);
+                }
+            });
+            return foundImages;
+        }
+        /**
+         * Get all the categories
+         * @returns The categories
+         */
+        static getCategories() {
+            return new Set(ImageService.categories.keys());
+        }
+        /**
+         * Get the project of a category
+         * @returns The projects of a category
+         */
+        static getProjectsOfCategory(category) {
+            const found = new Set();
+            for (const images of ImageService.categories.get(category)) {
+                for (const project of images.projects) {
+                    found.add(project);
+                }
+            }
+            return found;
+        }
     }
-    function getProjectTags() {
-        const tags = new Set();
-        projects.forEach(project => project?.tags?.forEach((tag) => tags.add(tag)));
-        return tags;
-    }
-    function getProjectsByTag(tag) {
-        return projects.filter(projects => projects.tags.indexOf(tag) != -1);
-    }
+    ImageService.categories = new Map();
 
     const errors = {
         200: {
@@ -410,15 +467,25 @@
         }
     }
 
-    class ProjectGallery {
-        static render(project) {
+    /**
+     * Renderer class for the image galleries.
+     */
+    class ImageGallery {
+        /**
+         * Render a gallery
+         * @param images The images to show
+         * @returns The composed HTML element
+         */
+        static render(images) {
             // if nothing to show, return
-            if (undefined == project?.images || 0 == project.images.length)
+            if (undefined == images) {
+                console.error("No images to show in gallery.");
                 return;
+            }
             let gallery = uiComponent({
                 type: Html.Div,
                 classes: [
-                    ProjectGallery.CLASS,
+                    ImageGallery.CLASS,
                     BubbleUI.BoxColumn,
                     BubbleUI.BoxXStart,
                     BubbleUI.BoxYStart,
@@ -426,34 +493,46 @@
             });
             // turn on mobile class if needed
             if (isSmallDevice()) {
-                gallery.classList.add(ProjectGallery.MOBILE_CLASS);
+                gallery.classList.add(ImageGallery.MOBILE_CLASS);
             }
             // Add a list of images to show
             // in the gallery
             const list = uiComponent({
                 type: Html.Ul,
-                id: ProjectGallery.LIST_ID,
+                id: ImageGallery.LIST_ID,
             });
-            project?.images?.forEach((image) => this.register(list, image, project.images));
+            images?.forEach((image) => this.register(list, image, images));
             gallery.appendChild(list);
             return gallery;
         }
-        static register(list, image, album) {
-            const listItem = uiComponent({ type: Html.Li });
-            const canvas = this.imageCanvas(image, album);
+        /**
+         * Register an image in the gallery
+         * @param container The HTML container to attach the images to
+         * @param image The image to attach
+         * @param album The album the image is belonging to
+         */
+        static register(container, image, album) {
+            const item = uiComponent({ type: Html.Li });
+            const canvas = this.renderImageCanvas(image, album);
             setTimeout(() => canvas.style.opacity = "1", 1);
-            listItem.appendChild(canvas);
-            list.appendChild(listItem);
+            item.appendChild(canvas);
+            container.appendChild(item);
         }
-        static imageCanvas(image, album) {
+        /**
+         * Render the canvas for the image
+         * @param image The image to attach to the canvas
+         * @param album The album the image belongs to
+         * @returns The composed HTML element
+         */
+        static renderImageCanvas(image, album) {
             const canvas = uiComponent({
                 type: Html.Div,
                 classes: ["canvas"],
             });
             setDomEvents(canvas, {
                 click: () => {
-                    emitSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, {
-                        images: album,
+                    emitSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, {
+                        images: Array.from(album.values()),
                         selected: image,
                     });
                 },
@@ -461,8 +540,8 @@
             const imageComponent = uiComponent({
                 type: Html.Img,
                 attributes: {
-                    src: image.url,
-                    alt: image.title,
+                    src: image.minPath,
+                    alt: image.name,
                     loading: "lazy",
                     background: "#fff",
                 },
@@ -474,17 +553,22 @@
             return canvas;
         }
     }
-    ProjectGallery.CLASS = "gallery";
-    ProjectGallery.TITLE_ID = "title";
-    ProjectGallery.LIST_ID = "image-list";
-    ProjectGallery.MOBILE_CLASS = "mobile";
-    ProjectGallery.IMAGE_SELECTED_SIGNAL = setSignal();
+    ImageGallery.CLASS = "gallery";
+    ImageGallery.LIST_ID = "image-list";
+    ImageGallery.MOBILE_CLASS = "mobile";
+    ImageGallery.IMAGE_SELECTED_SIGNAL = setSignal();
 
+    /**
+     * This class represents the header of the application
+     * it is static because only one is needed across th app.
+     */
     class Header {
-        static render(tags) {
-            return Header.create(tags);
-        }
-        static create(tags) {
+        /**
+         * Render the header
+         * @param options The header options
+         * @returns The composed HTML element
+         */
+        static render(options) {
             let header = uiComponent({
                 type: Html.Div,
                 id: Header.HEADER_ID,
@@ -503,31 +587,37 @@
                 id: "title",
                 classes: [BubbleUI.TextCenter],
             });
-            const selected = tags.values().next().value;
-            const tagMenu = this.drawTags(tags, selected);
+            const selected = options.values().next().value;
+            const tagMenu = this.drawOptions(options, selected);
             header.appendChild(profilePicture);
             header.appendChild(title);
             header.appendChild(tagMenu);
             return header;
         }
-        static drawTags(tags, selected) {
+        /**
+         * Draw the options of the menu
+         * @param options The options to show
+         * @param selected The selected option
+         * @returns The composed HTML element
+         */
+        static drawOptions(options, selected) {
             const menu = uiComponent({
                 type: Html.Div,
                 id: Header.TAG_MENU_ID,
                 classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
             });
-            tags.forEach(tag => {
+            options.forEach(option => {
                 const button = uiComponent({
                     type: Html.Button,
-                    text: tag,
-                    classes: selected == tag ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
+                    text: option,
+                    classes: selected == option ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
                 });
                 setDomEvents(button, {
                     click: () => {
                         const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`);
                         buttons.forEach(b => b.classList.remove("selected"));
                         button.classList.add("selected");
-                        emitSignal(Header.TAG_SELECTED_SIGNAL, tag);
+                        emitSignal(Header.OPTION_SELECTED_SIGNAL, option);
                     }
                 });
                 menu.appendChild(button);
@@ -538,7 +628,7 @@
     Header.HEADER_ID = "header";
     Header.TAG_MENU_ID = "tag-menu";
     Header.TAG_BUTTON_CLASS = "tag-button";
-    Header.TAG_SELECTED_SIGNAL = setSignal();
+    Header.OPTION_SELECTED_SIGNAL = setSignal();
 
     const VISUALIZER_ID = "visualizer";
     const BUTTON_BACK_ID = "visualizer-back";
@@ -552,7 +642,7 @@
      */
     class VisualizerProcessor {
         constructor() {
-            this.images = [];
+            this.images = new Array();
             this.index = 0;
         }
         load(images) {
@@ -569,9 +659,18 @@
             return this.images.length - 1 == this.index;
         }
         set(currentImage) {
-            this.index = this.images.findIndex(im => im.url === currentImage.url);
-            if (-1 == this.index)
+            this.index = this.getIndexOf(currentImage);
+            if (this.index < 1)
                 this.index = 0;
+        }
+        getIndexOf(currentImage) {
+            for (let i = 0; i < this.images.length; i++) {
+                const image = this.images[i];
+                if (image.name == currentImage.name) {
+                    return i;
+                }
+            }
+            return -1;
         }
         getCurrentImage() {
             if (0 == this.images.length)
@@ -579,7 +678,6 @@
             return this.images[this.index];
         }
         next() {
-            console.log(this);
             if (0 == this.images.length)
                 return;
             this.index++;
@@ -587,7 +685,6 @@
                 this.index = 0;
         }
         previous() {
-            console.log(this);
             if (0 == this.images.length)
                 return;
             this.index--;
@@ -644,7 +741,7 @@
             const image = uiComponent({
                 type: Html.Img,
                 id: IMAGE_ID,
-                attributes: { src: processor.getCurrentImage()?.url || "" },
+                attributes: { src: processor.getCurrentImage()?.path || "" },
             });
             const infoText = uiComponent({
                 type: Html.P,
@@ -664,7 +761,7 @@
         static update(visualizer, processor) {
             const image = document.getElementById(IMAGE_ID);
             image.style.display = "flex";
-            image.setAttribute("src", processor.getCurrentImage()?.url || "");
+            image.setAttribute("src", processor.getCurrentImage()?.path || "");
             return visualizer;
         }
         static show() {
@@ -675,111 +772,123 @@
         }
     }
 
+    class HomeView {
+        /**
+        * Show home view
+        */
+        static async show(parameters, container) {
+            const categories = new Set(ImageService.getCategories());
+            const view = uiComponent({
+                type: Html.View,
+                id: HomeView.VIEW_ID,
+                classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+            });
+            const selectedCategory = parameters[0] || categories.values().next().value;
+            const visualizer = Visualizer.render(HomeView.visualizerProcessor);
+            const header = Header.render(categories);
+            const galleryContainer = uiComponent({
+                type: Html.Div,
+                id: "gallery-container",
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+            });
+            connectToSignal(Header.OPTION_SELECTED_SIGNAL, async (category) => HomeView.showImages(galleryContainer, category, undefined));
+            connectToSignal(HomeView.PROJECT_SELECTED_SIGNAL, async (data) => HomeView.showImages(galleryContainer, data?.category, data?.project));
+            view.appendChild(header);
+            view.appendChild(galleryContainer);
+            view.appendChild(visualizer);
+            container.appendChild(view);
+            emitSignal(Header.OPTION_SELECTED_SIGNAL, selectedCategory);
+        }
+        /**
+         * Show the projects of the selected tag
+         * @param container The container of the gallery
+         * @param currentCategoryName The selected tag
+         * @param currentProject The selected project
+         */
+        static async showImages(container, currentCategoryName, currentProjectName) {
+            // If container is not present, return
+            if (undefined == container) {
+                console.error(`Undefined container.`);
+                return;
+            }
+            // If tag is not selected, return
+            if (undefined == currentCategoryName) {
+                console.error(`Tag ${currentCategoryName} not found.`);
+                return;
+            }
+            // If the project is not found, return
+            const projects = ImageService.getProjectsOfCategory(currentCategoryName);
+            if (undefined == projects || 0 == projects.size) {
+                console.error(`No projects present.`);
+                return;
+            }
+            // Get current project
+            if (currentProjectName == undefined)
+                currentProjectName = projects.values().next().value;
+            console.log(currentProjectName);
+            // Disappear animation
+            container.style.opacity = "0";
+            await new Promise(resolve => setTimeout(resolve, 500));
+            // Clear the gallery container
+            container.innerHTML = "";
+            // Add category title to UI
+            const title = uiComponent({
+                type: Html.H1,
+                text: currentCategoryName,
+                id: "title",
+            });
+            container.appendChild(title);
+            // Create the project bar
+            const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName);
+            container.appendChild(bar);
+            // Create the project gallery
+            const images = ImageService.getImagesByProjectAndCategory(currentProjectName, currentCategoryName);
+            const gallery = ImageGallery.render(images);
+            connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
+                HomeView.visualizerProcessor.load(data.images);
+                HomeView.visualizerProcessor.set(data.selected);
+                Visualizer.render(HomeView.visualizerProcessor);
+                Visualizer.show();
+            });
+            container.appendChild(gallery);
+            // appear animation
+            container.style.opacity = "1";
+            await new Promise(resolve => setTimeout(resolve, 260));
+        }
+        /**
+         * Render the project bar
+         * @param projects The projects to add to the bar
+         * @param currentProjectName The current selected project name
+         * @param categoryName The current category name
+         * @returns The composed HTML element
+         */
+        static renderProjectBar(projects, currentProjectName, categoryName) {
+            const bar = uiComponent({
+                type: Html.Div,
+                id: "project-bar",
+                classes: [BubbleUI.BoxRow, BubbleUI.BoxXCenter, BubbleUI.BoxYStart],
+            });
+            projects.forEach(project => {
+                const button = uiComponent({
+                    type: Html.Button,
+                    text: project,
+                    classes: project == currentProjectName ? ["selected"] : [],
+                });
+                button.onclick = () => emitSignal(HomeView.PROJECT_SELECTED_SIGNAL, {
+                    category: categoryName,
+                    project: project,
+                });
+                bar.appendChild(button);
+            });
+            return bar;
+        }
+    }
     // HTML ids and classes
-    const VIEW_ID = "home";
+    HomeView.VIEW_ID = "home";
     // Signals
-    const PROJECT_SELECTED_SIGNAL = setSignal();
+    HomeView.PROJECT_SELECTED_SIGNAL = setSignal();
     // Data
-    let visualizerProcessor = new VisualizerProcessor();
-    /**
-     * Show home view
-     */
-    async function showHomeView(parameters, container) {
-        const tags = new Set(getProjectTags());
-        const view = uiComponent({
-            type: Html.View,
-            id: VIEW_ID,
-            classes: [BubbleUI.BoxRow, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-        });
-        const selectedTag = parameters[0] || getProjectTags().values().next().value;
-        const visualizer = Visualizer.render(visualizerProcessor);
-        const header = Header.render(tags);
-        const galleryContainer = uiComponent({
-            type: Html.Div,
-            id: "gallery-container",
-            classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-        });
-        connectToSignal(Header.TAG_SELECTED_SIGNAL, async (tag) => showTag(galleryContainer, tag, undefined));
-        connectToSignal(PROJECT_SELECTED_SIGNAL, async (data) => showTag(galleryContainer, data?.tag, data?.project?.name));
-        view.appendChild(header);
-        view.appendChild(galleryContainer);
-        view.appendChild(visualizer);
-        container.appendChild(view);
-        emitSignal(Header.TAG_SELECTED_SIGNAL, selectedTag);
-    }
-    /**
-     * Show the projects of the selected tag
-     * @param container The container of the gallery
-     * @param currentTag The selected tag
-     * @param currentProject The selected project
-     */
-    async function showTag(container, currentTag, currentProjectName) {
-        // If container is not present, return
-        if (undefined == container) {
-            console.error(`Undefined container`);
-            return;
-        }
-        // If tag is not selected, return
-        if (undefined == currentTag) {
-            console.error(`Tag ${currentTag} not found`);
-            return;
-        }
-        console.log(currentProjectName);
-        // If the project is not found, return
-        const projects = getProjectsByTag(currentTag);
-        const currentProject = currentProjectName == undefined ? projects[0] : projects.find(project => project.name.toLowerCase() == currentProjectName.toLowerCase());
-        if (undefined == currentProject) {
-            console.error(`Project not selected`);
-            return;
-        }
-        // Disappear animation
-        container.style.opacity = "0";
-        await new Promise(resolve => setTimeout(resolve, 500));
-        // Clear the gallery container
-        container.innerHTML = "";
-        // Add tag title to UI
-        const title = uiComponent({
-            type: Html.H1,
-            text: currentTag,
-            id: "title",
-        });
-        container.appendChild(title);
-        // Create the project bar
-        const bar = projectBar(projects, currentProject, currentTag);
-        container.appendChild(bar);
-        // Create the project gallery
-        const gallery = ProjectGallery.render(currentProject);
-        connectToSignal(ProjectGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
-            visualizerProcessor.load(data.images);
-            visualizerProcessor.set(data.selected);
-            Visualizer.render(visualizerProcessor);
-            Visualizer.show();
-        });
-        container.appendChild(gallery);
-        // appear animation
-        container.style.opacity = "1";
-        await new Promise(resolve => setTimeout(resolve, 260));
-    }
-    function projectBar(projects, current, tag) {
-        const bar = uiComponent({
-            type: Html.Div,
-            id: "project-bar",
-            classes: [BubbleUI.BoxRow, BubbleUI.BoxXCenter, BubbleUI.BoxYStart],
-        });
-        projects.forEach(project => {
-            const button = uiComponent({
-                type: Html.Button,
-                text: project.name,
-                classes: project.name == current.name ? ["selected"] : [],
-            });
-            button.onclick = () => emitSignal(PROJECT_SELECTED_SIGNAL, {
-                tag: tag,
-                project: project,
-            });
-            bar.appendChild(button);
-        });
-        return bar;
-    }
+    HomeView.visualizerProcessor = new VisualizerProcessor();
 
     /**
      * When the dynamic URL changes loads
@@ -796,8 +905,8 @@
         await loadConfiguration("gtdf.config.json");
         await loadIcons("material", `${getConfiguration("path")["icons"]}/materialicons.json`);
         await loadIcons("social", `${getConfiguration("path")["icons"]}/socialicons.json`);
-        await loadProjects();
-        setRoute("", showHomeView);
+        await ImageService.load();
+        setRoute("", HomeView.show);
         setNotFoundRoute(showErrorView);
         showRoute(window.location.hash.slice(1).toLowerCase(), document.body);
     }
