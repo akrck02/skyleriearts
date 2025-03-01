@@ -2,7 +2,7 @@ import { ImageGallery } from "../../components/gallery/gallery.js";
 import { Header } from "../../components/header/header.js";
 import { Visualizer, VisualizerProcessor } from "../../components/visualizer/visualizer.js";
 import { BubbleUI } from "../../lib/bubble.js";
-import { uiComponent } from "../../lib/dom.js";
+import { setDomDataset, uiComponent } from "../../lib/dom.js";
 import { Html } from "../../lib/html.js";
 import { connectToSignal, emitSignal, setSignal } from "../../lib/signals.js";
 import ImageService from "../../services/image.js";
@@ -11,7 +11,8 @@ import ImageService from "../../services/image.js";
 export default class HomeView {
 
   // HTML ids and classes
-  static readonly VIEW_ID = "home";
+  static readonly VIEW_ID = "home"
+  static readonly TITLE_ID = "title"
 
   // Signals
   static readonly PROJECT_SELECTED_SIGNAL: string = setSignal()
@@ -81,8 +82,29 @@ export default class HomeView {
 
     // Get current project
     if (currentProjectName == undefined) currentProjectName = projects.values().next().value
-    console.log(currentProjectName);
 
+    const projectChanged = container.dataset.project != currentProjectName
+    const categoryChanged = container.dataset.category != currentCategoryName
+
+
+    //let title = document.getElementById(this.TITLE_ID)
+    //if (undefined !== title) {
+    //  title.innerText = currentCategoryName
+    //  update()
+    //
+    //} else {
+    //  render(container,currentProjectName, currentCategoryName)
+    //}
+    //
+    //renderB(container, currentProjectName, currentCategoryName)
+
+    setDomDataset(container, {
+      project: currentProjectName,
+      category: currentCategoryName
+    })
+  }
+
+  private static async renderB(container: HTMLElement, currentProjectName: string, currentCategoryName: string) {
 
     // Disappear animation
     container.style.opacity = "0";

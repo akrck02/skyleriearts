@@ -1,71 +1,71 @@
 div.gallery {
-    width: 100%;
-    padding-top: 4rem;
+  width: 100%;
+  padding-top: 2rem;
 }
 
 div.gallery.mobile {
-    padding-top: 1rem;
+  padding-top: 1rem;
 }
 
 div.gallery h1#title {
-    color: #666;
-    text-align: center;
-    font-size: 2.2rem;
-    margin: 2.5rem 0;
-    padding: 0 8rem;
-    font-weight: light;
+  color: #666;
+  text-align: center;
+  font-size: 2.2rem;
+  margin: 2.5rem 0;
+  padding: 0 8rem;
+  font-weight: light;
 }
 
 div.gallery.mobile h1#title {
-    font-size: 1.5rem;
-    margin: 1rem 0;
+  font-size: 1.5rem;
+  margin: 1rem 0;
 }
 
 div.gallery ul#image-list {
-    width: 100%;
-    height: 100%;
-    padding: 0 7rem;
-    text-align: start;
+  width: 100%;
+  height: 100%;
+  padding: 0 5rem;
+  text-align: start;
 }
 
 div.gallery.mobile ul#image-list {
-    padding: 0 1rem;
+  padding: 0 1rem;
 }
 
 div.gallery ul#image-list li {
-    display: inline-block;
-    margin: 0.45rem;
-    list-style-type: none;
+  display: inline-block;
+  margin: 0.45rem;
+  list-style-type: none;
 }
 
 div.gallery.mobile ul#image-list li {
-    display: block;
+  display: block;
 }
 
 div.gallery ul#image-list li div.canvas {
-    filter: brightness(0.95) saturate(0.9);
+  filter: brightness(0.95) saturate(0.9);
 }
 
 div.gallery ul#image-list li div.canvas,
 div.gallery ul#image-list li div.canvas img {
-    height: 25rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    padding: 0;
-    transition: var(--animation-fast) ease-in-out;
+  height: 18rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  padding: 0;
+  transition: var(--animation-fast) ease-in-out;
 }
 
 div.gallery.mobile ul#image-list li div.canvas,
 div.gallery.mobile ul#image-list li div.canvas img {
-    height: auto;
-    width: 100%;
+  height: auto;
+  width: 100%;
 }
 
 div.gallery ul#image-list li div.canvas img {
-    width: 100%;
+  width: 100%;
 }
 
 div.gallery ul#image-list li div.canvas:hover {
-    transform: translateY(-0.25rem);
-    filter: brightness(1.1) saturate(1.1);
+  transform: translateY(-0.25rem);
+  filter: brightness(1.1) saturate(1.1);
 }

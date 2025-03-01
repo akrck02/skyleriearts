@@ -77,7 +77,10 @@ export class Header {
       })
 
       setDomEvents(button, {
-        click: () => {
+        click: (e) => {
+
+          if ((e.target as HTMLElement).classList.contains("selected")) return
+
           const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`)
           buttons.forEach(b => b.classList.remove("selected"))
           button.classList.add("selected")
