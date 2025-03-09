@@ -288,41 +288,23 @@
     }
     ImageService.categories = new Map();
 
-    const errors = {
-        200: {
-            code: 200,
-            message: "Success",
-            friendly: "Success",
-            description: "The operation succeded.",
-        },
-        400: {
-            code: 400,
-            message: "Bad request",
-            friendly: "The request is not valid",
-            description: "The parameters may be wrong or missing.",
-        },
-        401: {
-            code: 401,
-            message: "Unauthorized",
-            friendly: "You have no permissions to access this content 🔐",
-            description: "The content is protected, contact the administrator to get access.",
-        },
-        404: {
-            code: 404,
-            message: "Not found",
-            friendly: "We can't find the page you are looking for 😓",
-            description: "The page you're searching for is no longer available.",
-        },
-        500: {
-            code: 500,
-            message: "Internal server error",
-            friendly: "Ups, something went wrong 😓",
-            description: "The server is experimenting an unexpected error, contact the administrator for more information.",
-        },
-    };
-    function getErrorByCode(code) {
-        return errors[code];
-    }
+    /**
+     * This enum represents the Bubble UI css framework
+     */
+    var BubbleUI;
+    (function (BubbleUI) {
+        BubbleUI["BoxColumn"] = "box-column";
+        BubbleUI["BoxRow"] = "box-row";
+        BubbleUI["boxWrap"] = "box-warp";
+        BubbleUI["BoxCenter"] = "box-center";
+        BubbleUI["BoxXCenter"] = "box-x-center";
+        BubbleUI["BoxYCenter"] = "box-y-center";
+        BubbleUI["BoxXStart"] = "box-x-start";
+        BubbleUI["BoxXEnd"] = "box-x-end";
+        BubbleUI["BoxYStart"] = "box-y-start";
+        BubbleUI["BoxXBetween"] = "box-x-between";
+        BubbleUI["TextCenter"] = "text-center";
+    })(BubbleUI || (BubbleUI = {}));
 
     /**
      * This enum contains the most common HTML tags
@@ -390,6 +372,200 @@
         Html["Filter"] = "filter";
     })(Html || (Html = {}));
 
+    function uuidv4() {
+        return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16));
+    }
+
+    const buffer = new Map();
+    /**
+     * Set a new signal
+     */
+    function setSignal() {
+        const id = uuidv4();
+        buffer.set(id, []);
+        return id;
+    }
+    /**
+     * Connect a function to a signal
+     * @param id The signal id
+     * @param handler The signal handler function
+     */
+    function connectToSignal(id, handler) {
+        if (false == buffer.has(id)) {
+            console.error(`Error connecting: The signal ${id} does not exist.`);
+            return;
+        }
+        buffer.get(id).push(handler);
+    }
+    function disconnectSignal(id) {
+        if (false == buffer.has(id)) {
+            console.error(`Error connecting: The signal ${id} does not exist.`);
+            return;
+        }
+        buffer.set(id, []);
+    }
+    /**
+     * Emit a signal with the given dat
+     */
+    async function emitSignal(id, data) {
+        if (false == buffer.has(id))
+            return;
+        const targets = buffer.get(id);
+        for (const target of targets) {
+            target(data);
+        }
+    }
+
+    /**
+     * This class represents the header of the application
+     * it is static because only one is needed across th app.
+     */
+    class Header {
+        /**
+         * Render the header
+         * @param options The header options
+         * @returns The composed HTML element
+         */
+        static render(options) {
+            disconnectSignal(this.OPTION_SELECTED_SIGNAL);
+            let header = uiComponent({
+                type: Html.Div,
+                id: Header.HEADER_ID,
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
+            });
+            const profilePicture = uiComponent({
+                type: Html.Img,
+                id: "logo",
+                attributes: {
+                    src: `${getConfiguration("path")["images"]}/logo.jpg`,
+                },
+            });
+            setDomEvents(profilePicture, {
+                click: () => window.open("/#/bio", "_self")
+            });
+            const title = uiComponent({
+                type: Html.H1,
+                text: "Skylerie",
+                id: "title",
+                classes: [BubbleUI.TextCenter],
+            });
+            const selected = options.values().next().value;
+            const tagMenu = this.drawOptions(options, selected);
+            header.appendChild(profilePicture);
+            header.appendChild(title);
+            header.appendChild(tagMenu);
+            return header;
+        }
+        /**
+         * Draw the options of the menu
+         * @param options The options to show
+         * @param selected The selected option
+         * @returns The composed HTML element
+         */
+        static drawOptions(options, selected) {
+            const menu = uiComponent({
+                type: Html.Div,
+                id: Header.TAG_MENU_ID,
+                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
+            });
+            options.forEach(option => {
+                const button = uiComponent({
+                    type: Html.Button,
+                    text: option,
+                    classes: selected == option ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
+                });
+                setDomEvents(button, {
+                    click: (e) => {
+                        if (e.target.classList.contains("selected"))
+                            return;
+                        const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`);
+                        buttons.forEach(b => b.classList.remove("selected"));
+                        button.classList.add("selected");
+                        emitSignal(Header.OPTION_SELECTED_SIGNAL, option);
+                    }
+                });
+                menu.appendChild(button);
+            });
+            return menu;
+        }
+    }
+    Header.HEADER_ID = "header";
+    Header.TAG_MENU_ID = "tag-menu";
+    Header.TAG_BUTTON_CLASS = "tag-button";
+    Header.OPTION_SELECTED_SIGNAL = setSignal();
+
+    class BioView {
+        static async show(parameters, container) {
+            container.innerHTML = "";
+            const options = new Set();
+            options.add(BioView.ABOUT_ME_TAG);
+            options.add(BioView.SOCIAL_MEDIA_TAG);
+            options.add(BioView.PROJECT_TAG);
+            const header = Header.render(options);
+            container.appendChild(header);
+            const content = uiComponent({});
+            connectToSignal(Header.OPTION_SELECTED_SIGNAL, async (option) => {
+                switch (option) {
+                    case BioView.PROJECT_TAG:
+                        window.open("/#/", "_self");
+                        break;
+                    case BioView.ABOUT_ME_TAG:
+                        BioView.renderAboutMe(content);
+                        break;
+                    case BioView.SOCIAL_MEDIA_TAG:
+                        BioView.renderSocialMedia(content);
+                        break;
+                }
+            });
+            container.appendChild(content);
+        }
+        static renderAboutMe(container) {
+            container.innerHTML = "About me";
+        }
+        static renderSocialMedia(container) {
+            container.innerHTML = "Social media";
+        }
+    }
+    BioView.ABOUT_ME_TAG = "About me";
+    BioView.SOCIAL_MEDIA_TAG = "Social media";
+    BioView.PROJECT_TAG = "Projects";
+
+    const errors = {
+        200: {
+            code: 200,
+            message: "Success",
+            friendly: "Success",
+            description: "The operation succeded.",
+        },
+        400: {
+            code: 400,
+            message: "Bad request",
+            friendly: "The request is not valid",
+            description: "The parameters may be wrong or missing.",
+        },
+        401: {
+            code: 401,
+            message: "Unauthorized",
+            friendly: "You have no permissions to access this content 🔐",
+            description: "The content is protected, contact the administrator to get access.",
+        },
+        404: {
+            code: 404,
+            message: "Not found",
+            friendly: "We can't find the page you are looking for 😓",
+            description: "The page you're searching for is no longer available.",
+        },
+        500: {
+            code: 500,
+            message: "Internal server error",
+            friendly: "Ups, something went wrong 😓",
+            description: "The server is experimenting an unexpected error, contact the administrator for more information.",
+        },
+    };
+    function getErrorByCode(code) {
+        return errors[code];
+    }
+
     const DEFAULT_ERROR_CODE = 404;
     const ID = "error";
     const IMAGE_ID$1 = "error-img";
@@ -429,61 +605,6 @@
         });
         view.appendChild(description);
         container.appendChild(view);
-    }
-
-    /**
-     * This enum represents the Bubble UI css framework
-     */
-    var BubbleUI;
-    (function (BubbleUI) {
-        BubbleUI["BoxColumn"] = "box-column";
-        BubbleUI["BoxRow"] = "box-row";
-        BubbleUI["boxWrap"] = "box-warp";
-        BubbleUI["BoxCenter"] = "box-center";
-        BubbleUI["BoxXCenter"] = "box-x-center";
-        BubbleUI["BoxYCenter"] = "box-y-center";
-        BubbleUI["BoxXStart"] = "box-x-start";
-        BubbleUI["BoxXEnd"] = "box-x-end";
-        BubbleUI["BoxYStart"] = "box-y-start";
-        BubbleUI["BoxXBetween"] = "box-x-between";
-        BubbleUI["TextCenter"] = "text-center";
-    })(BubbleUI || (BubbleUI = {}));
-
-    function uuidv4() {
-        return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16));
-    }
-
-    const buffer = new Map();
-    /**
-     * Set a new signal
-     */
-    function setSignal() {
-        const id = uuidv4();
-        buffer.set(id, []);
-        return id;
-    }
-    /**
-     * Connect a function to a signal
-     * @param id The signal id
-     * @param handler The signal handler function
-     */
-    function connectToSignal(id, handler) {
-        if (false == buffer.has(id)) {
-            console.error(`Error connecting: The signal ${id} does not exist.`);
-            return;
-        }
-        buffer.get(id).push(handler);
-    }
-    /**
-     * Emit a signal with the given dat
-     */
-    async function emitSignal(id, data) {
-        if (false == buffer.has(id))
-            return;
-        const targets = buffer.get(id);
-        for (const target of targets) {
-            target(data);
-        }
     }
 
     /**
@@ -587,80 +708,6 @@
     ImageGallery.LIST_ID = "image-list";
     ImageGallery.MOBILE_CLASS = "mobile";
     ImageGallery.IMAGE_SELECTED_SIGNAL = setSignal();
-
-    /**
-     * This class represents the header of the application
-     * it is static because only one is needed across th app.
-     */
-    class Header {
-        /**
-         * Render the header
-         * @param options The header options
-         * @returns The composed HTML element
-         */
-        static render(options) {
-            let header = uiComponent({
-                type: Html.Div,
-                id: Header.HEADER_ID,
-                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYCenter],
-            });
-            const profilePicture = uiComponent({
-                type: Html.Img,
-                id: "logo",
-                attributes: {
-                    src: `${getConfiguration("path")["images"]}/logo.jpg`,
-                },
-            });
-            const title = uiComponent({
-                type: Html.H1,
-                text: "Skylerie",
-                id: "title",
-                classes: [BubbleUI.TextCenter],
-            });
-            const selected = options.values().next().value;
-            const tagMenu = this.drawOptions(options, selected);
-            header.appendChild(profilePicture);
-            header.appendChild(title);
-            header.appendChild(tagMenu);
-            return header;
-        }
-        /**
-         * Draw the options of the menu
-         * @param options The options to show
-         * @param selected The selected option
-         * @returns The composed HTML element
-         */
-        static drawOptions(options, selected) {
-            const menu = uiComponent({
-                type: Html.Div,
-                id: Header.TAG_MENU_ID,
-                classes: [BubbleUI.BoxColumn, BubbleUI.BoxXStart, BubbleUI.BoxYStart],
-            });
-            options.forEach(option => {
-                const button = uiComponent({
-                    type: Html.Button,
-                    text: option,
-                    classes: selected == option ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
-                });
-                setDomEvents(button, {
-                    click: (e) => {
-                        if (e.target.classList.contains("selected"))
-                            return;
-                        const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`);
-                        buttons.forEach(b => b.classList.remove("selected"));
-                        button.classList.add("selected");
-                        emitSignal(Header.OPTION_SELECTED_SIGNAL, option);
-                    }
-                });
-                menu.appendChild(button);
-            });
-            return menu;
-        }
-    }
-    Header.HEADER_ID = "header";
-    Header.TAG_MENU_ID = "tag-menu";
-    Header.TAG_BUTTON_CLASS = "tag-button";
-    Header.OPTION_SELECTED_SIGNAL = setSignal();
 
     const VISUALIZER_ID = "visualizer";
     const BUTTON_BACK_ID = "visualizer-back";
@@ -978,6 +1025,7 @@
     /** Start the web app     */
     async function start() {
         setRoute("", HomeView.show);
+        setRoute("bio", BioView.show);
         setNotFoundRoute(showErrorView);
         showRoute(window.location.hash.slice(1).toLowerCase(), document.body);
     }
