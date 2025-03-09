@@ -1,6 +1,34 @@
 (function () {
     'use strict';
 
+    const SMALL_DEVICE_WIDTH = 760;
+    const MEDIUM_DEVICE_WIDTH = 1024;
+    /**
+    * Get if the device is a small device
+    * @returns True if the device is a small device
+    */
+    function isSmallDevice() {
+        return window.matchMedia(`only screen and (max-width: ${SMALL_DEVICE_WIDTH}px)`).matches;
+    }
+    /**
+    * Get if the device is a medium device
+    * @returns True if the device is a medium device
+    */
+    function isMediumDevice() {
+        return window.matchMedia(`only screen and (min-width: ${SMALL_DEVICE_WIDTH}px) and (max-width: ${MEDIUM_DEVICE_WIDTH}px)`).matches;
+    }
+    /**
+    * Get if matches one of the mobile media queries
+    * @returns True if the device is a mobile device
+    */
+    function isMobile() {
+        return (navigator.userAgent.match(/Android/i) ||
+            navigator.userAgent.match(/BlackBerry/i) ||
+            navigator.userAgent.match(/iPhone|iPad|iPod/i) ||
+            navigator.userAgent.match(/Opera Mini/i) ||
+            navigator.userAgent.match(/IEMobile/i));
+    }
+
     /**
     * The id of the configuration used in the LocalStorage API
     * NOTE: Change this value with your app name.
@@ -421,15 +449,6 @@
         BubbleUI["TextCenter"] = "text-center";
     })(BubbleUI || (BubbleUI = {}));
 
-    const SMALL_DEVICE_WIDTH = 760;
-    /**
-    * Get if the device is a small device
-    * @returns True if the device is a small device
-    */
-    function isSmallDevice() {
-        return window.matchMedia(`only screen and (max-width: ${SMALL_DEVICE_WIDTH}px)`).matches;
-    }
-
     function uuidv4() {
         return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c => (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16));
     }
@@ -497,13 +516,24 @@
             }
             // Add a list of images to show
             // in the gallery
+            const list = this.createImageList(images);
+            gallery.appendChild(list);
+            return gallery;
+        }
+        static update(container, images) {
+            container.innerHTML = "";
+            container.appendChild(this.createImageList(images));
+            return container;
+        }
+        static createImageList(images) {
+            // Add a list of images to show
+            // in the gallery
             const list = uiComponent({
                 type: Html.Ul,
                 id: ImageGallery.LIST_ID,
             });
             images?.forEach((image) => this.register(list, image, images));
-            gallery.appendChild(list);
-            return gallery;
+            return list;
         }
         /**
          * Register an image in the gallery
@@ -613,7 +643,9 @@
                     classes: selected == option ? [Header.TAG_BUTTON_CLASS, "selected"] : [Header.TAG_BUTTON_CLASS],
                 });
                 setDomEvents(button, {
-                    click: () => {
+                    click: (e) => {
+                        if (e.target.classList.contains("selected"))
+                            return;
                         const buttons = document.querySelectorAll(`#${Header.HEADER_ID} .${Header.TAG_BUTTON_CLASS}`);
                         buttons.forEach(b => b.classList.remove("selected"));
                         button.classList.add("selected");
@@ -825,35 +857,54 @@
             // Get current project
             if (currentProjectName == undefined)
                 currentProjectName = projects.values().next().value;
-            console.log(currentProjectName);
-            // Disappear animation
-            container.style.opacity = "0";
-            await new Promise(resolve => setTimeout(resolve, 500));
-            // Clear the gallery container
-            container.innerHTML = "";
-            // Add category title to UI
-            const title = uiComponent({
-                type: Html.H1,
-                text: currentCategoryName,
-                id: "title",
+            const projectChanged = container.dataset.project != currentProjectName;
+            const categoryChanged = container.dataset.category != currentCategoryName;
+            if (categoryChanged) {
+                // Disappear animation
+                container.style.opacity = "0";
+                await new Promise(resolve => setTimeout(resolve, 500));
+                container.innerHTML = "";
+                const title = uiComponent({
+                    type: Html.H1,
+                    text: currentCategoryName,
+                    id: "title"
+                });
+                container.appendChild(title);
+                const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName);
+                container.appendChild(bar);
+                this.render(container, currentProjectName, currentCategoryName);
+                // appear animation
+                container.style.opacity = "1";
+                await new Promise(resolve => setTimeout(resolve, 260));
+            }
+            else if (projectChanged) {
+                let title = container.querySelector("#title");
+                title.innerHTML = currentCategoryName;
+                this.render(container, currentProjectName, currentCategoryName);
+            }
+            setDomDataset(container, {
+                project: currentProjectName,
+                category: currentCategoryName
             });
-            container.appendChild(title);
-            // Create the project bar
-            const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName);
-            container.appendChild(bar);
+        }
+        static async render(container, currentProjectName, currentCategoryName) {
             // Create the project gallery
             const images = ImageService.getImagesByProjectAndCategory(currentProjectName, currentCategoryName);
-            const gallery = ImageGallery.render(images);
-            connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
-                HomeView.visualizerProcessor.load(data.images);
-                HomeView.visualizerProcessor.set(data.selected);
-                Visualizer.render(HomeView.visualizerProcessor);
-                Visualizer.show();
-            });
-            container.appendChild(gallery);
-            // appear animation
-            container.style.opacity = "1";
-            await new Promise(resolve => setTimeout(resolve, 260));
+            let gallery = document.querySelector(`.${ImageGallery.CLASS}`);
+            if (null == gallery) {
+                gallery = ImageGallery.render(images);
+                connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async (data) => {
+                    HomeView.visualizerProcessor.load(data.images);
+                    HomeView.visualizerProcessor.set(data.selected);
+                    Visualizer.render(HomeView.visualizerProcessor);
+                    Visualizer.show();
+                });
+                container.appendChild(gallery);
+            }
+            else {
+                this.selectProject(container, currentProjectName);
+                ImageGallery.update(gallery, images);
+            }
         }
         /**
          * Render the project bar
@@ -882,9 +933,23 @@
             });
             return bar;
         }
+        static selectProject(container, currentProject) {
+            const buttons = container.querySelectorAll(`#project-bar button`);
+            console.log(buttons);
+            for (const button of buttons) {
+                const htmlButton = button;
+                if (htmlButton.textContent == currentProject) {
+                    htmlButton.classList.add("selected");
+                }
+                else {
+                    htmlButton.classList.remove("selected");
+                }
+            }
+        }
     }
     // HTML ids and classes
     HomeView.VIEW_ID = "home";
+    HomeView.TITLE_ID = "title";
     // Signals
     HomeView.PROJECT_SELECTED_SIGNAL = setSignal();
     // Data
@@ -899,16 +964,33 @@
      * When the window is loaded load
      * the app state to show
      */
-    window.onload = start;
-    /** Start the web app */
-    async function start() {
+    window.onload = async function () {
+        checkDisplayType();
         await loadConfiguration("gtdf.config.json");
         await loadIcons("material", `${getConfiguration("path")["icons"]}/materialicons.json`);
-        await loadIcons("social", `${getConfiguration("path")["icons"]}/socialicons.json`);
+        await loadIcons(" social", `${getConfiguration("path")["icons"]}/socialicons.json`);
         await ImageService.load();
+        await start();
+    };
+    window.onresize = async function () {
+        checkDisplayType();
+    };
+    /** Start the web app     */
+    async function start() {
         setRoute("", HomeView.show);
         setNotFoundRoute(showErrorView);
         showRoute(window.location.hash.slice(1).toLowerCase(), document.body);
+    }
+    function checkDisplayType() {
+        if (isMobile() || isSmallDevice() || isMediumDevice()) {
+            setDomDataset(document.documentElement, {
+                display: "mobile"
+            });
+            return;
+        }
+        setDomDataset(document.documentElement, {
+            display: "desktop"
+        });
     }
 
 })();
