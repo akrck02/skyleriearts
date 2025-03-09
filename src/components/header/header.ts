@@ -2,7 +2,7 @@ import { BubbleUI } from "../../lib/bubble.js"
 import { getConfiguration } from "../../lib/configuration.js"
 import { setDomEvents, uiComponent } from "../../lib/dom.js"
 import { Html } from "../../lib/html.js"
-import { emitSignal, setSignal } from "../../lib/signals.js"
+import { disconnectSignal, emitSignal, setSignal } from "../../lib/signals.js"
 
 /**
  * This class represents the header of the application
@@ -23,6 +23,8 @@ export class Header {
    */
   static render(options: Set<string>): HTMLElement {
 
+    disconnectSignal(this.OPTION_SELECTED_SIGNAL)
+
     let header = uiComponent({
       type: Html.Div,
       id: Header.HEADER_ID,
@@ -35,6 +37,10 @@ export class Header {
       attributes: {
         src: `${getConfiguration("path")["images"]}/logo.jpg`,
       },
+    })
+
+    setDomEvents(profilePicture, {
+      click: () => window.open("/#/bio", "_self")
     })
 
     const title = uiComponent({

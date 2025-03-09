@@ -27,6 +27,7 @@ div#header > img#logo {
   width: var(--logo-size);
   height: var(--logo-size);
   border-radius: 50%;
+  cursor: pointer;
 }
 
 :root[data-display="mobile"] div#header > img#logo {
