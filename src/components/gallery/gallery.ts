@@ -11,7 +11,7 @@ import { Image } from "../../models/image.js";
  */
 export class ImageGallery {
 
-  private static readonly CLASS = "gallery";
+  public static readonly CLASS = "gallery";
   private static readonly LIST_ID = "image-list";
   private static readonly MOBILE_CLASS = "mobile";
 
@@ -47,15 +47,29 @@ export class ImageGallery {
 
     // Add a list of images to show
     // in the gallery
+    const list = this.createImageList(images)
+    gallery.appendChild(list)
+
+    return gallery
+  }
+
+  static update(container: HTMLElement, images: Set<Image>): HTMLElement {
+    container.innerHTML = ""
+    container.appendChild(this.createImageList(images))
+    return container
+  }
+
+  static createImageList(images: Set<Image>): HTMLElement {
+
+    // Add a list of images to show
+    // in the gallery
     const list = uiComponent({
       type: Html.Ul,
       id: ImageGallery.LIST_ID,
     })
 
     images?.forEach((image: Image) => this.register(list, image, images))
-    gallery.appendChild(list)
-
-    return gallery
+    return list
   }
 
   /**

@@ -86,60 +86,63 @@ export default class HomeView {
     const projectChanged = container.dataset.project != currentProjectName
     const categoryChanged = container.dataset.category != currentCategoryName
 
+    if (categoryChanged) {
 
-    //let title = document.getElementById(this.TITLE_ID)
-    //if (undefined !== title) {
-    //  title.innerText = currentCategoryName
-    //  update()
-    //
-    //} else {
-    //  render(container,currentProjectName, currentCategoryName)
-    //}
-    //
-    //renderB(container, currentProjectName, currentCategoryName)
+      // Disappear animation
+      container.style.opacity = "0";
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      container.innerHTML = ""
+      const title = uiComponent({
+        type: Html.H1,
+        text: currentCategoryName,
+        id: "title"
+      })
+
+      container.appendChild(title)
+      const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName)
+      container.appendChild(bar)
+
+      this.render(container, currentProjectName, currentCategoryName)
+
+      // appear animation
+      container.style.opacity = "1";
+      await new Promise(resolve => setTimeout(resolve, 260))
+
+    } else if (projectChanged) {
+      let title = container.querySelector("#title")
+      title.innerHTML = currentCategoryName
+
+      this.render(container, currentProjectName, currentCategoryName)
+    }
 
     setDomDataset(container, {
       project: currentProjectName,
       category: currentCategoryName
     })
+
   }
 
-  private static async renderB(container: HTMLElement, currentProjectName: string, currentCategoryName: string) {
-
-    // Disappear animation
-    container.style.opacity = "0";
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    // Clear the gallery container
-    container.innerHTML = ""
-
-    // Add category title to UI
-    const title = uiComponent({
-      type: Html.H1,
-      text: currentCategoryName,
-      id: "title",
-    })
-    container.appendChild(title)
-
-    // Create the project bar
-    const bar = HomeView.renderProjectBar(projects, currentProjectName, currentCategoryName)
-    container.appendChild(bar)
+  private static async render(container: HTMLElement, currentProjectName: string, currentCategoryName: string) {
 
     // Create the project gallery
     const images = ImageService.getImagesByProjectAndCategory(currentProjectName, currentCategoryName)
 
-    const gallery = ImageGallery.render(images)
-    connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async data => {
-      HomeView.visualizerProcessor.load(data.images)
-      HomeView.visualizerProcessor.set(data.selected)
-      Visualizer.render(HomeView.visualizerProcessor)
-      Visualizer.show()
-    })
-    container.appendChild(gallery)
+    let gallery = document.querySelector(`.${ImageGallery.CLASS}`)
+    if (null == gallery) {
 
-    // appear animation
-    container.style.opacity = "1";
-    await new Promise(resolve => setTimeout(resolve, 260))
+      gallery = ImageGallery.render(images)
+      connectToSignal(ImageGallery.IMAGE_SELECTED_SIGNAL, async data => {
+        HomeView.visualizerProcessor.load(data.images)
+        HomeView.visualizerProcessor.set(data.selected)
+        Visualizer.render(HomeView.visualizerProcessor)
+        Visualizer.show()
+      })
+      container.appendChild(gallery)
+    } else {
+      this.selectProject(container, currentProjectName)
+      ImageGallery.update(gallery as HTMLElement, images)
+    }
   }
 
   /**
@@ -173,4 +176,21 @@ export default class HomeView {
 
     return bar
   }
+
+  private static selectProject(container: HTMLElement, currentProject: string) {
+
+    const buttons = container.querySelectorAll(`#project-bar button`)
+    console.log(buttons);
+
+    for (const button of buttons) {
+      const htmlButton = button as HTMLButtonElement
+      if (htmlButton.textContent == currentProject) {
+        htmlButton.classList.add("selected")
+      } else {
+        htmlButton.classList.remove("selected")
+      }
+    }
+
+  }
+
 }
